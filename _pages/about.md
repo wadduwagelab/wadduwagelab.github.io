@@ -6,7 +6,7 @@ subtitle: <a href='mailto:wadduwage@fas.harvard.edu' target="_blank">wadduwage@f
 
 profile:
   align: right
-  image: logo.png
+  # image: logo.png
   image_circular: false # crops the image to make it circular
   address: >
 #    <p>555 your office number</p>
