@@ -3,7 +3,7 @@ layout: member
 name: Kithmini Herath
 img: /assets/img/members/kithmini.png
 affiliation: Post Baccalaureate Fellow
-minibio: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus efficitur fermentum lorem at aliquet. Ut.
+minibio: 
 mail: kithminiherath@fas.harvard.edu
 website: 
 twitter: https://mobile.twitter.com/kimiherath

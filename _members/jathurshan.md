@@ -3,7 +3,7 @@ layout: member
 name: Jathurshan Pradeepkumar
 img: /assets/img/members/jathurshan.png
 affiliation: Post Baccalaureate Fellow
-minibio: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus efficitur fermentum lorem at aliquet. Ut.
+minibio: 
 mail: jathurshanpradeepkumar@fas.harvard.edu
 website: https://jathurshan0330.github.io/
 twitter: https://twitter.com/JathuPradeep

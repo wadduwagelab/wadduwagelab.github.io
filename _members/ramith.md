@@ -3,7 +3,7 @@ layout: member
 name: Ramith Hettiarachchi
 img: /assets/img/members/ramith.png
 affiliation: Post Baccalaureate Fellow
-minibio: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus efficitur fermentum lorem at aliquet. Ut.
+minibio: 
 mail: ramithhettiarachchi@fas.harvard.edu
 website: https://ramith.fyi
 twitter: https://mobile.twitter.com/ramithuh

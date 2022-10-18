@@ -3,7 +3,7 @@ layout: page
 title: members
 permalink: /members/
 description: Lab Members
-nav: true
+nav: false
 nav_order: 2
 horizontal: false
 display_categories: [PostBac Fellows, PI]
@@ -29,7 +29,7 @@ display_categories: [PostBac Fellows, PI]
         <div class="card-body">
           <h2 class="card-title">{{ member.name }}</h2>
           <p class="card-title">{{ member.affiliation }}</p>
-          <p class="card-text">{{ member.minibio }}</p>
+          <!-- <p class="card-text">{{ member.minibio }}</p> -->
           <br/>
           <div class="row ml-1 mr-1 p-0">
             {% if member.mail %}
