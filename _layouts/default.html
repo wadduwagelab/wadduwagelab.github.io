@@ -4,7 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{{ site.description }}">
+    <meta name="keywords" content="Wadduwage Lab, Dushan Wadduwage, differentiable microscopy, computational imaging, Old Dominion University, ODU, biophotonics">
     <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+    {% if site.url %}
+    <link rel="canonical" href="{{ site.url }}{{ site.baseurl }}{{ page.url | replace: 'index.html', '' }}">
+    <meta property="og:title" content="{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}">
+    <meta property="og:description" content="{{ site.description }}">
+    <meta property="og:url" content="{{ site.url }}{{ site.baseurl }}{{ page.url | replace: 'index.html', '' }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Wadduwage Lab">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}">
+    <meta name="twitter:description" content="{{ site.description }}">
+    {% endif %}
     
     <!-- Using a Serif for headings (Merriweather) and Sans for UI (Inter) to match the literary aesthetic -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,6 +27,23 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
+    {% if site.url %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ResearchLab",
+      "name": "Wadduwage Lab",
+      "url": "{{ site.url }}{{ site.baseurl }}",
+      "description": "{{ site.description | escape }}",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "Old Dominion University",
+        "url": "https://www.odu.edu"
+      },
+      "department": ["School of Data Science", "Department of Computer Science", "Department of Physics"]
+    }
+    </script>
+    {% endif %}
 </head>
 <body>
     <!-- Header Navigation -->

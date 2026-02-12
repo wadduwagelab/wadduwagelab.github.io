@@ -1,8 +1,8 @@
 # Site Settings
 title: "Wadduwage Lab"
-description: "Pioneering Differentiable Microscopy and Computational Imaging at Old Dominion University"
-url: "" # Your domain
-baseurl: "" # Subpath of your site
+description: "Wadduwage Lab – Differentiable microscopy and computational imaging at Old Dominion University. Research in biophotonics, AI, and next-generation imaging."
+url: "https://wadduwagelab.com" # Set to your live domain (e.g. https://wadduwagelab.github.io for GitHub Pages)
+baseurl: "" # Subpath of your site (e.g. /newwadduwagelab if project site on GitHub Pages)
 
 # Build Settings
 markdown: kramdown
