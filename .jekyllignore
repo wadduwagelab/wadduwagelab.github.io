@@ -1,0 +1,4 @@
+vendor
+.bundle
+node_modules
+Gemfile.lock

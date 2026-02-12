@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ site.description }}">
+    <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+    
+    <!-- Using a Serif for headings (Merriweather) and Sans for UI (Inter) to match the literary aesthetic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header>
+        <nav>
+            <a href="{{ '/' | relative_url }}" class="logo">
+                Wadduwage<span>Lab</span>
+            </a>
+            <ul class="nav-links">
+                {% for item in site.navigation %}
+                <li><a href="{{ item.url | relative_url }}">{{ item.title }}</a></li>
+                {% endfor %}
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        {{ content }}
+    </main>
+
+    <!-- Contact / Footer -->
+    <footer id="contact">
+        <div class="footer-content">
+            <div>
+                <h3 style="margin-bottom: 0.25rem; font-family: var(--font-heading); font-size: 1.1rem;">Wadduwage Lab</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">School of Data Science, Department of Computer Science, Department of Physics</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Old Dominion University, Norfolk, VA, USA</p>
+            </div>
+            
+            <div class="footer-links">
+                <a href="mailto:dwadduwa@odu.edu" aria-label="Email"><i data-lucide="mail"></i></a>
+                <a href="https://x.com/nawodya?lang=en" aria-label="Twitter" target="_blank" rel="noopener noreferrer"><i data-lucide="twitter"></i></a>
+                <a href="https://github.com/wadduwagelab" aria-label="GitHub" target="_blank" rel="noopener noreferrer"><i data-lucide="github"></i></a>
+                <a href="https://www.linkedin.com/in/dushan-wadduwage-b496b82a/" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer"><i data-lucide="linkedin"></i></a>
+            </div>
+            
+            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 0.75rem; width: 100%;">
+                <p style="font-size: 0.75rem; color: var(--text-muted);">&copy; {{ 'now' | date: "%Y" }} Wadduwage Lab. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Script to render icons -->
+    <script>
+        lucide.createIcons();
+    </script>
+    
+    <!-- Optical System Animation -->
+    <script>
+        (function() {
+            function initAnimation() {
+                const canvas = document.getElementById('optics-canvas');
+                if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            let width, height;
+            let time = 0;
+            
+            function resize() {
+                // Get display size (css pixels)
+                const container = canvas.parentElement;
+                width = container.offsetWidth;
+                height = container.offsetHeight;
+                
+                // Set actual size in memory (scaled to account for high DPI screens if needed)
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = width * dpr;
+                canvas.height = height * dpr;
+                
+                // Normalize coordinate system to use css pixels
+                ctx.scale(dpr, dpr);
+            }
+            
+            window.addEventListener('resize', resize);
+            resize();
+            
+            // Drawing Helper Functions
+            function drawSample(x, y) {
+                // Glass slide
+                ctx.beginPath();
+                ctx.fillStyle = 'rgba(96, 159, 181, 0.2)'; // Teal glass
+                ctx.fillRect(x - 4, y - 25, 8, 50);
+                ctx.strokeStyle = '#252525';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(x - 4, y - 25, 8, 50);
+
+                // Biological cell/specimen (organic shape)
+                ctx.beginPath();
+                ctx.fillStyle = '#d97757'; // Terracotta accent for the sample
+                // Create a slightly irregular blob for the cell
+                ctx.ellipse(x, y, 5, 8, Math.PI / 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // A small nucleus
+                ctx.beginPath();
+                ctx.fillStyle = '#252525';
+                ctx.arc(x + 1, y - 1, 1.5, 0, Math.PI*2);
+                ctx.fill();
+            }
+
+            function drawPhaseMask(x, y, h) {
+                ctx.beginPath();
+                ctx.fillStyle = 'rgba(96, 159, 181, 0.1)'; // Subtle teal glass fill
+                ctx.rect(x - 5, y - h/2, 10, h);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.strokeStyle = '#252525';
+                ctx.lineWidth = 2.5; // Increased thickness
+                ctx.rect(x - 5, y - h/2, 10, h);
+                ctx.stroke();
+                
+                // Pattern inside
+                ctx.beginPath();
+                ctx.lineWidth = 2; // Increased thickness
+                for(let i=0; i<h; i+=5) {
+                    if (Math.random() > 0.5) {
+                       ctx.moveTo(x-3, y-h/2+i);
+                       ctx.lineTo(x+3, y-h/2+i); 
+                    }
+                }
+                ctx.stroke();
+            }
+            
+            function drawLens(x, y, h) {
+                ctx.beginPath();
+                ctx.fillStyle = 'rgba(96, 159, 181, 0.15)'; // Subtle teal glass fill
+                ctx.ellipse(x, y, 5, h/2, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.strokeStyle = '#252525';
+                ctx.lineWidth = 2.5; // Increased thickness
+                ctx.ellipse(x, y, 5, h/2, 0, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            function drawDetector(x, y, h) {
+                // Pixelated Detector Array
+                const pixelCount = 8;
+                const pixelHeight = h / pixelCount;
+                const pixelWidth = 6;
+                
+                ctx.fillStyle = '#e6e4dd';
+                ctx.strokeStyle = '#252525';
+                ctx.lineWidth = 2; // Increased thickness
+                
+                for(let i=0; i<pixelCount; i++) {
+                    const py = (y - h/2) + i*pixelHeight;
+                    // Draw individual pixel rect
+                    ctx.fillRect(x - pixelWidth/2, py, pixelWidth, pixelHeight - 1); // -1 for gap
+                    ctx.strokeRect(x - pixelWidth/2, py, pixelWidth, pixelHeight - 1);
+                    
+                    // Animate "active" pixels randomly
+                    if (Math.random() > 0.7) {
+                         ctx.fillStyle = '#d97757';
+                         ctx.fillRect(x - pixelWidth/2 + 1, py + 1, pixelWidth - 2, pixelHeight - 3);
+                         ctx.fillStyle = '#e6e4dd'; // Reset
+                    }
+                }
+            }
+            
+            function drawNeuralNet(x, y) {
+                // Nodes - MLP Style
+                const layers = [3, 4, 3, 2]; // Number of nodes per layer
+                const layerGap = 35; // Increased spacing
+                const nodeGap = 20; // Increased spacing
+                
+                const totalWidth = (layers.length - 1) * layerGap;
+                let startX = x - totalWidth / 2; // Centered alignment
+                
+                // Draw Connections (bolder) - Left to Right
+                ctx.strokeStyle = 'rgba(37, 37, 37, 0.4)'; // Increased opacity
+                ctx.lineWidth = 1.5; // Increased thickness
+                
+                for(let l=0; l<layers.length-1; l++) {
+                    const l1Nodes = layers[l];
+                    const l2Nodes = layers[l+1];
+                    const l1YStart = y - ((l1Nodes-1)*nodeGap)/2;
+                    const l2YStart = y - ((l2Nodes-1)*nodeGap)/2;
+                    
+                    for(let i=0; i<l1Nodes; i++) {
+                        for(let j=0; j<l2Nodes; j++) {
+                            ctx.beginPath();
+                            ctx.moveTo(startX + l*layerGap, l1YStart + i*nodeGap);
+                            ctx.lineTo(startX + (l+1)*layerGap, l2YStart + j*nodeGap);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                
+                // Draw Nodes & Activations
+                for(let l=0; l<layers.length; l++) {
+                    const nodes = layers[l];
+                    const lYStart = y - ((nodes-1)*nodeGap)/2;
+                    
+                    for(let i=0; i<nodes; i++) {
+                        const nx = startX + l*layerGap;
+                        const ny = lYStart + i*nodeGap;
+                        
+                        ctx.beginPath();
+                        ctx.fillStyle = '#fff';
+                        ctx.strokeStyle = '#252525';
+                        ctx.lineWidth = 2; // Increased thickness
+                        ctx.arc(nx, ny, 4.5, 0, Math.PI*2); // Larger node size
+                        ctx.fill();
+                        ctx.stroke();
+                        
+                        // Animate activation - Forward propagation (Input -> Output)
+                        const activationTime = (time - l*10) % 60; 
+                        if (activationTime > 0 && activationTime < 10) {
+                            ctx.beginPath();
+                            ctx.fillStyle = '#d97757';
+                            ctx.arc(nx, ny, 3.5, 0, Math.PI*2);
+                            ctx.fill();
+                        }
+                    }
+                }
+            }
+
+            function drawReconstruction(x, y) {
+                // Placeholder Image Frame
+                ctx.strokeStyle = '#252525';
+                ctx.lineWidth = 2.5; // Increased thickness
+                const size = 70; // Increased size
+                const startX = x - size/2; // Centered alignment
+                const startY = y - size/2;
+                ctx.strokeRect(startX, startY, size, size);
+                
+                // Reconstruction cycle: simulates AI learning/convergence over time
+                const cycleLength = 250; // frames per cycle
+                const progress = (time % cycleLength) / cycleLength; 
+                
+                // Step up resolution to mimic epochs of learning
+                let gridSize = 35; // max resolution
+                if (progress < 0.15) gridSize = 5;
+                else if (progress < 0.30) gridSize = 10;
+                else if (progress < 0.45) gridSize = 18;
+                
+                const pixelSize = size / gridSize;
+                
+                // Noise factor decreases as progress goes from 0 to 0.7
+                const noiseLevel = Math.max(0, 1 - (progress / 0.7));
+
+                for(let i=0; i<gridSize; i++) {
+                    for(let j=0; j<gridSize; j++) {
+                        // Normalized coordinates (-0.5 to 0.5) to center the jellyfish
+                        const nx = (i / gridSize) - 0.5;
+                        const ny = (j / gridSize) - 0.5;
+                        
+                        const dist = Math.sqrt(nx*nx + ny*ny);
+                        const angle = Math.atan2(ny, nx);
+                        
+                        let r = 0, g = 0, b = 0, a = 0;
+                        
+                        // --- Jellyfish Structure Generation ---
+
+                        // 1. Central Body (Bright Green Soma)
+                        const somaRadius = 0.12 + 0.02 * Math.sin(angle * 7 + time * 0.05);
+                        if (dist < somaRadius) {
+                            // Bright green with some internal structure
+                            const internalNoise = Math.sin(nx*50 + ny*50) * 0.5 + 0.5;
+                            r = 50 + internalNoise * 50;
+                            g = 255;
+                            b = 50 + internalNoise * 50;
+                            a = 1.0;
+                        }
+                        
+                        // 2. Radiating Processes (Green Dendrites/Axons)
+                        const processCount = 24;
+                        // Create a web-like pattern using sin/cos waves radiating from center
+                        const web = Math.sin(angle * processCount + dist * 15 + Math.sin(dist*20 + time*0.05)*2) + 
+                                    Math.cos(angle * processCount/2 + dist * 25);
+                        
+                        // Add small "varicosities" (bright dots) along the processes
+                        const varicosity = Math.sin(nx*80 + ny*80 + time*0.1) > 0.95 ? 1 : 0;
+
+                        if (dist > somaRadius && dist < 0.38) {
+                            if (web > 0.85) { // Thin radiating lines
+                                r = 0; g = 200 + varicosity * 55; b = 50; a = 0.8;
+                            } else if (varicosity) { // Isolated bright dots
+                                r = 100; g = 255; b = 100; a = 0.9;
+                            }
+                        }
+
+                        // 3. Outer Ring (Glowing Blue-Green Bell Margin)
+                        const ringRadius = 0.38;
+                        const ringThickness = 0.03 + 0.01 * Math.sin(angle * 12 - time * 0.03);
+                        if (Math.abs(dist - ringRadius) < ringThickness) {
+                            // Glowing cyan/blue-green
+                            r = 0; g = 200; b = 255; a = 0.9;
+                        }
+
+                        // 4. Tentacle Protrusions (Bright Blue-Green lobes)
+                        const tentacleCount = 7;
+                        // Create protrusions at regular angular intervals
+                        const tentacleAngle = (angle + Math.PI) % (Math.PI * 2 / tentacleCount);
+                        const isAtTentacle = Math.abs(tentacleAngle - Math.PI / tentacleCount) < 0.15;
+                        
+                        if (dist > ringRadius && dist < 0.48 && isAtTentacle) {
+                            // Wavy flame-like shape
+                            const wavyShape = Math.sin(dist * 40 - time * 0.1) * 0.05;
+                             if (Math.abs(tentacleAngle - Math.PI / tentacleCount + wavyShape) < 0.1 - (dist-ringRadius)*0.5) {
+                                // Bright glowing cyan/green at tips
+                                const tipGlow = (dist - ringRadius) / 0.1;
+                                r = 0; g = 255 - tipGlow*50; b = 255; a = 1.0;
+                            }
+                        }
+
+                        // --- Noise and Background Integration ---
+
+                        // If pixel is part of the jellyfish structure
+                        if (a > 0) {
+                            // Blend true structural signal with noise during reconstruction
+                            if (noiseLevel > 0) {
+                                const noiseR = Math.random() * 255;
+                                const noiseG = Math.random() * 255;
+                                const noiseB = Math.random() * 255;
+                                r = r * (1 - noiseLevel) + noiseR * noiseLevel;
+                                g = g * (1 - noiseLevel) + noiseG * noiseLevel;
+                                b = b * (1 - noiseLevel) + noiseB * noiseLevel;
+                            }
+                            ctx.fillStyle = `rgba(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)}, ${a})`;
+                            ctx.fillRect(startX + i*pixelSize, startY + j*pixelSize, pixelSize, pixelSize);
+                        } else if (noiseLevel > 0.1) {
+                            // Draw background noise only when reconstruction is poor
+                            const noiseVal = Math.floor(Math.random() * 50 * noiseLevel);
+                             ctx.fillStyle = `rgba(${noiseVal}, ${noiseVal}, ${noiseVal}, 0.2)`;
+                             ctx.fillRect(startX + i*pixelSize, startY + j*pixelSize, pixelSize, pixelSize);
+                        }
+                    }
+                }
+            }
+
+            function drawMLPProcessing(x, y) {
+                // Secondary MLP for Image Processing Step
+                // Slightly smaller/simpler than the reconstruction network
+                const layers = [3, 2, 2]; // Input, Hidden, Output
+                const layerGap = 25; // Increased spacing
+                const nodeGap = 16; 
+                
+                // Centering logic based on width of network
+                // Total width = (num_layers - 1) * layerGap
+                const totalWidth = (layers.length - 1) * layerGap;
+                let startX = x - totalWidth / 2; // Center horizontally on x
+                
+                // Draw Connections (bolder) - Left to Right
+                ctx.strokeStyle = 'rgba(37, 37, 37, 0.4)'; // Increased opacity
+                ctx.lineWidth = 1.5; // Increased thickness
+                
+                for(let l=0; l<layers.length-1; l++) {
+                    const l1Nodes = layers[l];
+                    const l2Nodes = layers[l+1];
+                    const l1YStart = y - ((l1Nodes-1)*nodeGap)/2;
+                    const l2YStart = y - ((l2Nodes-1)*nodeGap)/2;
+                    
+                    for(let i=0; i<l1Nodes; i++) {
+                        for(let j=0; j<l2Nodes; j++) {
+                            ctx.beginPath();
+                            ctx.moveTo(startX + l*layerGap, l1YStart + i*nodeGap);
+                            ctx.lineTo(startX + (l+1)*layerGap, l2YStart + j*nodeGap);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                
+                // Draw Nodes & Activations
+                for(let l=0; l<layers.length; l++) {
+                    const nodes = layers[l];
+                    const lYStart = y - ((nodes-1)*nodeGap)/2;
+                    
+                    for(let i=0; i<nodes; i++) {
+                        const nx = startX + l*layerGap;
+                        const ny = lYStart + i*nodeGap;
+                        
+                        ctx.beginPath();
+                        ctx.fillStyle = '#fff';
+                        ctx.strokeStyle = '#252525';
+                        ctx.lineWidth = 2; // Increased thickness
+                        ctx.arc(nx, ny, 4.5, 0, Math.PI*2); // Larger node size
+                        ctx.fill();
+                        ctx.stroke();
+                        
+                        // Animate activation (offset time for sequential flow after reconstruction)
+                        // Reconstruction roughly ends the first phase, so we add a delay
+                        const flowDelay = 30; // Wait for previous steps
+                        const activationTime = (time - flowDelay - l*8) % 60; 
+                        
+                        if (activationTime > 0 && activationTime < 8) {
+                            ctx.beginPath();
+                            ctx.fillStyle = '#d97757';
+                            ctx.arc(nx, ny, 3.5, 0, Math.PI*2);
+                            ctx.fill();
+                        }
+                    }
+                }
+            }
+
+            function drawScatterPlot(x, y) {
+                const size = 55; // Increased size
+                const startX = x - size/2;
+                const startY = y + size/2;
+                
+                // Axes
+                ctx.beginPath();
+                ctx.strokeStyle = '#252525';
+                ctx.lineWidth = 2.5; // Increased thickness
+                ctx.moveTo(startX, startY - size); // Y axis top
+                ctx.lineTo(startX, startY);       // Origin
+                ctx.lineTo(startX + size, startY); // X axis right
+                ctx.stroke();
+                
+                // Data Points
+                // Animate appearance
+                const points = 8;
+                for(let i=0; i<points; i++) {
+                    const px = startX + 5 + (i * 4) + Math.sin(i*2 + time*0.05) * 2; 
+                    const py = startY - 5 - (i * 3) + Math.cos(i*3 + time*0.05) * 5;
+                    
+                    // Only draw points if "data" has reached here (simple time check)
+                    // or just always animate for loop
+                    ctx.beginPath();
+                    // Alternate colors to represent a classification task (Teal vs Terracotta)
+                    ctx.fillStyle = (i % 2 === 0) ? '#d97757' : '#609fb5'; 
+                    ctx.arc(px, py, 1.5, 0, Math.PI*2);
+                    ctx.fill();
+                }
+            }
+
+            function drawLabelWithArrow(x, y, label) {
+                ctx.fillStyle = '#6b6b6b';
+                ctx.font = '13px Inter'; // Slightly larger
+                ctx.textAlign = 'center';
+                
+                // Text
+                ctx.fillText(label, x, y - 18);
+                
+                // Arrow
+                ctx.beginPath();
+                ctx.strokeStyle = '#d97757'; // Colored arrow
+                ctx.lineWidth = 2; // Increased thickness
+                ctx.moveTo(x, y - 12);
+                ctx.lineTo(x, y - 2); // Pointing down to component
+                
+                // Arrowhead
+                ctx.moveTo(x - 5, y - 8);
+                ctx.lineTo(x, y - 2);
+                ctx.lineTo(x + 5, y - 8);
+                ctx.stroke();
+            }
+
+            function drawSpanningBracket(startX, endX, y, label) {
+                // Draw the bracket line
+                ctx.beginPath();
+                ctx.strokeStyle = '#a3a3a3'; // Subtle gray line
+                ctx.lineWidth = 2; // Increased thickness
+                
+                // Left tick pointing up towards the diagram
+                ctx.moveTo(startX, y - 12);
+                ctx.lineTo(startX, y);
+                
+                // Horizontal spanning line
+                ctx.lineTo(endX, y);
+                
+                // Right tick pointing up towards the diagram
+                ctx.lineTo(endX, y - 12);
+                ctx.stroke();
+                
+                // Draw the label
+                ctx.fillStyle = '#6b6b6b'; // Matched color to other text
+                ctx.font = '500 14px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(label, (startX + endX) / 2, y + 22);
+            }
+
+            // Main Animation Loop
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                
+                const centerY = height / 2; // Adjusted to center since title moved to bottom
+                
+                // Define Component Positions (responsive relative to center)
+                // Expanded to a 4f Optical System (Sample -> Objective -> Mask -> Tube Lens -> Detector)
+                const startX = width * 0.02;
+                const sampleX = width * 0.08;
+                const lens1X = width * 0.14; // Objective Lens
+                const maskX = width * 0.21;  // Fourier/Pupil Plane
+                const lens2X = width * 0.28; // Tube Lens
+                const detectorX = width * 0.36; // Camera
+                const nnX = width * 0.51; 
+                const reconX = width * 0.67;
+                const procX = width * 0.81; // MLP Position
+                const plotX = width * 0.94; 
+                
+                // 1. Light Propagation (Waves)
+                const waveSpeed = 0.5; // Slowed down from 2
+                const waveOffset = (time * waveSpeed) % 20;
+                
+                ctx.lineWidth = 1.5; // Slightly thinner for the more complex mesh
+                ctx.setLineDash([5, 5]); 
+                ctx.lineDashOffset = -waveOffset;
+
+                // --- Before Sample (Illumination) ---
+                ctx.beginPath();
+                ctx.strokeStyle = '#609fb5'; // Subtle teal for illumination rays
+
+                // A. Source to Sample (Illumination)
+                for(let i = -5; i <= 5; i+=5) { // Narrower illumination beam
+                    ctx.moveTo(startX, centerY + i);
+                    ctx.lineTo(sampleX - 5, centerY + i);
+                }
+                ctx.stroke();
+                
+                // --- After Sample (Scattered/Modulated) ---
+                ctx.beginPath();
+                ctx.strokeStyle = '#58a673'; // Muted green for rays after the sample
+                
+                // B. Sample to Objective Lens (Scattering/Diverging)
+                for(let i = -5; i <= 5; i+=5) { 
+                     for(let j = -15; j <= 15; j+=15) { 
+                        ctx.moveTo(sampleX + 5, centerY + i); 
+                        ctx.lineTo(lens1X, centerY + j);
+                     }
+                }
+
+                // C. Objective Lens to Phase Mask (Collimated in Fourier Space)
+                for(let j = -15; j <= 15; j+=15) {
+                    ctx.moveTo(lens1X, centerY + j);
+                    ctx.lineTo(maskX - 5, centerY + j);
+                }
+
+                // D. Phase Mask to Tube Lens (Modulated light)
+                for(let j = -15; j <= 15; j+=15) {
+                    // Slight scattering effect from mask
+                    ctx.moveTo(maskX + 5, centerY + j);
+                    ctx.lineTo(lens2X, centerY + j);
+                }
+                
+                // E. Tube Lens to Detector (Converging/Imaging rays)
+                for(let j = -15; j <= 15; j+=15) {
+                    ctx.moveTo(lens2X, centerY + j);
+                    ctx.lineTo(detectorX - 3, centerY + (j * -0.2)); // Converge to center
+                }
+                
+                ctx.stroke();
+                ctx.setLineDash([]); // Reset dash
+                
+                // 2. Draw Components
+                drawSample(sampleX, centerY);
+                drawLens(lens1X, centerY, 60); // Objective
+                drawPhaseMask(maskX, centerY, 55); // Programmable Mask
+                drawLens(lens2X, centerY, 70); // Tube Lens
+                drawDetector(detectorX, centerY, 45); // Sensor
+                
+                // Shared Y coordinate for perfectly aligned top labels
+                const labelY = centerY - 55;
+
+                // Label for Differentiable Optics pointing at the programmable mask
+                drawLabelWithArrow(maskX, labelY, "Differentiable Optics");
+
+                // 3. Arrow to NN
+                ctx.beginPath();
+                ctx.moveTo(detectorX + 10, centerY); // Detector edge offset
+                ctx.lineTo(nnX - 55, centerY); // NN edge offset
+                ctx.strokeStyle = '#d97757'; // Accent color connection
+                ctx.lineWidth = 2.5; // Bold arrows
+                ctx.stroke();
+                
+                // 4. Neural Network (MLP Style)
+                drawNeuralNet(nnX, centerY);
+                drawLabelWithArrow(nnX, labelY, "Image Reconstruction");
+                
+                // 5. Arrow to Recon
+                ctx.beginPath();
+                ctx.moveTo(nnX + 55, centerY);
+                ctx.lineTo(reconX - 40, centerY); // Recon edge offset
+                ctx.strokeStyle = '#d97757';
+                ctx.lineWidth = 2.5; // Bold arrows
+                ctx.stroke();
+                
+                // 6. Reconstruction
+                drawReconstruction(reconX, centerY);
+                
+                // 7. Arrow to MLP Processing
+                ctx.beginPath();
+                ctx.moveTo(reconX + 40, centerY); // From end of Recon Box
+                ctx.lineTo(procX - 30, centerY); // To start of MLP
+                ctx.strokeStyle = '#d97757';
+                ctx.lineWidth = 2.5; // Bold arrows
+                ctx.stroke();
+                
+                // 8. MLP Processing Step (Replaced CNN)
+                drawMLPProcessing(procX, centerY);
+                drawLabelWithArrow(procX, labelY, "Trustworthy AI");
+                
+                // 9. Arrow to Scatter Plot
+                ctx.beginPath();
+                ctx.moveTo(procX + 30, centerY); // From end of MLP
+                ctx.lineTo(plotX - 35, centerY); // Plot edge offset
+                ctx.strokeStyle = '#d97757';
+                ctx.lineWidth = 2.5; // Bold arrows
+                ctx.stroke();
+                
+                // 10. Scatter Plot Output
+                drawScatterPlot(plotX, centerY);
+
+                // 11. Bracket for the Optical System specifically
+                // Spans from the sample to the detector
+                drawSpanningBracket(sampleX - 15, detectorX + 15, centerY + 55, "Differentiable Optical Systems");
+
+                // 12. Spanning bracket to show the entire process is Differentiable Microscopy
+                // Spans from the biological sample to the final plot (moved down to accommodate the new bracket)
+                drawSpanningBracket(sampleX - 15, plotX + 35, centerY + 105, "Differentiable Microscopy");
+
+                time++;
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+            }
+            
+            // Run when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initAnimation);
+            } else {
+                initAnimation();
+            }
+        })();
+    </script>
+</body>
+</html>

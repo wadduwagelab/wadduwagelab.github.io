@@ -1,0 +1,61 @@
+current:
+  - name: "Dr. Dushan N. Wadduwage"
+    role: "Principal Investigator"
+    bio: "Assistant Professor in Data Science, Computer Science, and Physics. Former John Harvard Distinguished Science Fellow."
+    image: "/assets/images/dushan-wadduwage.png"
+  
+  - name: "Dineth Jayakody"
+    role: "Ph.D. Student"
+    bio: "Researching on Computational Imaging, Computer Vision, and AI for Health."
+    image: "/assets/images/dineth-jayakody.png"
+  
+  - name: "Leonidas Zimianitis"
+    role: "Ph.D. Student"
+    bio: "Researching on Differentiable Optics and Target-Agnostic Tracking."
+    image: "/assets/images/leonidas-zimianitis.png"
+  
+  # - name: "Kai"
+  #   role: ""
+  #   bio: ""
+  #   image: ""
+
+alumni:
+  - name: "Mithunjha Anandakumar"
+    role: "Ph.D. Candidate, UIUC"
+    past: "Former Postbac Fellow"
+  
+  - name: "Ramith Hettiarachchi"
+    role: "Ph.D. Student, CMU-Pitt"
+    past: "Former Postbac Fellow"
+  
+  - name: "Jathurshan Pradeepkumar"
+    role: "Ph.D. Student, UIUC"
+    past: "Former Postbac Fellow"
+  
+  - name: "Zhun Wei"
+    role: "Assistant Professor, Zhejiang Univ."
+    past: "Former Postdoc"
+  
+  - name: "Navodini Wijethilake"
+    role: "Ph.D. Student, King's College"
+    past: "Former PG Researcher"
+  
+  - name: "Kithmini Herath"
+    role: "Ph.D. Student, UC Berkeley"
+    past: "Former Postbac Fellow"
+  
+  - name: "Udith Haputhanthri"
+    role: "Ph.D. Student, Princeton"
+    past: "Former Research Asst."
+  
+  - name: "Hasindu Piyumantha"
+    role: "Ph.D. Student, Cornell"
+    past: "Former Postbac Fellow"
+  
+  - name: "Ishan Baliyan"
+    role: "Undergraduate, Waterloo"
+    past: "Former HS Intern"
+  
+  - name: "Liana Owen"
+    role: ""
+    past: "Former Undergrad Researcher"

@@ -1,0 +1,106 @@
+---
+layout: default
+title: Home
+---
+
+<!-- Hero Section -->
+<section class="hero">
+    <!-- Animation Canvas -->
+    <div class="animation-container">
+        <canvas id="optics-canvas"></canvas>
+    </div>
+
+    <div class="hero-content">
+        <h1>Next-generation imaging for biology.</h1>
+        <p>We work at the intersection of biophotonics, computational imaging, and deep learning to design the microscopes of the future.</p>
+        <a href="#contact" class="btn">Join Our Research</a>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section id="team">
+    <div class="section-title">
+        <h2>Meet the Team</h2>
+        <p>The minds behind the research.</p>
+    </div>
+    
+    <!-- Current Members -->
+    <h3 style="text-align: center; margin-bottom: 1.5rem; font-family: var(--font-body); font-size: 1.1rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Current Members</h3>
+    <div class="team-grid">
+        {% for member in site.data.team.current %}
+        <div class="member">
+            {% if member.image %}
+            <img src="{{ member.image | relative_url }}" alt="{{ member.name }}">
+            {% else %}
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='%23a19d96' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E" alt="{{ member.name }}">
+            {% endif %}
+            <h4>{{ member.name }}</h4>
+            <span>{{ member.role }}</span>
+            <p>{{ member.bio }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Alumni -->
+    <h3 style="text-align: center; margin-bottom: 1.5rem; font-family: var(--font-body); font-size: 1.1rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid var(--border); padding-top: 2rem;">Alumni</h3>
+    <div class="alumni-grid">
+        <ul class="alumni-list">
+            {% for alum in site.data.team.alumni %}
+            <li class="alumni-item">
+                <span class="alumni-name">{{ alum.name }},</span> 
+                <span class="alumni-role">{{ alum.role }}</span> 
+                <span class="alumni-past">({{ alum.past }})</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+
+<!-- Publications Section -->
+<section id="publications" class="bg-subtle">
+    <div class="section-title">
+        <h2>Publications</h2>
+    </div>
+    <div style="max-width: 900px; margin: 0 auto;">
+        <ul class="pub-list" style="list-style: none; padding: 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.4;">
+            {% assign grouped_pubs = site.data.publications | group_by: "year" | sort: "name" | reverse %}
+            {% for year_group in grouped_pubs %}
+            <li style="margin-top: 1.5rem; margin-bottom: 0.5rem;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.2rem; color: var(--primary); border-bottom: 2px solid var(--accent); padding-bottom: 0.25rem; display: inline-block;">{{ year_group.name }}</h3>
+            </li>
+            {% for pub in year_group.items %}
+            <li style="margin-bottom: 0.75rem;">
+                {{ pub.authors }} ({{ pub.year }}). 
+                <span style="color: var(--text-muted);">{{ pub.title }} <i>{{ pub.journal }}</i>{% if pub.volume %}, {{ pub.volume }}{% if pub.pages %} ({{ pub.pages }}){% endif %}{% endif %}.</span>
+            </li>
+            {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+
+<!-- Patents Section -->
+<section id="patents">
+    <div class="section-title">
+        <h2>Patents</h2>
+    </div>
+    <div class="patents-list-wrap">
+        <ul class="patents-list">
+            {% for patent in site.data.patents %}
+            <li class="patent-item">{{ patent.text }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+
+<!-- Funding Section -->
+<section id="funding" class="funding-section bg-subtle">
+    <div class="section-title">
+        <h2>Funding</h2>
+    </div>
+    <ul class="funding-list">
+        {% for item in site.data.funding %}
+        <li class="funding-item"><span class="funding-years">{{ item.years }}</span> — {{ item.name }}</li>
+        {% endfor %}
+    </ul>
+</section>

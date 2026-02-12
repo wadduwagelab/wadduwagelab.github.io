@@ -1,0 +1,39 @@
+# Site Settings
+title: "Wadduwage Lab"
+description: "Pioneering Differentiable Microscopy and Computational Imaging at Old Dominion University"
+url: "" # Your domain
+baseurl: "" # Subpath of your site
+
+# Build Settings
+markdown: kramdown
+theme: null
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
+# Navigation (anchor links scroll to sections on front page)
+navigation:
+  - title: Team
+    url: /#team
+  - title: Publications
+    url: /#publications
+  - title: Patents
+    url: /#patents
+  - title: Funding
+    url: /#funding
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .git
+  - .gitignore
+  - .bundle
+
+# Exclude from watching (Jekyll will still build but won't watch these)
+watch_exclude:
+  - vendor
+  - .bundle
+  - node_modules

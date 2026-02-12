@@ -1,0 +1,139 @@
+- year: 2026
+  authors: "Sharma, S., Zimianitis, L., Samanta, K., Ahluwalia, B. S., Joseph, J., & Wadduwage, D. N."
+  title: "Untrained Position-Encoded Multilayer Perceptron Network for Structured Illumination Microscopy Reconstruction."
+  journal: "Chemical & Biomedical Imaging"
+
+- year: 2026
+  authors: "Kariyawasam, H., Hettiarachchi, R., Yang, Q., Matlock, A., Nambara, T., Kusaka, H., Kunai, Y., So, P.T., Boyden, E.S. & Wadduwage, D.N."
+  title: "QuATON: Quantization aware training of optical neurons."
+  journal: "Optics Express"
+  volume: "34(1)"
+  pages: "1-14"
+
+- year: 2025
+  authors: "Sivaroopan N., Galappaththige C. J., Ekanayake C., Watawana H., Rodrigo R., Edussooriya C. U.S. & Wadduwage, D. N.*"
+  title: "Uncertainty Awareness Enables Efficient Labeling for Cancer Subtyping in Digital Pathology."
+  journal: "IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)"
+
+- year: 2024
+  authors: "Xue, Y., Boivin, J. R., Wadduwage, D. N., Park, J. K., Nedivi, E., & So, P. T."
+  title: "Multiline orthogonal scanning temporal focusing (mosTF) microscopy for scattering reduction in in vivo brain imaging."
+  journal: "Scientific Reports"
+  volume: "14(1)"
+  pages: "10954"
+
+- year: 2024
+  authors: "Haputhanthri, U., Herath, K., Hettiarachchi, R., Kariyawasam, H., Ahmad, A., Ahluwalia, B. S., Acharya, G., Edussooriya, C. U., & Wadduwage, D. N.*"
+  title: "Towards ultrafast quantitative phase imaging via differentiable microscopy."
+  journal: "Biomedical Optics Express"
+  volume: "15(3)"
+  pages: "1798-1812"
+
+- year: 2023
+  authors: "Wijethilake, N., Anandakumar, M., Zheng, C., So, P. T., Yildirim, M., & Wadduwage, D. N.*"
+  title: "DEEP-squared: deep learning powered De-scattering with Excitation Patterning."
+  journal: "Light: Science & Applications"
+  volume: "12(1)"
+  pages: "228"
+
+- year: 2023
+  authors: "Das, S., Saxena, K., Tinguely, J.-C., Pal, A., Wickramasinghe, N. L., Khezri, A., Dubey, V., Ahmad, A., Perumal, V., & Ahmad, R."
+  title: "SERS nanowire chip and machine learning-enabled classification of wild-type and antibiotic-resistant bacteria at species and strain levels."
+  journal: "ACS Applied Materials & Interfaces"
+  volume: "15(20)"
+  pages: "24047-24058"
+
+- year: 2023
+  authors: "Arguello, H., Bacca, J., Kariyawasam, H., Vargas, E., Marquez, M., Hettiarachchi, R., Garcia, H., Herath, K., Haputhanthri, U., & Ahluwalia, B. S."
+  title: "Deep optical coding design in computational imaging: a data-driven framework."
+  journal: "IEEE Signal Processing Magazine"
+  volume: "40(2)"
+  pages: "75-88"
+
+- year: 2023
+  authors: "Ahmad, A., Hettiarachchi, R., Khezri, A., Singh Ahluwalia, B., Wadduwage, D. N., & Ahmad, R."
+  title: "Highly sensitive quantitative phase microscopy and deep learning aided with whole genome sequencing for rapid detection of infection and antimicrobial resistance."
+  journal: "Frontiers in Microbiology"
+  volume: "14"
+  pages: "1154620"
+
+- year: 2021
+  authors: "Zheng, C., Park, J. K., Yildirim, M., Boivin, J. R., Xue, Y., Sur, M., So, P. T., & Wadduwage, D. N.*"
+  title: "De-scattering with excitation patterning enables rapid wide-field imaging through scattering media."
+  journal: "Science Advances"
+  volume: "7(28)"
+  pages: "eaay5496"
+
+- year: 2021
+  authors: "Kay, J. E., Mirabal, S., Briley, W. E., Kimoto, T., Poutahidis, T., Ragan, T., So, P. T., Wadduwage, D. N., Erdman, S. E., & Engelward, B. P."
+  title: "Analysis of mutations in tumor and normal adjacent tissue via fluorescence detection."
+  journal: "Environmental and molecular mutagenesis"
+  volume: "62(2)"
+  pages: "108-123"
+
+- year: 2021
+  authors: "Kay, J. E., Corrigan, J. J., Armijo, A. L., Nazari, I. S., Kohale, I. N., Torous, D. K., Avlasevich, S. L., Croy, R. G., Wadduwage, D. N., & Carrasco, S. E."
+  title: "Excision of mutagenic replication-blocking lesions suppresses cancer but promotes cytotoxicity and lethality in nitrosamine-exposed mice."
+  journal: "Cell reports"
+  volume: "34(11)"
+
+- year: 2020
+  authors: "Agbleke, A. A., Amitai, A., Buenrostro, J. D., Chakrabarti, A., Chu, L., Hansen, A. S., Koenig, K. M., Labade, A. S., Liu, S., & Nozaki, T."
+  title: "Advances in chromatin and chromosome research: perspectives from multiple fields."
+  journal: "Molecular cell"
+  volume: "79(6)"
+  pages: "881-901"
+
+- year: 2019
+  authors: "Coucheron, D. A., Wadduwage, D. N., Murugan, G. S., So, P. T., & Ahluwalia, B. S."
+  title: "Chip-based resonance Raman spectroscopy using tantalum pentoxide waveguides."
+  journal: "IEEE Photonics Technology Letters"
+  volume: "31(14)"
+  pages: "1127-1130"
+
+- year: 2018
+  authors: "Xue, Y., Berry, K. P., Boivin, J. R., Wadduwage, D., Nedivi, E., & So, P. T."
+  title: "Scattering reduction by structured light illumination in line-scanning temporal focusing microscopy."
+  journal: "Biomedical Optics Express"
+  volume: "9(11)"
+  pages: "5654-5666"
+
+- year: 2018
+  authors: "Wadduwage, D. N.*, Kay, J., Singh, V. R., Kiraly, O., Sukup-Jackson, M. R., Rajapakse, J., Engelward, B. P., & So, P. T."
+  title: "Automated fluorescence intensity and gradient analysis enables detection of rare fluorescent mutant cells deep within the tissue of RaDR mice."
+  journal: "Scientific Reports"
+  volume: "8(1)"
+  pages: "12108"
+
+- year: 2017
+  authors: "Wadduwage, D. N., Singh, V. R., Choi, H., Yaqoob, Z., Heemskerk, H., Matsudaira, P., & So, P. T."
+  title: "Near-common-path interferometer for imaging Fourier-transform spectroscopy in wide-field microscopy."
+  journal: "Optica"
+  volume: "4(5)"
+  pages: "546-556"
+
+- year: 2015
+  authors: "Choi, H., Wadduwage, D. N., Tu, T. Y., Matsudaira, P., & So, P. T."
+  title: "Three‐dimensional image cytometer based on widefield structured light microscopy and high‐speed remote depth scanning."
+  journal: "Cytometry Part A"
+  volume: "87(1)"
+  pages: "49-60"
+
+- year: 2015
+  authors: "Wadduwage, D. N., Parrish, M., Choi, H., Engelward, B. P., Matsudaira, P., & So, P. T."
+  title: "Subnuclear foci quantification using high-throughput 3D image cytometry."
+  journal: "European Conference on Biomedical Optics"
+
+- year: 2014
+  authors: "Sukup-Jackson, M. R., Kiraly, O., Kay, J. E., Na, L., Rowland, E. A., Winther, K. E., Chow, D. N., Kimoto, T., Matsuguchi, T., & Jonnalagadda, V. S."
+  title: "Rosa26-GFP direct repeat (RaDR-GFP) mice reveal tissue-and age-dependence of homologous recombination in mammals in vivo."
+  journal: "PLoS genetics"
+  volume: "10(6)"
+  pages: "e1004299"
+
+- year: 2014
+  authors: "Choi, H., Wadduwage, D., Matsudaira, P. T., & So, P. T."
+  title: "Depth resolved hyperspectral imaging spectrometer based on structured light illumination and Fourier transform interferometry."
+  journal: "Biomedical Optics Express"
+  volume: "5(10)"
+  pages: "3494-3507"
