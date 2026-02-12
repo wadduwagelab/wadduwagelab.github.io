@@ -72,7 +72,12 @@
             const ctx = canvas.getContext('2d');
             
             let width, height;
+            let dpr = 1;
             let time = 0;
+            
+            // Design size: diagram is drawn in this coordinate system, then scaled to fit canvas
+            const DESIGN_WIDTH = 1000;
+            const DESIGN_HEIGHT = 420;
             
             function resize() {
                 // Get display size (css pixels)
@@ -81,7 +86,7 @@
                 height = container.offsetHeight;
                 
                 // Set actual size in memory (scaled to account for high DPI screens if needed)
-                const dpr = window.devicePixelRatio || 1;
+                dpr = window.devicePixelRatio || 1;
                 canvas.width = width * dpr;
                 canvas.height = height * dpr;
                 
@@ -495,20 +500,26 @@
             function animate() {
                 ctx.clearRect(0, 0, width, height);
                 
-                const centerY = height / 2; // Adjusted to center since title moved to bottom
+                // Scale and center: draw in design space (DESIGN_WIDTH x DESIGN_HEIGHT) then fit to canvas
+                const scale = Math.min(width / DESIGN_WIDTH, height / DESIGN_HEIGHT);
+                const offsetX = (width - DESIGN_WIDTH * scale) / 2;
+                const offsetY = (height - DESIGN_HEIGHT * scale) / 2;
+                ctx.save();
+                ctx.setTransform(dpr * scale, 0, 0, dpr * scale, offsetX * dpr, offsetY * dpr);
                 
-                // Define Component Positions (responsive relative to center)
-                // Expanded to a 4f Optical System (Sample -> Objective -> Mask -> Tube Lens -> Detector)
-                const startX = width * 0.02;
-                const sampleX = width * 0.08;
-                const lens1X = width * 0.14; // Objective Lens
-                const maskX = width * 0.21;  // Fourier/Pupil Plane
-                const lens2X = width * 0.28; // Tube Lens
-                const detectorX = width * 0.36; // Camera
-                const nnX = width * 0.51; 
-                const reconX = width * 0.67;
-                const procX = width * 0.81; // MLP Position
-                const plotX = width * 0.94; 
+                const centerY = DESIGN_HEIGHT / 2;
+                
+                // Define Component Positions in design space (0..DESIGN_WIDTH, 0..DESIGN_HEIGHT)
+                const startX = DESIGN_WIDTH * 0.02;
+                const sampleX = DESIGN_WIDTH * 0.08;
+                const lens1X = DESIGN_WIDTH * 0.14; // Objective Lens
+                const maskX = DESIGN_WIDTH * 0.21;  // Fourier/Pupil Plane
+                const lens2X = DESIGN_WIDTH * 0.28; // Tube Lens
+                const detectorX = DESIGN_WIDTH * 0.36; // Camera
+                const nnX = DESIGN_WIDTH * 0.51; 
+                const reconX = DESIGN_WIDTH * 0.67;
+                const procX = DESIGN_WIDTH * 0.81; // MLP Position
+                const plotX = DESIGN_WIDTH * 0.94; 
                 
                 // 1. Light Propagation (Waves)
                 const waveSpeed = 0.5; // Slowed down from 2
@@ -630,6 +641,7 @@
                 // Spans from the biological sample to the final plot (moved down to accommodate the new bracket)
                 drawSpanningBracket(sampleX - 15, plotX + 35, centerY + 105, "Differentiable Microscopy");
 
+                ctx.restore();
                 time++;
                 requestAnimationFrame(animate);
             }
