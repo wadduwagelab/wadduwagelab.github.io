@@ -515,3 +515,27 @@ footer {
 @media (max-width: 768px) {
     .nav-links { flex-wrap: wrap; justify-content: center; gap: 0.5rem 1rem; }
 }
+
+.proc-details {
+    margin-top: 2rem;
+    font-size: 0.85rem;
+}
+.proc-details summary {
+    cursor: pointer;
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    color: var(--primary);
+}
+.proc-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+.proc-list li { margin-bottom: 0.6rem; }
+.proc-year {
+    color: var(--accent);
+    font-weight: 600;
+    margin-right: 0.35rem;
+}

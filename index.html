@@ -104,7 +104,7 @@ title: ""
             <li style="margin-bottom: 0.75rem;">
                 {{ pub.authors }} ({{ pub.year }}).
                 <span style="color: var(--text-muted);">{{ pub.title }} <i>{{ pub.venue }}</i>.</span>
-                <a class="pub-link" href="{{ pub.url }}" target="_blank" rel="noopener">arXiv</a>{% if pub.code %} <a class="pub-link" href="{{ pub.code }}" target="_blank" rel="noopener">Code</a>{% endif %}
+                <a class="pub-link" href="{{ pub.url }}" target="_blank" rel="noopener">{{ pub.label | default: "arXiv" }}</a>{% if pub.code %} <a class="pub-link" href="{{ pub.code }}" target="_blank" rel="noopener">Code</a>{% endif %}
             </li>
             {% endfor %}
         </ul>
@@ -117,11 +117,19 @@ title: ""
             {% for pub in year_group.items %}
             <li style="margin-bottom: 0.75rem;">
                 {{ pub.authors }} ({{ pub.year }}). 
-                <span style="color: var(--text-muted);">{{ pub.title }} <i>{{ pub.journal }}</i>{% if pub.volume %}, {{ pub.volume }}{% if pub.pages %} ({{ pub.pages }}){% endif %}{% endif %}.</span>{% if pub.doi %} <a class="pub-link" href="https://doi.org/{{ pub.doi }}" target="_blank" rel="noopener">DOI</a>{% endif %}
+                <span style="color: var(--text-muted);">{{ pub.title }} <i>{{ pub.journal }}</i>{% if pub.volume %}, {{ pub.volume }}{% if pub.pages %} ({{ pub.pages }}){% endif %}{% endif %}.</span>{% if pub.doi %} <a class="pub-link" href="https://doi.org/{{ pub.doi }}" target="_blank" rel="noopener">DOI</a>{% elsif pub.url %} <a class="pub-link" href="{{ pub.url }}" target="_blank" rel="noopener">Link</a>{% endif %}
             </li>
             {% endfor %}
             {% endfor %}
         </ul>
+            <details class="proc-details">
+            <summary>Conference proceedings, abstracts &amp; presentations ({{ site.data.proceedings | size }})</summary>
+            <ul class="proc-list">
+                {% for c in site.data.proceedings %}
+                <li><span class="proc-year">{{ c.year }}</span> {{ c.text }}</li>
+                {% endfor %}
+            </ul>
+        </details>
     </div>
 </section>
 

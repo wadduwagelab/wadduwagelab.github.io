@@ -1,0 +1,53 @@
+# Conference proceedings, abstracts and presentations (from Google Scholar, Sep 2026).
+- year: 2026
+  text: "Sharma, S., Ahluwalia, B. S., Joseph, J., & Wadduwage, D. Dataset-free microscopy deconvolution via positional-encoded implicit neural networks. <i>Proc. SPIE</i> 14094, 140941P."
+- year: 2024
+  text: "Sivaroopan, N., Watawana, H., Jayanga, C., Ekanayake, C., Rodrigo, R., Edussooriya, C. U. S., & Wadduwage, D. N. Contrastive deep encoding enables uncertainty-aware machine-learning-assisted histopathology. <i>Microscopy Histopathology and Analytics (Optica)</i>, MM3A.5."
+- year: 2024
+  text: "Wadduwage, D. N. Stochastic proof by contradiction complements machine-learning-driven biomarker discovery in image data. <i>Microscopy Histopathology and Analytics (Optica)</i>, JM4A.55."
+- year: 2024
+  text: "Herath, K., Haputhanthri, U., Hettiarachchi, R., Kariyawasam, H., Ahmad, R. N., Ahmad, A., Ahluwalia, B. S., Edussooriya, C. U. S., & Wadduwage, D. N. All-optical phase retrieval microscope designed using differentiable microscopy. <i>Proc. SPIE</i> PC12857, PC128570P."
+- year: 2024
+  text: "Kariyawasam, H., Herath, K., Wadduwage, D., & Edussooriya, C. Sparse optical neural architectures for quantitative phase imaging. <i>Quantitative Phase Imaging X, Proc. SPIE</i> PC12852, PC128520X."
+- year: 2024
+  text: "Wadduwage, D. N. Physics-informed and interpretable machine learning for QPM: instrumentation, algorithms to applications. <i>Quantitative Phase Imaging X, Proc. SPIE</i> PC12852, PC128520T."
+- year: 2024
+  text: "Zhao, J., Haputhanthri, U., Anandakumar, M., Zheng, C., Hsu, F.-C., Weissbourd, B., Burnell, K., Nedivi, E., Wadduwage, D. N., & So, P. T. C. High-speed computational multiphoton imaging through scattering media. <i>Multiphoton Microscopy in the Biomedical Sciences XXIV, Proc. SPIE</i> PC12847, PC1284709."
+- year: 2023
+  text: "Hettiarachchi, R., Kariyawasam, H., & Wadduwage, D. Noise aware design enables robust diffractive deep neural network designs in visible wavelengths. <i>IEEE Photonics Conference (IPC)</i>, 1–2."
+- year: 2023
+  text: "Kariyawasam, H., Jayasinghe, S., Jayawardana, Y., & Wadduwage, D. Differentiable modeling of nonlinear dynamics in multimode fibers. <i>IEEE Photonics Conference (IPC)</i>, 1–2."
+- year: 2023
+  text: "Wickremasinghe, L. T. N., Niwarthana, D. S. P. A., Somarathne, P. M. P. H., Thieshanthan, A., Weissbourd, B., Edussooriya, C. U. S., & Wadduwage, D. N. Lost in translation: the critical role of attention in adaptive image reconstruction. <i>Computational Optical Sensing and Imaging (Optica)</i>, JM1B.5."
+- year: 2023
+  text: "Zhou, J., Wadduwage, D. N., & So, P. T. C. Patterning light for high throughput, high content, deep tissue imaging. <i>Imaging Systems and Applications (Optica)</i>, JM1B.3."
+- year: 2023
+  text: "Thushara, R., Pradeepkumar, J., Corrigan, J. J., Engelward, B. P., & Wadduwage, D. N. Quantification of cells in native tissues with object detection and weak supervision. <i>Imaging Systems and Applications (Optica)</i>, ITu2E.4."
+- year: 2023
+  text: "Wadduwage, D. N., & Haputhanthri, U. Differentiable microscopy: a new paradigm for optical system design. <i>Propagation Through and Characterization of Atmospheric and Oceanic Phenomena (Optica)</i>, JTu4A.43."
+- year: 2023
+  text: "So, P. T. C., & Wadduwage, D. N. Encoding light for high-throughput 3D tissue imaging (conference presentation). <i>Biomedical Applications of Light Scattering XIII, Proc. SPIE</i> PC12393, PC1239309."
+- year: 2023
+  text: "Haputhanthri, U., Seeber, A., & Wadduwage, D. N. Differentiable microscopy for content and task aware compressive fluorescence imaging (conference presentation). <i>High-Speed Biomedical Imaging and Spectroscopy VIII, Proc. SPIE</i> PC12390, PC1239003."
+- year: 2023
+  text: "Haputhanthri, U., Herath, K., Hettiarachchi, R., Kariyawasam, H., Ahmad, A., Ahluwalia, B. S., Edussooriya, C. U. S., & Wadduwage, D. N. From hours to seconds: towards 100x faster quantitative phase imaging via differentiable microscopy (conference presentation). <i>Quantitative Phase Imaging IX, Proc. SPIE</i> PC12389, PC1238909."
+- year: 2023
+  text: "Kariyawasam, H., Hettiarachchi, R., Yang, Q., Haputhanthri, U., Herath, K., Edussooriya, C., Boyden, E., So, P., & Wadduwage, D. Towards fabricating visible wavelength D2NNs through multi-level quantization for quantitative phase imaging (conference presentation). <i>Quantitative Phase Imaging IX, Proc. SPIE</i> PC12389, PC123890C."
+- year: 2022
+  text: "Pribyl, L. J., Kay, J. E., Corrigan, J. J., Owiti, N. A., Armijo, A. L., Fedeles, B. I., Croy, R. G., Wadduwage, D. N., Dertinger, S., Carrasco, S., Essigmann, J. M., & Engelward, B. P. Impact of Mgmt-mediated DNA repair on mutation susceptibility and cancer in mice (abstract). <i>Environmental and Molecular Mutagenesis</i> 63, 93."
+- year: 2021
+  text: "Wadduwage, D. N., & Haputhanthri, U. Differentiable microscopy (∂μ) for high-throughput imaging cytometry. <i>Advances in Microscopic Imaging III, Proc. SPIE</i> 11922, 136."
+- year: 2021
+  text: "Wadduwage, D. N., & Haputhanthri, U. Differentiable microscopy (∂μ) for high-throughput imaging cytometry. <i>European Conference on Biomedical Optics (Optica)</i>, ETu2A.2."
+- year: 2021
+  text: "Zheng, C., Park, J. K., Yildirim, M., Boivin, J. R., Xue, Y., Sur, M., So, P. T. C., & Wadduwage, D. N. De-scattering with excitation patterning (DEEP) in temporal focusing microscopy. <i>Bio-Optics: Design and Application (Optica)</i>, DTh2A.6."
+- year: 2020
+  text: "Kay, J. E., Mirabal, S., Briley, W. E., Kiraly, O., Ragan, T., So, P. T., Wadduwage, D. N., Erdman, S. E., & Engelward, B. P. DNA damage as a consequence and driver of inflammation (abstract). <i>Environmental and Molecular Mutagenesis</i> 61, 37."
+- year: 2020
+  text: "Zheng, C., Wadduwage, D. N., Park, J., Chao, C., Kay, J., Owiti, N., Nagel, Z., Engelward, B. P., & So, P. T. C. High-throughput three-dimensional imaging cytometer for subnuclear foci quantification (conference presentation). <i>Proc. SPIE</i> 11243, 112430X."
+- year: 2019
+  text: "Park, J. K., Wadduwage, D. N., & So, P. T. C. De-scattering with excitation patterning in temporally-focused microscopy (DEEP-TFM). <i>ECI Advances in Optics for Biotechnology, Medicine and Surgery XVI</i>."
+- year: 2018
+  text: "Park, J. K., Wadduwage, D. N., & So, P. T. C. Patterned illumination wide-field two-photon microscopy for enhanced axial resolution and deep imaging. <i>Microscopy Histopathology and Analytics (Optica)</i>, MF2A.3."
+- year: 2017
+  text: "Wadduwage, D. N., Singh, V. R., & So, P. Compressed full-field Fourier transform spectrometry. <i>ECI Advances in Optics for Biotechnology, Medicine and Surgery XV</i>."

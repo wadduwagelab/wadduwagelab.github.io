@@ -1,7 +1,22 @@
 - year: 2026
+  authors: "Kay, J. E., Corrigan, J. J., Volk, L. B., Armijo, A. L., Owiti, N. A., Pribyl, L. J., Nazari, I. S., Torous, D. K., Avlasevich, S. L., Croy, R. G., Wadduwage, D. N., Carrasco, S. E., Dertinger, S. D., Essigmann, J. M., Samson, L. D., & Engelward, B. P."
+  title: "Sex and base excision repair as key susceptibility factors for alkylation-induced mutations, toxicity and hepatic cancer."
+  journal: "DNA Repair"
+  volume: "103955"
+  url: "https://www.sciencedirect.com/science/article/pii/S1568786426000340"
+
+- year: 2026
+  authors: "Yang, Q., Yang, G., Nambara, T., Kusaka, H., Kunai, Y., Matlock, A. C., Swain, C., Pryor, B., Salamin, Y., Oran, D., Kariyawasam, H., Hettiarachchi, R., Wadduwage, D. N., Soljačić, M., So, P. T. C., & Boyden, E. S."
+  title: "Isotropic shrinkage of patterned vacancies enables three-dimensional nanoprecise metastructures for visible light applications."
+  journal: "Nature Photonics"
+  doi: "10.1038/s41566-026-01896-1"
+
+- year: 2026
   authors: "Sharma, S., Zimianitis, L., Samanta, K., Ahluwalia, B. S., Joseph, J., & Wadduwage, D. N."
   title: "Untrained Position-Encoded Multilayer Perceptron Network for Structured Illumination Microscopy Reconstruction."
   journal: "Chemical & Biomedical Imaging"
+  volume: "4(6)"
+  pages: "1087"
   doi: "10.1021/cbmi.5c00153"
 
 - year: 2026
@@ -16,6 +31,7 @@
   authors: "Sivaroopan N., Galappaththige C. J., Ekanayake C., Watawana H., Rodrigo R., Edussooriya C. U.S. & Wadduwage, D. N.*"
   title: "Uncertainty Awareness Enables Efficient Labeling for Cancer Subtyping in Digital Pathology."
   journal: "IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)"
+  pages: "589-598"
 
 - year: 2024
   authors: "Xue, Y., Boivin, J. R., Wadduwage, D. N., Park, J. K., Nedivi, E., & So, P. T."
@@ -40,14 +56,14 @@
   doi: "10.1038/s41377-023-01248-6"
 
 - year: 2023
-  authors: "Das, S., Saxena, K., Tinguely, J.-C., Pal, A., Wickramasinghe, N. L., Khezri, A., Dubey, V., Ahmad, A., Perumal, V., & Ahmad, R."
+  authors: "Das, S., Saxena, K., Tinguely, J.-C., Pal, A., Wickramasinghe, N. L., Khezri, A., Dubey, V., Ahmad, A., Perumal, V., Ahmad, R., Wadduwage, D. N., Ahluwalia, B. S., & Mehta, D. S."
   title: "SERS nanowire chip and machine learning-enabled classification of wild-type and antibiotic-resistant bacteria at species and strain levels."
   journal: "ACS Applied Materials & Interfaces"
   volume: "15(20)"
   pages: "24047-24058"
 
 - year: 2023
-  authors: "Arguello, H., Bacca, J., Kariyawasam, H., Vargas, E., Marquez, M., Hettiarachchi, R., Garcia, H., Herath, K., Haputhanthri, U., & Ahluwalia, B. S."
+  authors: "Arguello, H., Bacca, J., Kariyawasam, H., Vargas, E., Marquez, M., Hettiarachchi, R., Garcia, H., Herath, K., Haputhanthri, U., Ahluwalia, B. S., So, P., Wadduwage, D. N., & Edussooriya, C. U. S."
   title: "Deep optical coding design in computational imaging: a data-driven framework."
   journal: "IEEE Signal Processing Magazine"
   volume: "40(2)"
@@ -75,13 +91,13 @@
   pages: "108-123"
 
 - year: 2021
-  authors: "Kay, J. E., Corrigan, J. J., Armijo, A. L., Nazari, I. S., Kohale, I. N., Torous, D. K., Avlasevich, S. L., Croy, R. G., Wadduwage, D. N., & Carrasco, S. E."
+  authors: "Kay, J. E., Corrigan, J. J., Armijo, A. L., Nazari, I. S., Kohale, I. N., Torous, D. K., Avlasevich, S. L., Croy, R. G., Wadduwage, D. N., Carrasco, S. E., Dertinger, S. D., White, F. M., Essigmann, J. M., Samson, L. D., & Engelward, B. P."
   title: "Excision of mutagenic replication-blocking lesions suppresses cancer but promotes cytotoxicity and lethality in nitrosamine-exposed mice."
   journal: "Cell reports"
   volume: "34(11)"
 
 - year: 2020
-  authors: "Agbleke, A. A., Amitai, A., Buenrostro, J. D., Chakrabarti, A., Chu, L., Hansen, A. S., Koenig, K. M., Labade, A. S., Liu, S., & Nozaki, T."
+  authors: "Agbleke, A. A., Amitai, A., Buenrostro, J. D., Chakrabarti, A., Chu, L., Hansen, A. S., Koenig, K. M., Labade, A. S., Liu, S., Nozaki, T., Ovchinnikov, S., Seeber, A., Shaban, H. A., Spille, J.-H., Stephens, A. D., Su, J.-H., Wadduwage, D., et al."
   title: "Advances in chromatin and chromosome research: perspectives from multiple fields."
   journal: "Molecular cell"
   volume: "79(6)"
@@ -128,7 +144,7 @@
   journal: "European Conference on Biomedical Optics"
 
 - year: 2014
-  authors: "Sukup-Jackson, M. R., Kiraly, O., Kay, J. E., Na, L., Rowland, E. A., Winther, K. E., Chow, D. N., Kimoto, T., Matsuguchi, T., & Jonnalagadda, V. S."
+  authors: "Sukup-Jackson, M. R., Kiraly, O., Kay, J. E., Na, L., Rowland, E. A., Winther, K. E., Chow, D. N., Kimoto, T., Matsuguchi, T., Jonnalagadda, V. S., Maklakova, V. I., Singh, V. R., Wadduwage, D. N., Rajapakse, J., So, P. T. C., Collier, L. S., & Engelward, B. P."
   title: "Rosa26-GFP direct repeat (RaDR-GFP) mice reveal tissue-and age-dependence of homologous recombination in mammals in vivo."
   journal: "PLoS genetics"
   volume: "10(6)"

@@ -6,8 +6,60 @@
   code: "https://github.com/wadduwagelab/Differential-BPM-D2NN-official"
 
 - year: 2026
+  authors: "Zimianitis, L., Thenahandi, P., Buckhalter, K., Jayakody, D., Kimura, J. O., Liang, X., Cunningham, K., Ahmad, A., Ahluwalia, B. S., Jayarathna, S., Chrisochoides, N., Weissbourd, B., & Wadduwage, D. N."
+  title: "Motion-guided sparse correction enables expert-quality point tracking across diverse microscopy regimes."
+  venue: "arXiv:2605.29220"
+  url: "https://arxiv.org/abs/2605.29220"
+
+- year: 2026
   authors: "Wadduwage, D. N.*, Jayakody, D., & Zimianitis, L."
   title: "Beyond Perfect Scores: Proof-by-Contradiction for Trustworthy Machine Learning."
   venue: "arXiv:2601.06704"
   url: "https://arxiv.org/abs/2601.06704"
   code: "https://github.com/wadduwagelab/Beyond-Perfect-Scores"
+
+- year: 2024
+  authors: "Jayawardana, Y., Jayakody, D., Jayarathna, S., & Wadduwage, D. N."
+  title: "Thinking in Groups: Permutation Tests Reveal Near-Out-of-Distribution."
+  venue: "arXiv:2403.14058"
+  url: "https://arxiv.org/abs/2403.14058"
+
+- year: 2023
+  authors: "Wadduwage, D., Sivaroopan, N., Jayanga, C., Ekanayake, C., Watawana, H., Pradeepkumar, J., Anandakumar, M., Rodrigo, R., & Edussooriya, C."
+  title: "Contrastive Deep Encoding Enables Uncertainty-aware Machine-learning-assisted Histopathology."
+  venue: "Research Square, rs-3317700"
+  url: "https://www.researchsquare.com/article/rs-3317700/v1"
+  label: "Preprint"
+
+- year: 2023
+  authors: "Wei, Z., Boivin, J. R., Xue, Y., Burnell, K., Wijethilake, N., Chen, X., So, P. T. C., Nedivi, E., & Wadduwage, D. N."
+  title: "De-scattering deep neural network enables fast imaging of spines through scattering media by temporal focusing microscopy."
+  venue: "Research Square, rs-2410214"
+  url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10275030/"
+  label: "Preprint"
+
+- year: 2023
+  authors: "Somarathne, P., Wickremasinghe, T., Niwarthana, A., Thieshanthan, A., Edussooriya, C. U. S., & Wadduwage, D. N."
+  title: "MOSAIC: Masked Optimisation with Selective Attention for Image Reconstruction."
+  venue: "arXiv:2306.00906"
+  url: "https://arxiv.org/abs/2306.00906"
+
+- year: 2022
+  authors: "Herath, K., Kariyawasam, H., Hettiarachchi, R., Haputhanthri, U., Jayakody, D., Ahmad, R. N., Ahmad, A., Ahluwalia, B. S., Edussooriya, C. U. S., & Wadduwage, D. N."
+  title: "Differentiable microscopy designs an all optical phase retrieval microscope."
+  venue: "arXiv:2203.14944"
+  url: "https://arxiv.org/abs/2203.14944"
+  code: "https://github.com/wadduwagelab/All-Optical-QPM"
+
+- year: 2022
+  authors: "Haputhanthri, U., Seeber, A., & Wadduwage, D."
+  title: "Differentiable microscopy for content and task aware compressive fluorescence imaging."
+  venue: "arXiv:2203.14945"
+  url: "https://arxiv.org/abs/2203.14945"
+
+- year: 2021
+  authors: "Pradeepkumar, J., Anandakumar, M., Kugathasan, V., Seeber, A., & Wadduwage, D. N."
+  title: "Physics augmented U-Net: A high-frequency aware generative prior for microscopy."
+  venue: "bioRxiv 2021.12.01.470743"
+  url: "https://doi.org/10.1101/2021.12.01.470743"
+  label: "bioRxiv"
