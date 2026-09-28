@@ -539,3 +539,86 @@ footer {
     font-weight: 600;
     margin-right: 0.35rem;
 }
+
+/* --- HERO: pixel optical bench (2026-09) --- */
+:root { --hero-bg: #f3efe6; --hero-c1: #e4d9c6; --hero-c2: #d97757; --hero-c3: #252525; }
+.hero { max-width: none; padding: 0 0 2rem; display: block; text-align: left; background: var(--bg-body); }
+.hero-band { position: relative; width: 100%; height: 320px; background: var(--hero-bg); border-bottom: 2px solid var(--primary); overflow: hidden; }
+#hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+.hero-label { position: absolute; top: 10px; font-family: 'Silkscreen', 'IBM Plex Mono', monospace; font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; color: var(--primary); background: var(--hero-bg); padding: 1px 5px; border: 1px solid var(--primary); pointer-events: none; }
+.hero .hero-content { position: relative; max-width: 1080px; margin: -64px auto 0; padding: 0 1.25rem; }
+.hero .hero-content > * { position: relative; }
+.hero h1 { display: inline-block; background: var(--bg-card); border: 2px solid var(--primary); box-shadow: 5px 5px 0 var(--accent); padding: 0.6rem 1rem; font-size: 2.1rem; line-height: 1.15; margin: 0 0 1rem; }
+.hero p { max-width: 680px; font-size: 1rem; margin-bottom: 1rem; }
+@media (max-width: 768px) {
+  .hero-band { height: 210px; }
+  .hero-label { font-size: 0.55rem; }
+  .hero .hero-content { margin-top: -30px; }
+  .hero h1 { font-size: 1.5rem; }
+}
+@media (max-width: 480px) { .hero-label:not(.hero-label-end):not(:first-of-type) { display: none; } }
+
+/* ===== Design refresh (2026-09): compact layout ===== */
+/* Shared compact layout */
+section { padding: 2.25rem 1.25rem; max-width: 1080px; }
+.section-title { text-align: left; margin-bottom: 1.1rem; display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap; }
+.section-title h2 { font-size: 1.35rem; margin: 0; }
+.section-title p { margin: 0; font-size: .85rem; max-width: none; }
+.team-grid { gap: 1rem; }
+.member img { width: 84px; height: 84px; }
+.member p { font-size: .8rem; }
+.research-grid, .software-grid { gap: .75rem; }
+.research-card, .software-card { padding: .85rem 1rem; }
+.research-card p, .software-card p { font-size: .82rem; }
+.news-item { padding: .35rem 0; font-size: .85rem; }
+.pub-list { font-size: .82rem !important; }
+.pub-list li { margin-bottom: .45rem !important; }
+.patent-item, .funding-item { font-size: .85rem; }
+/* align full-bleed tinted sections with the content column */
+section.bg-subtle{ padding-left:max(1.25rem, calc((100% - 1080px)/2 + 1.25rem)); padding-right:max(1.25rem, calc((100% - 1080px)/2 + 1.25rem)); }
+.news-list{ max-width:none; margin:0; }
+#publications > div{ max-width:none !important; }
+.funding-list,.patents-list-wrap{ max-width:none; margin-left:0; }
+body{ font-family:var(--font-body); }
+
+/* ===== Theme: Dither Lab ===== */
+:root{ --hero-bg:#eef0ff; --hero-c1:#cdd3ff; --hero-c2:#2a3cff; --hero-c3:#0b0b0b; --bg-body:#ffffff; --bg-card:#ffffff; --bg-subtle:#f2f4ff; --text-main:#111; --text-muted:#555;
+ --primary:#0b0b0b; --accent:#2a3cff; --border:#0b0b0b; --font-heading:'Space Grotesk',sans-serif; --font-body:'Space Grotesk',sans-serif; --radius:0; }
+body{ background:#fff; font-size:15px; }
+header{ background:#fff; border-bottom:2px solid #000; }
+header::after{ content:''; display:block; height:6px; background-image:conic-gradient(#000 25%, transparent 0 50%, #000 0 75%, transparent 0); background-size:4px 4px; opacity:.85; }
+.logo{ font-family:'Silkscreen',monospace; font-size:1.05rem; letter-spacing:.5px; }
+.logo span{ color:var(--accent); }
+.nav-links a{ font-family:'Silkscreen',monospace; font-size:.7rem; color:#000; }
+.nav-links a:hover{ color:var(--accent); }
+.section-title h2{ font-family:'Space Grotesk'; font-weight:700; font-size:1.5rem; letter-spacing:-.5px; }
+.section-title h2::before{ content:''; display:inline-block; width:.6em; height:.6em; margin-right:.45em; background:var(--accent); vertical-align:.05em; }
+.section-title p{ font-family:'Silkscreen',monospace; font-style:normal; font-size:.72rem; color:var(--text-muted); }
+
+.bg-subtle{ background-color:var(--bg-subtle); background-image:radial-gradient(rgba(42,60,255,.12) 1px, transparent 1px); background-size:6px 6px; }
+.btn{ border-radius:0; background:var(--accent); box-shadow:4px 4px 0 #000; font-family:'Silkscreen'; font-size:.8rem; }
+.research-card,.software-card{ border:2px solid #000; box-shadow:5px 5px 0 var(--accent); }
+.research-card h4,.software-card h4{ font-family:'Space Grotesk'; font-weight:700; }
+.member img{ border-radius:0; border:2px solid #000; filter:grayscale(1) contrast(1.15); }
+.member span{ font-family:'Silkscreen'; font-size:.65rem; }
+.pub-link{ border-radius:0; background:#000; color:#fff; border-color:#000; font-family:'Silkscreen'; font-size:.6rem; padding:.1rem .4rem; }
+.pub-link:hover{ background:var(--accent); border-color:var(--accent); }
+.news-date,.proc-year,.funding-years{ font-family:'Silkscreen'; font-size:.72rem; color:var(--accent); }
+.news-item{ border-bottom:1px solid #000; }
+.pub-list h3{ font-family:'Silkscreen' !important; font-size:1rem !important; color:#000 !important; border-bottom:4px solid var(--accent) !important; }
+footer{ border-top:2px solid #000; }
+.hero h1{font-weight:600;letter-spacing:-1px;}
+
+/* --- Circular scroll badge --- */
+.hero { position: relative; }
+.circle-badge { position: absolute; z-index: 5; top: 236px; right: max(1.25rem, calc((100% - 1080px) / 2 + 1.25rem)); width: 160px; height: 160px; border-radius: 50%; background: #fff; border: 2px solid #000; box-shadow: 5px 5px 0 var(--accent); display: block; text-decoration: none; transition: transform .2s; }
+.circle-badge:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--accent); }
+.circle-badge svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.circle-text { font-family: 'Silkscreen', monospace; font-size: 12.5px; fill: #000; }
+.circle-core { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 46px; fill: var(--accent); }
+@media (max-width: 768px) { .circle-badge { width: 92px; height: 92px; top: 52px; right: 12px; } }
+
+/* --- Reveal on scroll (only when JS is running) --- */
+.js .reveal { opacity: 0; transform: translateY(14px); transition: opacity .55s ease, transform .55s ease; }
+.js .reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .js .reveal { opacity: 1; transform: none; transition: none; } }

@@ -5,11 +5,22 @@ title: ""
 
 <!-- Hero Section -->
 <section class="hero">
-    <!-- Animation Canvas -->
-    <div class="animation-container">
-        <canvas id="optics-canvas"></canvas>
+    <div class="hero-band">
+        <canvas id="hero-canvas" aria-hidden="true"></canvas>
+        <span class="hero-label" style="left:2%">light</span>
+        <span class="hero-label" style="left:35%">learned optics</span>
+        <span class="hero-label" style="left:75%">focus</span>
+        <span class="hero-label hero-label-end" style="right:2%">detector</span>
     </div>
-
+    <a class="circle-badge" href="#research" aria-label="Scroll to research">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+            <defs><path id="circle-path" d="M100,100 m-76,0 a76,76 0 1,1 152,0 a76,76 0 1,1 -152,0"/></defs>
+            <g class="circle-rot">
+                <text class="circle-text"><textPath href="#circle-path" textLength="474" lengthAdjust="spacing">DIFFERENTIABLE MICROSCOPY &#x2022; COMPUTATIONAL IMAGING &#x2022; TRUSTWORTHY AI &#x2022; </textPath></text>
+            </g>
+            <text class="circle-core" x="100" y="118" text-anchor="middle">&#x2202;&#x3BC;</text>
+        </svg>
+    </a>
     <div class="hero-content">
         <h1>Next-generation imaging for biology.</h1>
         <p>We work at the intersection of biophotonics, computational imaging, and deep learning to design the microscopes of the future.</p>
