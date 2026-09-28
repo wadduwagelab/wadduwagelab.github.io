@@ -1,0 +1,13 @@
+- year: 2026
+  authors: "Jayakody, D., & Wadduwage, D. N."
+  title: "Beyond the Thin-Layer Limit: Differentiable Volumetric Training for Visible-Range Diffractive Neural Networks."
+  venue: "arXiv:2606.07896"
+  url: "https://arxiv.org/abs/2606.07896"
+  code: "https://github.com/wadduwagelab/Differential-BPM-D2NN-official"
+
+- year: 2026
+  authors: "Wadduwage, D. N.*, Jayakody, D., & Zimianitis, L."
+  title: "Beyond Perfect Scores: Proof-by-Contradiction for Trustworthy Machine Learning."
+  venue: "arXiv:2601.06704"
+  url: "https://arxiv.org/abs/2601.06704"
+  code: "https://github.com/wadduwagelab/Beyond-Perfect-Scores"

@@ -17,6 +17,40 @@ title: ""
     </div>
 </section>
 
+<!-- Research Section -->
+<section id="research">
+    <div class="section-title">
+        <h2>Research</h2>
+        <p>Designing optics and algorithms together, and making sure the AI we build for science can be trusted.</p>
+    </div>
+    <div class="research-grid">
+        <div class="research-card">
+            <h4>Differentiable microscopy &amp; optical computing</h4>
+            <p>We treat light propagation as a differentiable program, so microscopes and optical processors can be co-designed with the algorithms that read them out &mdash; from quantization-aware optical neurons to volumetric diffractive networks.</p>
+        </div>
+        <div class="research-card">
+            <h4>Fast imaging through scattering</h4>
+            <p>We combine patterned excitation, multiphoton microscopy and deep learning to image deeper and faster in living tissue, with applications in neuroscience and cell biology.</p>
+        </div>
+        <div class="research-card">
+            <h4>Trustworthy AI for science</h4>
+            <p>We develop tests that reveal when AI models succeed for the wrong reasons, and verification-first workflows for AI-built scientific software, so biomedical results can be trusted.</p>
+        </div>
+    </div>
+</section>
+
+<!-- News Section -->
+<section id="news" class="bg-subtle">
+    <div class="section-title">
+        <h2>News</h2>
+    </div>
+    <ul class="news-list">
+        {% for item in site.data.news %}
+        <li class="news-item"><span class="news-date">{{ item.date }}</span><span class="news-text">{{ item.text }}</span></li>
+        {% endfor %}
+    </ul>
+</section>
+
 <!-- Team Section -->
 <section id="team">
     <div class="section-title">
@@ -63,6 +97,18 @@ title: ""
     </div>
     <div style="max-width: 900px; margin: 0 auto;">
         <ul class="pub-list" style="list-style: none; padding: 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.4;">
+            <li style="margin-top: 1.5rem; margin-bottom: 0.5rem;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.2rem; color: var(--primary); border-bottom: 2px solid var(--accent); padding-bottom: 0.25rem; display: inline-block;">Preprints</h3>
+            </li>
+            {% for pub in site.data.preprints %}
+            <li style="margin-bottom: 0.75rem;">
+                {{ pub.authors }} ({{ pub.year }}).
+                <span style="color: var(--text-muted);">{{ pub.title }} <i>{{ pub.venue }}</i>.</span>
+                <a class="pub-link" href="{{ pub.url }}" target="_blank" rel="noopener">arXiv</a>{% if pub.code %} <a class="pub-link" href="{{ pub.code }}" target="_blank" rel="noopener">Code</a>{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        <ul class="pub-list" style="list-style: none; padding: 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.4;">
             {% assign grouped_pubs = site.data.publications | group_by: "year" | sort: "name" | reverse %}
             {% for year_group in grouped_pubs %}
             <li style="margin-top: 1.5rem; margin-bottom: 0.5rem;">
@@ -71,12 +117,45 @@ title: ""
             {% for pub in year_group.items %}
             <li style="margin-bottom: 0.75rem;">
                 {{ pub.authors }} ({{ pub.year }}). 
-                <span style="color: var(--text-muted);">{{ pub.title }} <i>{{ pub.journal }}</i>{% if pub.volume %}, {{ pub.volume }}{% if pub.pages %} ({{ pub.pages }}){% endif %}{% endif %}.</span>
+                <span style="color: var(--text-muted);">{{ pub.title }} <i>{{ pub.journal }}</i>{% if pub.volume %}, {{ pub.volume }}{% if pub.pages %} ({{ pub.pages }}){% endif %}{% endif %}.</span>{% if pub.doi %} <a class="pub-link" href="https://doi.org/{{ pub.doi }}" target="_blank" rel="noopener">DOI</a>{% endif %}
             </li>
             {% endfor %}
             {% endfor %}
         </ul>
     </div>
+</section>
+
+<!-- Software Section -->
+<section id="software">
+    <div class="section-title">
+        <h2>Software &amp; Data</h2>
+        <p>Open code and data from our papers.</p>
+    </div>
+    <div class="software-grid">
+        {% for sw in site.data.software %}
+        <div class="software-card">
+            <h4>{{ sw.name }} <span class="software-year">{{ sw.year }}</span></h4>
+            <p>{{ sw.description }}</p>
+            <div class="software-links">
+                <a class="pub-link" href="{{ sw.repo }}" target="_blank" rel="noopener">Code</a>
+                {% if sw.paper %}<a class="pub-link" href="{{ sw.paper }}" target="_blank" rel="noopener">Paper</a>{% endif %}
+                {% if sw.doi and sw.doi != "" %}<a class="pub-link" href="https://doi.org/{{ sw.doi }}" target="_blank" rel="noopener">DOI {{ sw.doi }}</a>{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Teaching Section -->
+<section id="teaching" class="bg-subtle">
+    <div class="section-title">
+        <h2>Teaching</h2>
+    </div>
+    <ul class="funding-list">
+        {% for c in site.data.teaching %}
+        <li class="funding-item"><span class="funding-years">{{ c.course }}</span> &mdash; {{ c.title }} <span style="color: var(--text-muted);">({{ c.term }})</span></li>
+        {% endfor %}
+    </ul>
 </section>
 
 <!-- Patents Section -->

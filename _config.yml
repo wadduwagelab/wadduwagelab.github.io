@@ -13,12 +13,18 @@ plugins:
 
 # Navigation (anchor links scroll to sections on front page)
 navigation:
+  - title: Research
+    url: /#research
+  - title: News
+    url: /#news
   - title: Team
     url: /#team
   - title: Publications
     url: /#publications
-  - title: Patents
-    url: /#patents
+  - title: Software
+    url: /#software
+  - title: Teaching
+    url: /#teaching
   - title: Funding
     url: /#funding
 

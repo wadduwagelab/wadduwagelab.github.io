@@ -1,0 +1,49 @@
+# Add a Zenodo DOI to `doi` once minted (e.g. "10.5281/zenodo.1234567").
+- name: "dbpm_d2nn"
+  year: 2026
+  description: "Differentiable volumetric (∂BPM) training for visible-range diffractive neural networks, with Tidy3D FDTD validation."
+  repo: "https://github.com/wadduwagelab/Differential-BPM-D2NN-official"
+  paper: "https://arxiv.org/abs/2606.07896"
+  doi: ""
+
+- name: "Beyond Perfect Scores"
+  year: 2026
+  description: "Bucket-level label-permutation tests that check whether a biomedical classifier's accuracy reflects real signal."
+  repo: "https://github.com/wadduwagelab/Beyond-Perfect-Scores"
+  paper: "https://arxiv.org/abs/2601.06704"
+  doi: ""
+
+- name: "DEEP-squared"
+  year: 2023
+  description: "Deep-learning-powered de-scattering with excitation patterning; code and dataset."
+  repo: "https://github.com/wadduwagelab/DEEP-squared"
+  paper: "https://doi.org/10.1038/s41377-023-01248-6"
+  doi: "10.5281/zenodo.8161051"
+
+- name: "OpticalElectronicQPI"
+  year: 2023
+  description: "Code for ultrafast quantitative phase imaging via differentiable microscopy."
+  repo: "https://github.com/wadduwagelab/OpticalElectronicQPI"
+
+- name: "All-Optical-QPM"
+  year: 2022
+  description: "Differentiable all-optical phase retrieval: PyTorch code and Colab notebooks."
+  repo: "https://github.com/wadduwagelab/All-Optical-QPM"
+  paper: "https://arxiv.org/abs/2203.14944"
+
+- name: "deep-tfm"
+  year: 2021
+  description: "DEEP-TFM image reconstruction for de-scattering temporal-focusing microscopy."
+  repo: "https://github.com/dushanw/deep-tfm"
+  doi: "10.5281/zenodo.4769197"
+
+- name: "RPN_RCN_roiExtractor"
+  year: 2021
+  description: "Region-proposal and region-classification networks for extracting regions of interest."
+  repo: "https://github.com/dushanw/RPN_RCN_roiExtractor"
+  doi: "10.5281/zenodo.19068880"
+
+- name: "MC_LightScattering"
+  year: 2021
+  description: "Monte Carlo forward models of light scattering in tissue."
+  repo: "https://github.com/dushanw/MC_LightScattering"

@@ -2,6 +2,7 @@
   authors: "Sharma, S., Zimianitis, L., Samanta, K., Ahluwalia, B. S., Joseph, J., & Wadduwage, D. N."
   title: "Untrained Position-Encoded Multilayer Perceptron Network for Structured Illumination Microscopy Reconstruction."
   journal: "Chemical & Biomedical Imaging"
+  doi: "10.1021/cbmi.5c00153"
 
 - year: 2026
   authors: "Kariyawasam, H., Hettiarachchi, R., Yang, Q., Matlock, A., Nambara, T., Kusaka, H., Kunai, Y., So, P.T., Boyden, E.S. & Wadduwage, D.N."
@@ -9,6 +10,7 @@
   journal: "Optics Express"
   volume: "34(1)"
   pages: "1-14"
+  doi: "10.1364/oe.546074"
 
 - year: 2025
   authors: "Sivaroopan N., Galappaththige C. J., Ekanayake C., Watawana H., Rodrigo R., Edussooriya C. U.S. & Wadduwage, D. N.*"
@@ -35,6 +37,7 @@
   journal: "Light: Science & Applications"
   volume: "12(1)"
   pages: "228"
+  doi: "10.1038/s41377-023-01248-6"
 
 - year: 2023
   authors: "Das, S., Saxena, K., Tinguely, J.-C., Pal, A., Wickramasinghe, N. L., Khezri, A., Dubey, V., Ahmad, A., Perumal, V., & Ahmad, R."
