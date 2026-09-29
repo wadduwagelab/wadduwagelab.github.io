@@ -712,3 +712,8 @@ footer p { font-size: 0.9rem !important; }
   .hero h1 { font-size: 2.75rem; line-height: 1.08; margin-bottom: 1.25rem; }
   .hero p { color: var(--text-main); font-size: 1.05rem; margin-bottom: 1.5rem; }
 }
+
+/* --- Footer: text links (the icon library dropped brand icons) (2026-09) --- */
+.footer-links { flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+.footer-links a { font-size: 0.9rem; color: var(--text-muted); text-decoration: none; border-bottom: 1px dashed var(--text-muted); padding-bottom: 1px; }
+.footer-links a:hover { color: var(--accent); border-bottom-color: var(--accent); }

@@ -164,7 +164,7 @@ title: ""
     </div>
     <ul class="funding-list">
         {% for c in site.data.teaching %}
-        <li class="funding-item"><span class="funding-years">{{ c.course }}</span> &mdash; {{ c.title }} <span style="color: var(--text-muted);">({{ c.term }})</span></li>
+        <li class="funding-item"><span class="funding-years">{{ c.course }}</span> &mdash; {{ c.title }} <span style="color: var(--text-muted);">({{ c.term }})</span>{% if c.podcast %} <a class="pub-link" href="{{ c.podcast.url }}" target="_blank" rel="noopener" title="{{ c.podcast.name }}, the course podcast, on Spotify" aria-label="{{ c.podcast.name }}, the course podcast, on Spotify">Podcast</a>{% endif %}</li>
         {% endfor %}
     </ul>
 </section>

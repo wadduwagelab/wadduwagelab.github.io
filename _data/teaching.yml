@@ -1,6 +1,9 @@
 - course: "DASC 428/528"
   title: "Introduction to Deep Learning and Modern AI"
   term: "New online course, first offered Spring 2027"
+  podcast:
+    name: "Tensor & Bias"
+    url: "https://open.spotify.com/show/033Aem6pMGVLeZftOmAEFj"
 - course: "DASC 690"
   title: "Data Science Capstone Project"
   term: "Spring 2026"
