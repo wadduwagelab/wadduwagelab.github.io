@@ -10,6 +10,7 @@
   title: "Motion-guided sparse correction enables expert-quality point tracking across diverse microscopy regimes."
   venue: "arXiv:2605.29220"
   url: "https://arxiv.org/abs/2605.29220"
+  code: "https://github.com/wadduwagelab/ripple"
 
 - year: 2026
   authors: "Wadduwage, D. N.*, Jayakody, D., & Zimianitis, L."

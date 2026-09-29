@@ -1,17 +1,25 @@
 # Add a Zenodo DOI to `doi` once minted (e.g. "10.5281/zenodo.1234567").
+- name: "RIPPLE"
+  year: 2026
+  description: "Video annotation and point tracking for microscopy: correct a few frames and motion-guided sparse correction propagates the fix. Includes code that reproduces the paper's figures."
+  repo: "https://github.com/wadduwagelab/ripple"
+  paper: "https://arxiv.org/abs/2605.29220"
+  demo: "https://huggingface.co/spaces/Le0nZim/ripple-demo"
+  doi: ""
+
 - name: "dbpm_d2nn"
   year: 2026
   description: "Differentiable volumetric (∂BPM) training for visible-range diffractive neural networks, with Tidy3D FDTD validation."
   repo: "https://github.com/wadduwagelab/Differential-BPM-D2NN-official"
   paper: "https://arxiv.org/abs/2606.07896"
-  doi: ""
+  doi: "10.5281/zenodo.23022988"
 
 - name: "Beyond Perfect Scores"
   year: 2026
   description: "Bucket-level label-permutation tests that check whether a biomedical classifier's accuracy reflects real signal."
   repo: "https://github.com/wadduwagelab/Beyond-Perfect-Scores"
   paper: "https://arxiv.org/abs/2601.06704"
-  doi: ""
+  doi: "10.5281/zenodo.23022969"
 
 - name: "DEEP-squared"
   year: 2023

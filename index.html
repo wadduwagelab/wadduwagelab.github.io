@@ -149,7 +149,7 @@ title: ""
             <p>{{ sw.description }}</p>
             <div class="software-links">
                 <a class="pub-link" href="{{ sw.repo }}" target="_blank" rel="noopener">Code</a>
-                {% if sw.paper %}<a class="pub-link" href="{{ sw.paper }}" target="_blank" rel="noopener">Paper</a>{% endif %}
+                {% if sw.paper %}<a class="pub-link" href="{{ sw.paper }}" target="_blank" rel="noopener">Paper</a>{% endif %}{% if sw.demo %} <a class="pub-link" href="{{ sw.demo }}" target="_blank" rel="noopener">Demo</a>{% endif %}
                 {% if sw.doi and sw.doi != "" %}<a class="pub-link" href="https://doi.org/{{ sw.doi }}" target="_blank" rel="noopener">DOI {{ sw.doi }}</a>{% endif %}
             </div>
         </div>
