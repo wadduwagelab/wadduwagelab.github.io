@@ -8,6 +8,9 @@
   text: "New preprint: <a href=\"https://arxiv.org/abs/2605.29220\">motion-guided sparse correction</a> for expert-quality point tracking in microscopy, led by PhD student Leonidas Zimianitis."
 - date: "May 2026"
   text: "<a href=\"https://doi.org/10.1038/s41566-026-01896-1\">Nanoprecise 3D metastructures for visible light</a>, with the Boyden and So labs, published in Nature Photonics."
+- date: "May 2026"
+  kind: press
+  text: "MIT News: <a href=\"https://news.mit.edu/2026/powerful-shrinking-technique-could-enable-devices-compute-light-0512\">Powerful shrinking technique could enable devices that compute with light</a>, on our Nature Photonics work with the Boyden and So labs. Also covered by <a href=\"https://www.eurekalert.org/news-releases/1127847\">EurekAlert!</a>, <a href=\"https://www.nanowerk.com/nanotechnology-news3/newsid=69385.php\">Nanowerk</a>, <a href=\"https://www.photonicsonline.com/doc/powerful-shrinking-technique-could-enable-devices-that-compute-with-light-0001\">Photonics Online</a> and <a href=\"https://www.technology.org/2026/05/21/powerful-shrinking-technique-could-enable-devices-that-compute-with-light/\">Technology.org</a>."
 - date: "Jan 2026"
   text: "<a href=\"https://doi.org/10.1021/cbmi.5c00153\">Untrained position-encoded MLP for SIM reconstruction</a> published in Chemical &amp; Biomedical Imaging."
 - date: "Jan 2026"
@@ -16,3 +19,12 @@
   text: "New preprint: <a href=\"https://arxiv.org/abs/2601.06704\">Beyond Perfect Scores</a>, proof-by-contradiction for trustworthy machine learning."
 - date: "Aug 2024"
   text: "The lab launches at Old Dominion University."
+- date: "Jun 2024"
+  kind: press
+  text: "MIT News: <a href=\"https://news.mit.edu/2024/microscope-system-sharpens-scientists-view-neural-circuit-connections-0618\">Microscope system sharpens scientists' view of neural circuit connections</a>, on multiline temporal-focusing microscopy with the So and Nedivi labs. Also covered by <a href=\"https://www.sciencedaily.com/releases/2024/06/240604132025.htm\">ScienceDaily</a>, <a href=\"https://www.eurekalert.org/news-releases/1047052\">EurekAlert!</a> and <a href=\"https://medicalxpress.com/news/2024-06-microscope-sharpens-scientists-view-neural.html\">Medical Xpress</a>."
+- date: "Oct 2023"
+  kind: press
+  text: "Harvard Gazette: <a href=\"https://news.harvard.edu/gazette/story/2023/10/a-deeper-squared-dive-into-ai/\">A DEEPer (squared) dive into AI</a>, on DEEP², our deep-learning method for fast imaging through scattering tissue. Also republished by <a href=\"https://goodmenproject.com/featured-content/a-deeper-squared-dive-into-ai/\">The Good Men Project</a>."
+- date: "Jul 2021"
+  kind: press
+  text: "Harvard Gazette: <a href=\"https://news.harvard.edu/gazette/story/2021/07/faster-high-quality-imaging-of-living-tissue/\">New imaging technique may boost biology and neuroscience research</a>, and MIT News: <a href=\"https://news.mit.edu/2021/microscopy-tissue-images-0707\">Microscopy technique makes finer images of deeper tissue, more quickly</a>, both on DEEP in Science Advances. Also covered by <a href=\"https://www.sciencedaily.com/releases/2021/07/210707140642.htm\">ScienceDaily</a>, <a href=\"https://phys.org/news/2021-07-microscopy-technique-finer-images-deeper.html\">Phys.org</a>, the <a href=\"https://www.nibib.nih.gov/news-events/newsroom/microscopy-technique-makes-finer-images-deeper-tissue-more-quickly\">NIH NIBIB newsroom</a>, <a href=\"https://www.drugtargetreview.com/news/94736/high-quality-rapid-technique-developed-for-imaging-in-vivo/\">Drug Target Review</a> and <a href=\"https://www.miragenews.com/microscopy-technique-makes-finer-images-of-591956/\">Mirage News</a>."

@@ -36,14 +36,3 @@
   description: "DEEP-TFM image reconstruction for de-scattering temporal-focusing microscopy."
   repo: "https://github.com/dushanw/deep-tfm"
   doi: "10.5281/zenodo.4769197"
-
-- name: "RPN_RCN_roiExtractor"
-  year: 2021
-  description: "Region-proposal and region-classification networks for extracting regions of interest."
-  repo: "https://github.com/dushanw/RPN_RCN_roiExtractor"
-  doi: "10.5281/zenodo.19068880"
-
-- name: "MC_LightScattering"
-  year: 2021
-  description: "Monte Carlo forward models of light scattering in tissue."
-  repo: "https://github.com/dushanw/MC_LightScattering"

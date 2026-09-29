@@ -7,20 +7,11 @@ title: ""
 <section class="hero">
     <div class="hero-band">
         <canvas id="hero-canvas" aria-hidden="true"></canvas>
-        <span class="hero-label" style="left:2%">light</span>
-        <span class="hero-label" style="left:35%">learned optics</span>
-        <span class="hero-label" style="left:75%">focus</span>
-        <span class="hero-label hero-label-end" style="right:2%">detector</span>
+        <span class="hero-label" data-s="tissue">scattering tissue</span>
+        <span class="hero-label" data-s="optics">learned optics</span>
+        <span class="hero-label" data-o>focus</span>
+        <span class="hero-label">image</span>
     </div>
-    <a class="circle-badge" href="#research" aria-label="Scroll to research">
-        <svg viewBox="0 0 200 200" aria-hidden="true">
-            <defs><path id="circle-path" d="M100,100 m-76,0 a76,76 0 1,1 152,0 a76,76 0 1,1 -152,0"/></defs>
-            <g class="circle-rot">
-                <text class="circle-text"><textPath href="#circle-path" textLength="474" lengthAdjust="spacing">DIFFERENTIABLE MICROSCOPY &#x2022; COMPUTATIONAL IMAGING &#x2022; TRUSTWORTHY AI &#x2022; </textPath></text>
-            </g>
-            <text class="circle-core" x="100" y="118" text-anchor="middle">&#x2202;&#x3BC;</text>
-        </svg>
-    </a>
     <div class="hero-content">
         <h1>Next-generation imaging for biology.</h1>
         <p>We work at the intersection of biophotonics, computational imaging, and deep learning to design the microscopes of the future.</p>
@@ -28,26 +19,27 @@ title: ""
     </div>
 </section>
 
-<!-- Research Section -->
+<!-- Research Section (content: _data/research.yml) -->
 <section id="research">
     <div class="section-title">
         <h2>Research</h2>
-        <p>Designing optics and algorithms together, and making sure the AI we build for science can be trusted.</p>
+        <p>{{ site.data.research.subtitle }}</p>
     </div>
     <div class="research-grid">
-        <div class="research-card">
-            <h4>Differentiable microscopy &amp; optical computing</h4>
-            <p>We treat light propagation as a differentiable program, so microscopes and optical processors can be co-designed with the algorithms that read them out &mdash; from quantization-aware optical neurons to volumetric diffractive networks.</p>
-        </div>
-        <div class="research-card">
-            <h4>Fast imaging through scattering</h4>
-            <p>We combine patterned excitation, multiphoton microscopy and deep learning to image deeper and faster in living tissue, with applications in neuroscience and cell biology.</p>
-        </div>
-        <div class="research-card">
-            <h4>Trustworthy AI for science</h4>
-            <p>We develop tests that reveal when AI models succeed for the wrong reasons, and verification-first workflows for AI-built scientific software, so biomedical results can be trusted.</p>
-        </div>
+        {% for t in site.data.research.thrusts %}
+        <article class="research-card">
+            <span class="research-label">{{ t.label }}</span>
+            <h4>{{ t.title }}</h4>
+            <p>{{ t.text }}</p>
+            <ul class="research-papers">
+                {% for paper in t.papers %}
+                <li><a href="{{ paper.url }}" target="_blank" rel="noopener">{{ paper.label }}</a></li>
+                {% endfor %}
+            </ul>
+        </article>
+        {% endfor %}
     </div>
+    <p class="research-foundations">{{ site.data.research.foundations }}</p>
 </section>
 
 <!-- News Section -->
@@ -57,7 +49,7 @@ title: ""
     </div>
     <ul class="news-list">
         {% for item in site.data.news %}
-        <li class="news-item"><span class="news-date">{{ item.date }}</span><span class="news-text">{{ item.text }}</span></li>
+        <li class="news-item{% if item.kind == 'press' %} news-press{% endif %}"><span class="news-date">{{ item.date }}</span><span class="news-text">{% if item.kind == 'press' %}<span class="news-tag">Press</span> {% endif %}{{ item.text }}</span></li>
         {% endfor %}
     </ul>
 </section>
@@ -92,7 +84,7 @@ title: ""
         <ul class="alumni-list">
             {% for alum in site.data.team.alumni %}
             <li class="alumni-item">
-                <span class="alumni-name">{{ alum.name }},</span> 
+                <span class="alumni-name">{% if alum.url %}<a href="{{ alum.url }}" target="_blank" rel="noopener">{{ alum.name }}</a>{% else %}{{ alum.name }}{% endif %}{% if alum.role != "" %},{% endif %}</span> 
                 <span class="alumni-role">{{ alum.role }}</span> 
                 <span class="alumni-past">({{ alum.past }})</span>
             </li>
@@ -107,6 +99,14 @@ title: ""
         <h2>Publications</h2>
     </div>
     <div style="max-width: 900px; margin: 0 auto;">
+        <details class="proc-details">
+            <summary>Conference proceedings, abstracts &amp; presentations <span class="proc-count">{{ site.data.proceedings | size }}</span></summary>
+            <ul class="proc-list">
+                {% for c in site.data.proceedings %}
+                <li><span class="proc-year">{{ c.year }}</span> {{ c.text }}</li>
+                {% endfor %}
+            </ul>
+        </details>
         <ul class="pub-list" style="list-style: none; padding: 0; font-size: 0.9rem; color: var(--text-main); line-height: 1.4;">
             <li style="margin-top: 1.5rem; margin-bottom: 0.5rem;">
                 <h3 style="font-family: var(--font-heading); font-size: 1.2rem; color: var(--primary); border-bottom: 2px solid var(--accent); padding-bottom: 0.25rem; display: inline-block;">Preprints</h3>
@@ -128,19 +128,11 @@ title: ""
             {% for pub in year_group.items %}
             <li style="margin-bottom: 0.75rem;">
                 {{ pub.authors }} ({{ pub.year }}). 
-                <span style="color: var(--text-muted);">{{ pub.title }} <i>{{ pub.journal }}</i>{% if pub.volume %}, {{ pub.volume }}{% if pub.pages %} ({{ pub.pages }}){% endif %}{% endif %}.</span>{% if pub.doi %} <a class="pub-link" href="https://doi.org/{{ pub.doi }}" target="_blank" rel="noopener">DOI</a>{% elsif pub.url %} <a class="pub-link" href="{{ pub.url }}" target="_blank" rel="noopener">Link</a>{% endif %}
+                <span style="color: var(--text-muted);">{{ pub.title }} <i>{{ pub.journal }}</i>{% if pub.volume %}, {{ pub.volume }}{% if pub.pages %} ({{ pub.pages }}){% endif %}{% endif %}.</span>{% if pub.doi %} <a class="pub-link" href="https://doi.org/{{ pub.doi }}" target="_blank" rel="noopener">DOI</a>{% elsif pub.url %} <a class="pub-link" href="{{ pub.url }}" target="_blank" rel="noopener">Link</a>{% endif %}{% for pr in pub.press %} <a class="pub-link pub-press" href="{{ pr.url }}" target="_blank" rel="noopener">{{ pr.name }}</a>{% endfor %}
             </li>
             {% endfor %}
             {% endfor %}
         </ul>
-            <details class="proc-details">
-            <summary>Conference proceedings, abstracts &amp; presentations ({{ site.data.proceedings | size }})</summary>
-            <ul class="proc-list">
-                {% for c in site.data.proceedings %}
-                <li><span class="proc-year">{{ c.year }}</span> {{ c.text }}</li>
-                {% endfor %}
-            </ul>
-        </details>
     </div>
 </section>
 

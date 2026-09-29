@@ -1,0 +1,39 @@
+# Research thrusts. Broad framing (vision statements) over facts from the NIH biosketches (Feb 2026 and current).
+# Achieved-result claims verified against the biosketches (Sep 2026); aims are phrased as aims.
+subtitle: Every biological image is a measurement shaped by optics and computation. We treat the whole chain, from the photons leaving a sample to the conclusion a scientist draws, as one system that can be designed, learned and checked.
+thrusts:
+- label: Differentiable microscopy
+  title: Optics designed by machine learning
+  text: 'Most microscopes are still designed optics first: lenses form a sharp picture, and computation is added afterward. We ask what happens when the optics themselves are learned. By modeling how light travels through a material, we train a physical element the way we train a neural network, then fabricate it with collaborators at nanometer precision. These three-dimensional structures work in visible light and are designed to process an image as light passes through them. Our long-term goal is microscopes designed end to end for the biological question they answer, with part of the computation done by the light itself.'
+  papers:
+  - label: QuATON · Optics Express 2026
+    url: https://doi.org/10.1364/OE.546074
+  - label: 3D nanoprecise metastructures, with the Boyden and So labs · Nature Photonics 2026
+    url: https://doi.org/10.1038/s41566-026-01896-1
+  - label: Volumetric diffractive networks · arXiv 2026 (preprint)
+    url: https://arxiv.org/abs/2606.07896
+  - label: Towards ultrafast quantitative phase imaging · Biomedical Optics Express 2024
+    url: https://opg.optica.org/abstract.cfm?uri=boe-15-3-1798
+- label: DEEP · de-scattering with excitation patterning
+  title: Imaging deep inside living tissue
+  text: Cells deep inside living tissue are hard to see because light scatters there, like headlights in fog. Our DEEP methods use multiphoton excitation to light up a whole plane at once, encode it with patterns of light, and recover a sharp image from the scattered signal with computation. Neural networks made DEEP an order of magnitude faster (DEEP²), and we are now making these reconstructions learn from the physics of each experiment instead of from large training sets. The aim is to watch cells, including synapses in the living brain, in their native environment and fast enough to follow what they do.
+  papers:
+  - label: DEEP · Science Advances 2021
+    url: https://doi.org/10.1126/sciadv.aay5496
+  - label: 'DEEP² · Light: Science & Applications 2023'
+    url: https://doi.org/10.1038/s41377-023-01248-6
+  - label: Untrained networks for structured illumination · Chemical & Biomedical Imaging 2026
+    url: https://doi.org/10.1021/cbmi.5c00153
+- label: Bias · uncertainty · validity
+  title: Trustworthy machine learning for biomedicine
+  text: 'Anything learned from data can inherit the biases of that data, whether it is a neural network or an optical element trained on examples. A model can score well yet fail on samples unlike its training set, or pick up quirks of how the data were collected instead of the biology. We continuously develop methods to understand, test and mitigate these biases in the learned optics and algorithms we build: uncertainty estimates that show where a model is unsure and where expert labels are most needed, and statistical tests that check whether a reported accuracy reflects real signal rather than chance. We apply them to problems such as digital pathology and the diagnosis of infections and antimicrobial resistance, which we study with collaborators in Norway, India and Sri Lanka.'
+  papers:
+  - label: Beyond Perfect Scores · arXiv 2026 (preprint)
+    url: https://arxiv.org/abs/2601.06704
+  - label: Uncertainty-aware labeling in digital pathology · WACV 2025
+    url: https://doi.org/10.1109/WACV61041.2025.00067
+  - label: Phase microscopy and genome sequencing for resistance detection · Frontiers in Microbiology 2023
+    url: https://doi.org/10.3389/fmicb.2023.1154620
+  - label: SERS nanowire chip for resistant bacteria · ACS Applied Materials & Interfaces 2023
+    url: https://doi.org/10.1021/acsami.3c00612
+foundations: The lab's approach grew out of earlier instruments whose optics were designed around their reconstruction algorithms. They include a 3D image cytometer that imaged about 800 cells per second, recognized with the Cytometry Part A 2015 best paper award, and a compressive hyperspectral imager (Optica 2017).
