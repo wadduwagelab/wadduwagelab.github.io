@@ -109,8 +109,13 @@
 - year: 2021
   authors: "Kay, J. E., Corrigan, J. J., Armijo, A. L., Nazari, I. S., Kohale, I. N., Torous, D. K., Avlasevich, S. L., Croy, R. G., Wadduwage, D. N., Carrasco, S. E., Dertinger, S. D., White, F. M., Essigmann, J. M., Samson, L. D., & Engelward, B. P."
   title: "Excision of mutagenic replication-blocking lesions suppresses cancer but promotes cytotoxicity and lethality in nitrosamine-exposed mice."
-  journal: "Cell reports"
+  journal: "Cell Reports"
   volume: "34(11)"
+  pages: "108864"
+  doi: "10.1016/j.celrep.2021.108864"
+  press:
+    - name: "MIT News"
+      url: "https://news.mit.edu/2021/dna-repair-enzyme-ndma-cancer-0316"
 
 - year: 2020
   authors: "Agbleke, A. A., Amitai, A., Buenrostro, J. D., Chakrabarti, A., Chu, L., Hansen, A. S., Koenig, K. M., Labade, A. S., Liu, S., Nozaki, T., Ovchinnikov, S., Seeber, A., Shaban, H. A., Spille, J.-H., Stephens, A. D., Su, J.-H., Wadduwage, D., et al."
