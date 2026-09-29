@@ -26,7 +26,7 @@ thrusts:
     url: https://doi.org/10.1021/cbmi.5c00153
 - label: Bias · uncertainty · validity
   title: Trustworthy machine learning for biomedicine
-  text: 'Anything learned from data can inherit the biases of that data, whether it is a neural network or an optical element trained on examples. A model can score well yet fail on samples unlike its training set, or pick up quirks of how the data were collected instead of the biology. We continuously develop methods to understand, test and mitigate these biases in the learned optics and algorithms we build: uncertainty estimates that show where a model is unsure and where expert labels are most needed, and statistical tests that check whether a reported accuracy reflects real signal rather than chance. We apply them to problems such as digital pathology and the diagnosis of infections and antimicrobial resistance, which we study with collaborators in Norway, India and Sri Lanka.'
+  text: 'Anything learned from data can inherit its biases, be it a neural network or a learned optical element. A model can score well yet fail on samples unlike its training set, or learn how the data were collected instead of the biology. We develop methods to understand, test and mitigate these biases in the optics and algorithms we build, such as uncertainty estimates that show where a model is unsure and statistical tests that check whether a reported accuracy reflects real signal. We apply them to digital pathology and to diagnosing infections and antimicrobial resistance, with collaborators in Norway, India and Sri Lanka.'
   papers:
   - label: Beyond Perfect Scores · arXiv 2026 (preprint)
     url: https://arxiv.org/abs/2601.06704
