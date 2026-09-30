@@ -717,3 +717,8 @@ footer p { font-size: 0.9rem !important; }
 .footer-links { flex-wrap: wrap; gap: 0.5rem 1.25rem; }
 .footer-links a { font-size: 0.9rem; color: var(--text-muted); text-decoration: none; border-bottom: 1px dashed var(--text-muted); padding-bottom: 1px; }
 .footer-links a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* --- In-page links stop below the sticky header (2026-09) --- */
+html { scroll-padding-top: var(--header-h, 60px); }
+@media (max-width: 768px) { html { scroll-padding-top: var(--header-h, 90px); } }
+@media (max-width: 600px) { html { scroll-padding-top: var(--header-h, 120px); } }
