@@ -722,3 +722,6 @@ footer p { font-size: 0.9rem !important; }
 html { scroll-padding-top: var(--header-h, 60px); }
 @media (max-width: 768px) { html { scroll-padding-top: var(--header-h, 90px); } }
 @media (max-width: 600px) { html { scroll-padding-top: var(--header-h, 120px); } }
+
+/* --- Teaching: subtle note on courses designed or redesigned (2026-10) --- */
+.course-design { color: var(--text-muted); font-style: italic; font-size: 0.88em; white-space: nowrap; }
