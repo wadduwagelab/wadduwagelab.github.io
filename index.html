@@ -93,6 +93,37 @@ title: ""
     </div>
 </section>
 
+<!-- Lab life: photo strip (data in _data/gallery.yml) -->
+<section id="lab-life">
+    <div class="section-title">
+        <h2>Lab Life</h2>
+        <p>From Harvard to Norfolk.</p>
+    </div>
+    <div class="gallery-wrap">
+        <ul class="gallery" aria-label="Lab life photos">
+            {% for ph in site.data.gallery %}
+            <li class="gallery-item">
+                <a href="{{ '/assets/img/lab-life/' | append: ph.slug | append: '.webp' | relative_url }}" class="gallery-link" data-caption="{{ ph.caption | escape }}" data-when="{{ ph.when }}">
+                    <img src="{{ '/assets/img/lab-life/' | append: ph.slug | append: '-thumb.webp' | relative_url }}" alt="{{ ph.caption | escape }}" width="560" height="420" loading="lazy" decoding="async">
+                </a>
+                <span class="gallery-when">{{ ph.when }}</span>
+                <p class="gallery-caption">{{ ph.caption }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+        <div class="gallery-nav">
+            <button type="button" class="gallery-btn" data-dir="-1" aria-label="Previous photos">&larr;</button>
+            <button type="button" class="gallery-btn" data-dir="1" aria-label="Next photos">&rarr;</button>
+        </div>
+    </div>
+    <dialog class="lightbox" aria-label="Photo viewer">
+        <button type="button" class="lightbox-close" aria-label="Close">&times;</button>
+        <button type="button" class="lightbox-prev" aria-label="Previous photo">&larr;</button>
+        <figure><img alt=""><figcaption><span class="gallery-when"></span> <span class="lightbox-text"></span></figcaption></figure>
+        <button type="button" class="lightbox-next" aria-label="Next photo">&rarr;</button>
+    </dialog>
+</section>
+
 <!-- Publications Section -->
 <section id="publications" class="bg-subtle">
     <div class="section-title">
