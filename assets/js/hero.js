@@ -1,4 +1,5 @@
-/* Wadduwage Lab hero: tissue scatters light -> learned optics -> focus -> sharp image.
+/* Wadduwage Lab hero: tissue scatters light -> learned optics -> sensor -> computational
+ * reconstruction (a small network the photons pass through as data) -> sharp image.
  * Art in a stage right of the title column; 4x4 Bayer dither into --hero-bg/c1/c2/c3. */
 (function () {
   const cv = document.getElementById('hero-canvas');
@@ -11,7 +12,7 @@
   const cl = (v, a, b) => v < a ? a : v > b ? b : v, ss = (a, b, v) => (v = cl((v - a) / (b - a), 0, 1), v * v * (3 - 2 * v));
   const NEU = '44 46 30 30 22 14 18 4|30 30 12 24 4 26|22 14 32 6|44 46 20 52 6 62|20 52 10 44|44 46 38 70 26 86 20 96|38 70 50 88|44 46 60 28 64 10|60 28 80 22 92 12|44 46 64 58 78 70 96 78|78 70 86 90'
     .split('|').map(s => s.split(' ').map(Number));
-  let W, H, img, pal, I, F, N, L, cells, pts, mk, nim, ord, hal, tot, kb, nS = 0, ph = 0, pt = 0, T = 0, prev = 0, raf = 0, on = true;
+  let ea = {}, W, H, img, pal, I, F, N, L, cells, pts, mk, nim, ord, hal, tot, kb, nS = 0, ph = 0, pt = 0, T = 0, prev = 0, raf = 0, on = true;
   let pX = .5, pXs = .5, pY = null, srcY = 0;
 
   function readPal() {
@@ -46,7 +47,12 @@
     const S = M.max(20, M.min(rd(sw * .27), rd(H * .5), 64)) & ~1, cy = (H - 6) >> 1, f = v => rd(x0 + sw * v);
     const tcx = f(.16), trx = rd(sw * .09) + 2, lx = [.31, .36, .41].map(f), dx = x0 + sw - S - 2;
     L = { x0, sw, S, cy, tcx, trx, tr: M.min(rd(S * .7), cy - 4), lx, dx, dy: cy - (S >> 1), pw: S < 32 ? 1 : 2, lh: rd(S * .62),
-      xe: tcx - trx, xc: tcx + trx, fx: rd(lx[2] + (dx - lx[2]) * .6) };
+      xe: tcx - trx, xc: tcx + trx };
+    const gp = dx - lx[2], sm = S < 32;
+    L.fx = rd(lx[2] + gp * .24); L.sx = rd(lx[2] + gp * .44); L.sh = M.max(4, rd(S * .3));
+    const n0 = L.sx + M.max(3, rd(gp * .13)), n1 = dx - (sm ? 3 : 5), cnt = sm ? [3, 3] : [4, 5, 4];
+    L.nodes = cnt.map((n, c) => Array.from({ length: n }, (_, r) => [rd(n0 + (n1 - n0) * c / (cnt.length - 1)), rd(cy + (r - (n - 1) / 2) * L.sh * 1.9 / M.max(1, n - 1))]));
+    L.ncx = (n0 + n1) / 2; ea = {};
     srcY = srcY || cy; N = noise();
     mk = lx.map(() => Array.from({ length: H }, () => rnd() * .5));
     const sc = M.max(.6, S / 44);
@@ -73,7 +79,7 @@
 
   function placeLabels(br) {
     const sc = br.width / W, ly = (L.cy + M.max(L.lh + 1, (L.S >> 1) + 4, L.tr) + 4) * sc, lo = L.x0 * sc, hi = (L.x0 + L.sw + 2) * sc, GP = 34;
-    const cx = [L.tcx, L.lx[1] + 1, L.fx, L.dx + L.S / 2];
+    const cx = [L.lx[1] + 1, L.sx + 1, L.ncx, L.dx + L.S / 2];
     let bx;
     for (const md of [0, 1, 2, 3]) {
       const vis = labels.filter(el => {
@@ -87,6 +93,8 @@
       for (let k = bx.length - 1; k >= 0; k--) bx[k][0] = M.min(bx[k][0], k < bx.length - 1 ? bx[k + 1][0] - GP - bx[k][1] : hi - bx[k][1]);
       if (bx[0][0] >= lo - 2 || md > 2) break;
     }
+    const dr = bx.reduce((a, b, k) => a + b[0] + b[1] / 2 - cx[labels.indexOf(b[2])] * sc, 0) / bx.length;
+    if (dr > 0) { const sh = M.min(dr, bx[0][0] - lo); if (sh > 0) bx.forEach(b => b[0] -= sh); }
     bx.forEach(([x, , el]) => Object.assign(el.style, { left: M.max(4, x) + 'px', top: ly + 'px', right: 'auto', transform: 'none' }));
     L.ar = bx.slice(1).map((b, i) => [M.ceil((bx[i][0] + bx[i][1] + 4) / sc), M.floor((b[0] - 5) / sc), rd((ly + b[2].offsetHeight / 2) / sc)]);
     band.classList.add('is-ready');
@@ -110,22 +118,26 @@
         if (p.x >= lx[0]) { p.s = 2; aim(p, fx, cy); }
       } else {
         p.x += p.vx * dt; p.y += p.vy * dt;
-        if (p.s === 2 && p.x >= fx) {
-          const j = ord[M.min(tot - 1, nS + (rnd() * kb * 5 | 0))];
-          p.s = 3; aim(p, dx + j % S, dy + (j / S | 0));
-        } else if (p.s === 3 && p.x >= p.tx) {
-          if (!ph && (nS = M.min(tot, nS + kb)) === tot) { ph = 1; pt = 0; }
-          spawn(p, 0);
+        if (p.s === 2 && p.x >= fx) { p.s = 3; aim(p, L.sx, cy + (rnd() * 2 - 1) * L.sh * .85); }
+        else if (p.s === 3 && p.x >= p.tx) {
+          const j = ord[M.min(tot - 1, nS + (rnd() * kb * 5 | 0))], nd = L.nodes;
+          let r = nd[0].reduce((b, q, i) => M.abs(q[1] - p.y) < M.abs(nd[0][b][1] - p.y) ? i : b, 0), k = 'S' + r;
+          p.path = [nd[0][r]]; ea[k] = T;
+          for (let c = 1; c < nd.length; c++) { const r2 = rnd() * nd[c].length | 0; ea[(c - 1) + ':' + r + ':' + r2] = T; r = r2; p.path.push(nd[c][r]); }
+          p.path.push([dx + j % S, dy + (j / S | 0)]); p.s = 4; p.tr = []; aim(p, ...p.path.shift());
+        } else if (p.s === 4 && p.x >= p.tx - .5) {
+          if (p.path.length) aim(p, ...p.path.shift());
+          else { if (!ph && (nS = M.min(tot, nS + kb)) === tot) { ph = 1; pt = 0; } spawn(p, 0); }
         }
       }
     }
     if (ph === 1 && pt > 160) { ph = 2; pt = 0; }
     if (ph === 2 && pt > 50) { ph = 0; nS = 0; }
   }
-  function aim(p, x, y) { const n = hyp(x - p.x, y - p.y) || 1; p.vx = (x - p.x) / n * 1.6; p.vy = (y - p.y) / n * 1.6; p.tx = x; }
+  function aim(p, x, y) { const n = hyp(x - p.x, y - p.y) || 1, v = p.s === 4 ? 1.3 : 1.6; p.vx = (x - p.x) / n * v; p.vy = (y - p.y) / n * v; p.tx = x; }
 
   function draw() {
-    const { x0, sw, S, cy, tcx, trx, tr, lx, dx, dy, pw, lh, xe, xc, fx } = L;
+    const { x0, sw, S, cy, tcx, trx, tr, lx, dx, dy, pw, lh, xe, xc, fx, sx, sh } = L;
     const tm = T / 60, k = TAU / 6, w = tm * 5, hw0 = lh * .8, sd = tr * .55, xs = x0 + sw + 3, L2 = lx[2] + pw, d = img.data;
     const set = (x, y, v) => { x = rd(x); y = rd(y); if (x >= 0 && y >= 0 && x < W && y < H) F[y * W + x] = v; };
     F.fill(-1);
@@ -136,7 +148,7 @@
         b = M.max(b, .5 * E(-rb2 / (S * S * .12)));
         const ex = (x - tcx - (pXs - .5) * 2) / trx, ey = (y - cy) / tr, e = ex * ex + ey * ey + (N[(y >> 1 & 63) * 64 + (x >> 1 & 63)] - .5) * .3;
         if (e < 1) b = e > .86 ? 1 : .1 + .3 * N[(y >> 2 & 63) * 64 + (x >> 2 & 63)] + .3 * ss(-.3, 1, ex * .5 + ey * .8);
-        if (x >= x0 + 4 && x < dx - 1) {
+        if (x >= x0 + 4 && x < sx) {
           const dy2 = (y - srcY) ** 2, sp = .5 + .5 * M.sin(n * 40 + tm * 3);
           if (x < xe) l = 2 * E(-dy2 / .5);
           else if (x < L2) {
@@ -144,7 +156,7 @@
             l = 2 * E(-3.5 * p) * E(-dy2 / .5) + (1 - q) * 2.1 * (1 - E(-4 * p)) * E(-dy2 / (sg * sg)) * sp * sp * sp * ss(lh, lh - 6, M.abs(dfy));
             if (M.abs(dfy) < hw0) l += q * .35;
           } else {
-            const pre = x <= fx, hw = pre ? hw0 * (fx - x) / (fx - L2) + .6 : .6 + S * .45 * (x - fx) / (dx - fx), u = M.abs(dfy) / hw, r = M.sqrt(rb2);
+            const pre = x <= fx, hw = pre ? hw0 * (fx - x) / (fx - L2) + .6 : .6 + sh * (x - fx) / (sx - fx), u = M.abs(dfy) / hw, r = M.sqrt(rb2);
             if (u < 1) { const wv = M.max(0, M.cos(pre ? k * r + w : k * r - w)); l = (pre ? 1 : .7) * (.3 + .25 * (1 - u) + 1.2 * wv ** 6); }
             l += (pre ? 1.1 : .7) * ss(2, 8, M.abs(dfx)) * E(-(u - 1) * (u - 1) * hw * hw * 2);
             l *= .3 + .7 * ss(4, 10, r);
@@ -180,6 +192,14 @@
         set(s - 1, y, cap ? 3 : 2); set(s + pw, y, cap ? 3 : 2);
       }
     });
+    const line = (ax, ay, bx, by, c) => { const n = M.max(M.abs(bx - ax), M.abs(by - ay)) | 0; for (let s = 0; s <= n; s++) set(ax + (bx - ax) * s / n, ay + (by - ay) * s / n, c); };
+    const hot = k => T - (ea[k] || -99) < 22, nd = L.nodes;
+    nd[0].forEach((q, r) => line(sx + 2, q[1], q[0], q[1], hot('S' + r) ? 2 : 1));
+    for (let c = 1; c < nd.length; c++) nd[c - 1].forEach((a, r) => nd[c].forEach((b, r2) => line(a[0], a[1], b[0], b[1], hot((c - 1) + ':' + r + ':' + r2) ? 2 : 1)));
+    nd[nd.length - 1].forEach(q => line(q[0], q[1], dx - 3, q[1], 1));
+    const ns = S < 32 ? 0 : 1;
+    nd.forEach(col => col.forEach(([x, y]) => { for (let b = -ns; b <= ns; b++) for (let a = -ns; a <= ns; a++) set(x + a, y + b, 3); }));
+    for (let y = cy - sh - 1; y <= cy + sh + 1; y++) { const e = M.abs(y - cy) > sh; set(sx, y, 3); set(sx + 1, y, e ? 3 : (y - cy) % 3 ? 2 : 3); }
     const lock = ph === 1, fd = ph === 2 ? pt / 50 : 0, prog = ph ? 1 - fd : nS / tot;
     for (let y = dy - 2; y <= dy + S + 1; y++) for (let x = dx - 2; x <= dx + S + 1; x++)
       set(x, y, y === dy - 2 || y === dy + S + 1 || x === dx - 2 || x === dx + S + 1 ? lock ? 3 : 2 : (x - dx) % 3 === 1 && (y - dy) % 3 === 1 ? 1 : 0);
