@@ -5,3 +5,7 @@ _site
 vendor
 .bundle
 Gemfile.lock
+# private source material must never be committed (see CLAUDE.md)
+content-sources/
+annual-review*/
+*WADDUWAGE, DUSHAN*

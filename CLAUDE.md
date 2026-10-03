@@ -32,6 +32,7 @@ commit as Dushan, push, verify.
 |---|---|
 | `site/` | Git clone of the site repo (with history). **The only thing that is deployed.** |
 | `content-sources/` | Raw material: `website-content-for-claude/` (original lab-life photos + Claude's photo review; `_claude_photo_review/web/meta.json` maps each gallery slug to its source photo), `bio-and-cv/` (NIH biosketch/CV text used for bios and research text, plus two NIH biosketch PDFs `cv-3233225.pdf` and `wadduwage-cv-3233225.pdf`), `research-text-drafts/` (drafts v1–v3 of the Research section, Sep 2026). |
+| `content-sources/annual-review-2026/` | **Private.** Copy of the AY 2025–26 annual review package (final text in `text/*.md`, uploaded PDFs in `pdf/`): the richest fact source for publications, software, talks, students, courses and press. See its README for what may and may not go on the public site. Never copy into `site/` or commit to GitHub. |
 | `design/` | Design history: `hero/` (chosen hero GIF, variant sheet, variant demo page, previous hero.js), `themes/` (theme CSS A/B/C, fonts, comps; C "Dither Lab" was chosen), `preview/` (standalone preview HTML), `screenshots/` (`current-2026-10-03/` = reference look of the live design; older sets), `old-site-build/` (the Feb 2026 site before the redesign). |
 | `tools/` | Scripts: screenshots, render without Jekyll, link check, gallery images, hero bench. See `tools/README.md`. |
 | `related-repos.md` | Lab software repos linked from the site, with DOIs and public/private status. |
@@ -226,6 +227,7 @@ this folder (or have the user run git in Terminal). For read-only commands use
   in the OCISHT folder (dated Oct 2, 2026). Publications, software, teaching, grants and titles should match it.
 - **Publications:** Google Scholar (above); `reference/publications.md` in OCISHT is an older (Jun 2026) list.
 - **Software DOIs:** Zenodo (see `related-repos.md`).
+- **Annual review package (AY 2025–26, private):** `content-sources/annual-review-2026/` (text + PDFs). Use as a fact source only; do not publish pending grants, budgets, review scores, unpublished manuscripts or evaluation material.
 - **Bios / research text:** `content-sources/bio-and-cv/` (NIH biosketches).
 - **Photos:** `content-sources/website-content-for-claude/_photos/` (originals, HEIC/JPG).
 
