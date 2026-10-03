@@ -30,6 +30,7 @@ navigation:
 
 # Exclude from processing
 exclude:
+  - CLAUDE.md
   - Gemfile
   - Gemfile.lock
   - node_modules
