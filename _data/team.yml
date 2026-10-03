@@ -14,6 +14,11 @@ current:
     bio: "Researching on Differentiable Optics and Target-Agnostic Tracking."
     image: "/assets/images/leonidas-zimianitis.png"
   
+  - name: "Pasindu Thenahandi"
+    role: "Ph.D. Student"
+    bio: "Researching on Computational Microscopy and Computer Vision. Joint with the NIRDS Lab (Dr. Sampath Jayarathna)."
+    image: "/assets/images/pasindu-thenahandi.png"
+  
   # - name: "Kai"
   #   role: ""
   #   bio: ""
