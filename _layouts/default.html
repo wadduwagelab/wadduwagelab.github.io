@@ -23,7 +23,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Silkscreen&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}">
     {% if site.url %}
     <script type="application/ld+json">
     {
@@ -86,10 +86,10 @@
     </footer>
 
     <!-- Hero animation: pixel optical bench -->
-    <script src="{{ '/assets/js/hero.js' | relative_url }}" defer></script>
-    <script src="{{ '/assets/js/scroll.js' | relative_url }}" defer></script>
-    <script src="{{ '/assets/js/gallery.js' | relative_url }}" defer></script>
+    <script src="{{ '/assets/js/hero.js' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}" defer></script>
+    <script src="{{ '/assets/js/scroll.js' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}" defer></script>
+    <script src="{{ '/assets/js/gallery.js' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}" defer></script>
     <!-- Ask the lab: chat assistant (backend in worker/) -->
-    <script src="{{ '/assets/js/chat.js' | relative_url }}" defer></script>
+    <script src="{{ '/assets/js/chat.js' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}" defer></script>
 </body>
 </html>
