@@ -35,6 +35,7 @@ navigation:
 # Exclude from processing
 exclude:
   - CLAUDE.md
+  - worker
   - Gemfile
   - Gemfile.lock
   - node_modules

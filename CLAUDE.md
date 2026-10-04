@@ -176,6 +176,28 @@ the number of labels without editing `hero.js`. After any change: screenshots at
 no JS errors. The previous version is in `design/hero/hero_v5_before-sensor-stage_2026-10-01.js`;
 `tools/hero_bench.py` benchmarks variants.
 
+## Chat assistant "Ask the lab" (added 2026-10, branch `chat-agent` until approved)
+
+A chat widget (`assets/js/chat.js`, styles at the end of `main.css`, script tag in
+`_layouts/default.html`) backed by a Cloudflare Worker in `site/worker/` (excluded from the Jekyll
+build; see `site/worker/README.md` for design, local test and deploy steps). The Worker calls the
+**Gemini API** (key stored as a Worker secret, never in the repo) and answers only from
+`assets/chat/` (site `_data` plus the arXiv HTML of the preprints), checking every quote against
+its source block before returning it. The widget's button appears only when `GET /api/chat`
+reports `ok`, so the site works unchanged if the Worker is down or not deployed.
+
+- **After any `_data` change, or a new preprint:** run `python3 tools/build_chat_corpus.py site`
+  (needs `pyyaml beautifulsoup4 lxml`) and commit `assets/chat/`. New preprints: add the arXiv id
+  to `PAPERS` (and short names to `ALIASES`) in that script. Only public sources; never point it
+  at `content-sources/`.
+- **Node for wrangler:** this Mac's Homebrew has no Node bottle, so a local Node LTS lives in
+  `tools/.node/` (put `tools/.node/bin` first on `PATH`), with wrangler installed in
+  `site/worker/node_modules` (git-ignored).
+- **Local test:** `.claude/launch.json` has `render-preview` (port 4173) and `chat-worker`
+  (port 8787). `site/worker/.dev.vars` (git-ignored) holds the key for local runs; `MOCK=1`
+  there tests the pipeline without a key.
+- **Do not** type or paste the API key yourself; the user runs `npx wrangler secret put GEMINI_API_KEY`.
+
 ## Workflow for an update request
 
 ```bash

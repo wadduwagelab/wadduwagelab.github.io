@@ -1,0 +1,6 @@
+# Copy to .dev.vars for local testing (never commit .dev.vars).
+GEMINI_API_KEY=
+CORPUS_BASE=http://localhost:4173/assets/chat
+ALLOWED_ORIGINS=http://localhost:4173
+# MOCK=1 answers without calling Gemini (pipeline test without a key).
+MOCK=

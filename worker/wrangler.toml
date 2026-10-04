@@ -1,0 +1,28 @@
+# "Ask the lab" backend. Deploy with:  npx wrangler deploy   (see README.md)
+name = "wadduwagelab-chat"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+workers_dev = true
+routes = [{ pattern = "wadduwagelab.com/api/*", zone_name = "wadduwagelab.com" }]
+
+[vars]
+GEMINI_MODEL = "gemini-3.5-flash-lite"
+CORPUS_BASE = "https://wadduwagelab.com/assets/chat"
+ALLOWED_ORIGINS = "https://wadduwagelab.com,https://www.wadduwagelab.com"
+DAILY_LIMIT = "300"
+
+# Per-visitor burst limit: 8 questions a minute per IP address.
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 8
+  period = 60
+
+# Daily cap across all visitors. Create the namespace once with
+#   npx wrangler kv namespace create QUOTA
+# then paste the id below and uncomment.
+# [[kv_namespaces]]
+# binding = "QUOTA"
+# id = ""
