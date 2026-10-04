@@ -20,7 +20,11 @@
     return n;
   }
 
-  var launcher = el('button', 'chat-launcher', 'Ask the lab');
+  var launcher = el('button', 'chat-launcher');
+  var mark = el('span', 'chat-launcher-mark', '?');
+  mark.setAttribute('aria-hidden', 'true');
+  launcher.appendChild(mark);
+  launcher.appendChild(document.createTextNode('Ask the lab'));
   launcher.type = 'button';
   launcher.setAttribute('aria-haspopup', 'dialog');
   launcher.setAttribute('aria-expanded', 'false');
