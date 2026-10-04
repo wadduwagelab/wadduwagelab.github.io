@@ -6,6 +6,8 @@ workers_dev = true
 routes = [{ pattern = "wadduwagelab.com/api/*", zone_name = "wadduwagelab.com" }]
 
 [vars]
+# "0" hides the widget's button on the site (the status check reports not ready).
+ENABLED = "0"
 GEMINI_MODEL = "gemini-3.5-flash-lite"
 CORPUS_BASE = "https://wadduwagelab.com/assets/chat"
 ALLOWED_ORIGINS = "https://wadduwagelab.com,https://www.wadduwagelab.com"

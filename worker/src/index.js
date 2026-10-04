@@ -187,7 +187,7 @@ export default {
     }
     if (request.method === 'GET') {
       const index = await loadIndex(env).catch(() => null);
-      const ready = Boolean(index) && (Boolean(env.GEMINI_API_KEY) || env.MOCK === '1');
+      const ready = env.ENABLED !== '0' && Boolean(index) && (Boolean(env.GEMINI_API_KEY) || env.MOCK === '1');
       return json({ ok: ready, built: index?.built, papers: index?.papers.map((p) => p.title) });
     }
     if (request.method !== 'POST') return json({ error: 'Method not allowed.' }, 405);

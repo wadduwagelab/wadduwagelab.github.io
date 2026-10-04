@@ -44,6 +44,7 @@ The Worker serves `wadduwagelab.com/api/*`. The widget shows its button only whe
 
 | Setting | Meaning |
 |---|---|
+| `ENABLED` | `"0"` hides the widget's button on the site; `"1"` shows it |
 | `GEMINI_MODEL` | Gemini model id |
 | `CORPUS_BASE` | where the corpus JSON is served |
 | `ALLOWED_ORIGINS` | sites allowed to call the endpoint |
