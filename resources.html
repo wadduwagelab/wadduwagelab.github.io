@@ -1,0 +1,247 @@
+---
+layout: default
+title: "Resources"
+permalink: /resources/
+---
+{% assign r = site.data.resources %}
+<!-- Resources for prospective and incoming students (content: _data/resources.yml) -->
+<section class="res-head">
+    <p class="res-kicker">For new and prospective students</p>
+    <h1>Resources</h1>
+    <p class="res-intro">{{ r.intro }}</p>
+    <div class="res-routes" role="navigation" aria-labelledby="res-routes-label">
+        <span class="res-routes-label" id="res-routes-label">Where are you now?</span>
+        {% for rt in r.routes %}<a href="{{ rt.href }}" class="res-route">{{ rt.label }}</a>{% endfor %}
+    </div>
+    <div class="res-toc" role="navigation" aria-label="On this page">
+        <a href="#start">Start here</a>
+        <a href="#apply">Applying</a>
+        <a href="#path">Learning path</a>
+        <a href="#papers">Read our work</a>
+        <a href="#code">Run our code</a>
+        <a href="#how-we-work">How the lab works</a>
+        <a href="#writing">Writing &amp; figures</a>
+        <a href="#arrival">Joining ODU</a>
+        <a href="#glossary">Glossary</a>
+        <a href="#more">Beyond the lab</a>
+    </div>
+    <p class="res-reviewed">Last reviewed {{ r.reviewed }}</p>
+</section>
+
+<!-- Start here -->
+<section id="start" class="bg-subtle">
+    <div class="section-title">
+        <h2>Start here</h2>
+        <p>Five things to do first, before you arrive.</p>
+    </div>
+    <ol class="res-start">
+        {% for s in r.start %}
+        <li class="res-start-card">
+            <span class="res-time">{{ s.time }}</span>
+            <h3>{{ s.title }}</h3>
+            <p>{{ s.text }}</p>
+            <div class="res-links">{% for l in s.links %}{% assign c0 = l.url | slice: 0 %}<a class="pub-link" href="{{ l.url }}"{% if c0 != '#' %} target="_blank" rel="noopener"{% endif %}>{{ l.label }}</a> {% endfor %}</div>
+        </li>
+        {% endfor %}
+    </ol>
+</section>
+
+<!-- Applying -->
+<section id="apply">
+    <div class="section-title">
+        <h2>Thinking of applying</h2>
+        <p>What helps, and how to get in touch.</p>
+    </div>
+    <p class="res-lead">{{ r.apply.text }}</p>
+    <div class="res-two">
+        <div>
+            <h3 class="res-h3">Background that helps</h3>
+            <ul class="res-bullets">
+                {% for b in r.apply.background %}<li>{{ b }}</li>{% endfor %}
+            </ul>
+        </div>
+        <div>
+            <h3 class="res-h3">How to apply</h3>
+            <ol class="res-steps">
+                {% for st in r.apply.steps %}<li><span>{{ st }}</span></li>{% endfor %}
+            </ol>
+            <p class="res-extra">{{ r.apply.extra }}</p>
+            <div class="res-links">{% for l in r.apply.links %}<a class="pub-link" href="{{ l.url }}"{% unless l.url contains 'mailto:' %} target="_blank" rel="noopener"{% endunless %}>{{ l.label }}</a> {% endfor %}</div>
+        </div>
+    </div>
+</section>
+
+<!-- Learning path -->
+<section id="path" class="bg-subtle">
+    <div class="section-title">
+        <h2>Learning path</h2>
+        <p>Before you arrive.</p>
+    </div>
+    <p class="res-lead">{{ r.path.intro }}</p>
+    <p class="res-callout">{{ r.path.visa_note }}</p>
+    <div class="res-tracks">
+        {% for t in r.path.tracks %}
+        <article class="res-track" id="track-{{ t.id }}">
+            <div class="res-track-head">
+                <span class="res-when">{{ t.when }}</span>
+                <h3>{{ t.title }}</h3>
+                <p>{{ t.summary }}</p>
+            </div>
+            <ul class="res-items">
+                {% for it in t.items %}
+                <li class="res-item">
+                    <span class="res-item-title">{% if it.url %}<a href="{{ it.url }}" target="_blank" rel="noopener">{{ it.title }}</a>{% else %}<cite>{{ it.title }}</cite>{% endif %}{% if it.core %} <span class="res-core">core</span>{% endif %}{% if it.ours %} <span class="res-ours">our course</span>{% endif %}</span>
+                    <span class="res-item-by">{{ it.by }}{% if it.note %}. {{ it.note }}{% endif %}</span>
+                    <span class="res-item-meta">{{ it.kind }}{% if it.time %} &middot; {{ it.time }}{% endif %}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+        {% endfor %}
+    </div>
+    <h3 class="res-h3 res-h3-gap">Check yourself</h3>
+    <p class="res-lead">{{ r.path.exercises_intro }}</p>
+    <div class="res-grid">
+        {% for ex in r.path.exercises %}
+        <div class="software-card res-ex">
+            <span class="res-from">{{ ex.from }} &middot; {{ ex.time }}</span>
+            <h4>{{ ex.title }}</h4>
+            <p>{{ ex.text }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Read our work -->
+<section id="papers">
+    <div class="section-title">
+        <h2>Read our work</h2>
+        <p>In this order.</p>
+    </div>
+    <p class="res-lead">{{ r.papers_intro }}</p>
+    <div class="research-grid">
+        {% for g in r.papers %}
+        <article class="research-card">
+            <span class="research-label">{{ g.thrust }}</span>
+            <h3 class="res-card-h">{{ g.title }}</h3>
+            <ol class="res-papers">
+                {% for p in g.items %}
+                <li><a href="{{ p.url }}" target="_blank" rel="noopener">{{ p.label }}</a><span>{{ p.why }}</span></li>
+                {% endfor %}
+            </ol>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Run our code -->
+<section id="code" class="bg-subtle">
+    <div class="section-title">
+        <h2>Run our code</h2>
+        <p>Easiest first.</p>
+    </div>
+    <p class="res-lead">{{ r.code_intro }}</p>
+    <ol class="res-grid res-code">
+        {% for c in r.code %}
+        <li class="software-card">
+            <h3 class="res-card-h">{{ c.name }}</h3>
+            <p>{{ c.what }}</p>
+            <div class="software-links">
+                <a class="pub-link" href="{{ c.repo }}" target="_blank" rel="noopener">Code</a>{% if c.demo %} <a class="pub-link" href="{{ c.demo }}" target="_blank" rel="noopener">Demo</a>{% endif %}{% if c.doi %} <a class="pub-link" href="https://doi.org/{{ c.doi }}" target="_blank" rel="noopener">Data DOI</a>{% endif %}
+            </div>
+        </li>
+        {% endfor %}
+    </ol>
+</section>
+
+<!-- How the lab works -->
+<section id="how-we-work">
+    <div class="section-title">
+        <h2>How the lab works</h2>
+        <p>{{ r.work_intro }}</p>
+    </div>
+    <div class="res-grid res-work">
+        {% for w in r.work %}
+        <div class="res-work-card">
+            <h3>{{ w.title }}</h3>
+            <ul class="res-bullets">
+                {% for pt in w.points %}<li>{{ pt }}</li>{% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Writing and figures -->
+<section id="writing" class="bg-subtle">
+    <div class="section-title">
+        <h2>Writing &amp; figures</h2>
+        <p>{{ r.writing.workflow_intro }}</p>
+    </div>
+    <div class="res-two">
+        <div>
+            <h3 class="res-h3">From idea to submission</h3>
+            <ol class="res-steps">
+                {% for st in r.writing.workflow %}<li><span>{{ st }}</span></li>{% endfor %}
+            </ol>
+        </div>
+        <div>
+            <h3 class="res-h3">Figure standards</h3>
+            <ul class="res-bullets">
+                {% for f in r.writing.figures %}<li>{{ f }}</li>{% endfor %}
+            </ul>
+            <h3 class="res-h3 res-h3-gap">Read before your first draft</h3>
+            <ul class="res-reading">
+                {% for it in r.writing.read %}<li><a href="{{ it.url }}" target="_blank" rel="noopener">{{ it.title }}</a> <span>{{ it.by }}</span></li>{% endfor %}
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- Joining ODU -->
+<section id="arrival">
+    <div class="section-title">
+        <h2>Joining ODU</h2>
+        <p>A checklist for admitted students.</p>
+    </div>
+    <p class="res-lead">{{ r.arrival.note }}</p>
+    <div class="res-grid res-checklists">
+        {% for g in r.arrival.groups %}
+        {% assign gi = forloop.index %}
+        <fieldset class="res-checklist"{% if g.id %} id="{{ g.id }}"{% endif %}>
+            <legend>{{ g.title }}</legend>
+            {% for it in g.items %}
+            <label class="res-check"><input type="checkbox" data-key="{{ g.id | default: gi }}-{{ forloop.index }}"><span>{% if it.intl %}<span class="res-intl">intl</span> {% endif %}{{ it.text }}</span></label>
+            {% endfor %}
+        </fieldset>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Glossary -->
+<section id="glossary" class="bg-subtle">
+    <div class="section-title">
+        <h2>Glossary</h2>
+        <p>Words you will hear in lab meeting.</p>
+    </div>
+    <dl class="res-glossary">
+        {% for g in r.glossary %}
+        <div><dt>{{ g.term }}</dt><dd>{{ g.def }}</dd></div>
+        {% endfor %}
+    </dl>
+</section>
+
+<!-- Beyond the lab -->
+<section id="more">
+    <div class="section-title">
+        <h2>Beyond the lab</h2>
+        <p>Research, habits and communication.</p>
+    </div>
+    <p class="res-lead">{{ r.more_intro }}</p>
+    <ul class="res-reading res-more">
+        {% for it in r.more %}<li>{% if it.url %}<a href="{{ it.url }}" target="_blank" rel="noopener">{{ it.title }}</a>{% else %}<cite>{{ it.title }}</cite>{% endif %} <span>{{ it.by }}</span></li>{% endfor %}
+    </ul>
+    <p class="res-contact">Something missing or out of date? Email <a href="mailto:dwadduwa@odu.edu">dwadduwa@odu.edu</a>.</p>
+</section>
+
+<script src="{{ '/assets/js/resources.js' | relative_url }}" defer></script>

@@ -46,7 +46,8 @@ Jekyll site, repo **https://github.com/wadduwagelab/wadduwagelab.github.io** (pu
 `pages-build-deployment`; there is no `.github/workflows/` in the repo). Custom domain via the
 `CNAME` file (`wadduwagelab.com`); the domain is registered at Cloudflare (renewed through
 Oct 21, 2027). It is a **single page**: `index.html` (sections) + `_layouts/default.html`
-(head, nav, footer) + content in `_data/*.yml`. Styling `assets/css/main.css`; scripts
+(head, nav, footer) + content in `_data/*.yml`, plus one sub-page, **`/resources/`**
+(`resources.html`, content in `_data/resources.yml`, script `assets/js/resources.js`) for prospective and incoming students. Styling `assets/css/main.css`; scripts
 `assets/js/hero.js` (hero animation), `scroll.js` (sticky-header offset, reveal on scroll),
 `gallery.js` (Lab Life strip + lightbox). Fonts: Space Grotesk + Silkscreen (Google Fonts).
 Pages builds with GitHub's own Jekyll 3.x and ignores the `Gemfile`; the Gemfile (Jekyll 4.4,
@@ -70,6 +71,7 @@ Order on the page (`index.html`). Nav items come from `navigation:` in `_config.
 | Patents `#patents` | no | `_data/patents.yml` | plain text items |
 | Funding `#funding` | yes | `_data/funding.yml` | |
 | Footer `#contact` | – | `_layouts/default.html` | email, X, GitHub, LinkedIn, YouTube |
+| **Resources page** `/resources/` | yes (`Resources`) | `_data/resources.yml` | separate page (`resources.html`); hero button "Join Our Research" links to `/resources/#apply` |
 
 ## Schemas (copy the pattern of existing entries)
 
@@ -137,6 +139,14 @@ a placeholder silhouette is shown. A commented placeholder for "Kai" exists in `
 Order is chronological (oldest first). Ask before posting photos of identifiable people who
 are not lab members, and never post home addresses or GPS data.
 
+**Resources page** (`resources.yml`, added Oct 2026): sections `start` (5 cards), `apply`, `path` (`tracks[].items[]`
+with `title`, `by`, optional `url`, `kind`, `time`, `note`, `ours: true` = assigned in the lab's courses, `core: true` = do first;
+`exercises[]` with `from`, `time`, `text`), `papers` (per thrust: `label`, `url`, `why`), `code`, `work`, `writing`,
+`arrival.groups[].items[]` (`text`, optional `intl: true`), `glossary`, `more`. Public links only (no Canvas, Drive,
+Overleaf, Slack or private repos), no student names. Lab-practice statements were checked against the PI's own notes
+and lab documents; keep them as stated practice, not promises (no funding or admission guarantees).
+Review the page once a year and update `reviewed:`; re-run `../tools/check_links.py` (it scans `_data/*.yml`).
+
 **Research thrust paper chips**: `label: "Short name · Venue Year"`, `url` (prefer `https://doi.org/…`).
 Claims in `research.yml` were checked against the NIH biosketches (Feb 2026 and current); keep
 aims phrased as aims, not results.
@@ -184,6 +194,8 @@ show screenshots, then merge to `main` when the user approves.
 
 If Ruby/Jekyll is not available, `python3 ../tools/render.py . ../_render` then
 `python3 ../tools/shot.py ../_render ../_shots` gives a close approximation.
+`render.py` also renders `resources.html` to `_render/resources/index.html`; serve `_render` with
+`python3 -m http.server 4173 --directory ../_render` and shoot `http://localhost:4173/resources/`.
 Local Jekyll on a Mac: the system Ruby is too old for Jekyll 4.4, so use Homebrew Ruby
 (`brew install ruby`, put it first on PATH), then `cd site && bundle install`. (A full local
 Jekyll build was not run during the 2026 sessions; previews used `render.py`.)

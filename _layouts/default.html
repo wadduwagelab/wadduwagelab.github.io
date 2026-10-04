@@ -51,7 +51,7 @@
             </a>
             <ul class="nav-links">
                 {% for item in site.navigation %}
-                <li><a href="{{ item.url | relative_url }}">{{ item.title }}</a></li>
+                <li><a href="{{ item.url | relative_url }}"{% if page.url == item.url %} aria-current="page"{% endif %}>{{ item.title }}</a></li>
                 {% endfor %}
             </ul>
         </nav>

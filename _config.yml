@@ -27,6 +27,8 @@ navigation:
     url: /#teaching
   - title: Funding
     url: /#funding
+  - title: Resources
+    url: /resources/
 
 # Exclude from processing
 exclude:
