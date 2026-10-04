@@ -64,7 +64,7 @@ Order on the page (`index.html`). Nav items come from `navigation:` in `_config.
 | Research `#research` | yes | `_data/research.yml` | `subtitle`, 3 `thrusts` (label, title, text, papers[label,url]), `foundations` |
 | News `#news` | yes | `_data/news.yml` | newest first |
 | Team `#team` | yes | `_data/team.yml` | `current` (cards) + `alumni` (list) |
-| Lab Life `#lab-life` | no | `_data/gallery.yml` | images in `assets/img/lab-life/` |
+| Lab Life `#lab-life` | yes | `_data/gallery.yml` | images in `assets/img/lab-life/` |
 | Publications `#publications` | yes | `preprints.yml`, `publications.yml`, `proceedings.yml` | proceedings sit in a collapsed `<details>` |
 | Software & Data `#software` | yes | `_data/software.yml` | cards |
 | Teaching `#teaching` | yes | `_data/teaching.yml` | |
