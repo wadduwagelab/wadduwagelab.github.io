@@ -19,6 +19,8 @@ navigation:
     url: /#news
   - title: Team
     url: /#team
+  - title: Lab Life
+    url: /#lab-life
   - title: Publications
     url: /#publications
   - title: Software
