@@ -26,10 +26,15 @@ function parts(quote) {
     .filter(Boolean);
 }
 
+// Letters and digits only: lets a quote match across math markup ("D2NN" vs "$D^{2}$NN").
+const alnum = (s) => s.replace(/[^\p{L}\p{N}]+/gu, '');
+
 function inBlock(ps, block) {
   if (!block) return false;
   block._n ??= norm(block.text);
-  return ps.every((p) => block._n.includes(p));
+  if (ps.every((p) => block._n.includes(p))) return true;
+  block._a ??= alnum(block._n);
+  return ps.every((p) => alnum(p).length >= 16 && block._a.includes(alnum(p)));
 }
 
 // Returns the id of the block that contains the quote (the cited one, or another supplied

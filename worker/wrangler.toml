@@ -20,9 +20,7 @@ namespace_id = "1001"
   limit = 8
   period = 60
 
-# Daily cap across all visitors. Create the namespace once with
-#   npx wrangler kv namespace create QUOTA
-# then paste the id below and uncomment.
-# [[kv_namespaces]]
-# binding = "QUOTA"
-# id = ""
+# Daily cap across all visitors (KV namespace "QUOTA", created 2026-10-04).
+[[kv_namespaces]]
+binding = "QUOTA"
+id = "bfecb7dfaf614efc96f32a8860954d57"

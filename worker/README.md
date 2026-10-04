@@ -34,7 +34,6 @@ On `localhost` the widget calls `http://localhost:8787/api/chat`.
 ```bash
 npx wrangler login                          # once, opens the browser
 npx wrangler secret put GEMINI_API_KEY      # paste the key when asked; it is stored by Cloudflare
-npx wrangler kv namespace create QUOTA      # once; paste the id into wrangler.toml and uncomment
 npx wrangler deploy
 ```
 
