@@ -898,11 +898,12 @@ html { scroll-padding-top: var(--header-h, 60px); }
 .res-checklist:target { outline: 3px solid var(--accent); outline-offset: 4px; }
 
 /* --- Nav: room for nine items (Lab Life added 2026-10) --- */
-.nav-links a { white-space: nowrap; }
+.nav-links a { white-space: nowrap; word-spacing: -0.3em; }
 .logo { white-space: nowrap; margin-right: 1.25rem; }
 @media (min-width: 769px) {
   nav { max-width: 1080px; }
-  .nav-links { flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem 0.85rem; }
+  .nav-links { flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem clamp(0.85rem, 1.9vw, 1.6rem); }
+  .nav-links a { font-size: 0.8rem; }
 }
 
 /* --- Ask the lab: chat assistant widget (2026-10) --- */
