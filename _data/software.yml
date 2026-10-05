@@ -1,11 +1,11 @@
-# Add a Zenodo DOI to `doi` once minted (e.g. "10.5281/zenodo.1234567").
+# `doi` is the bare Zenodo DOI; leave "" until one is minted.
 - name: "RIPPLE"
   year: 2026
   description: "Video annotation and point tracking for microscopy: correct a few frames and motion-guided sparse correction propagates the fix. Includes code that reproduces the paper's figures."
   repo: "https://github.com/wadduwagelab/ripple"
   paper: "https://arxiv.org/abs/2605.29220"
   demo: "https://huggingface.co/spaces/Le0nZim/ripple-demo"
-  doi: ""
+  doi: "10.5281/zenodo.23046883"
 
 - name: "dbpm_d2nn"
   year: 2026

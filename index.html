@@ -134,7 +134,7 @@ title: ""
             <summary>Conference proceedings, abstracts &amp; presentations <span class="proc-count">{{ site.data.proceedings | size }}</span></summary>
             <ul class="proc-list">
                 {% for c in site.data.proceedings %}
-                <li><span class="proc-year">{{ c.year }}</span> {{ c.text }}</li>
+                <li><span class="proc-year">{{ c.year }}</span> {{ c.text }}{% if c.doi %} <a class="pub-link" href="https://doi.org/{{ c.doi }}" target="_blank" rel="noopener">DOI</a>{% endif %}</li>
                 {% endfor %}
             </ul>
         </details>
@@ -146,7 +146,7 @@ title: ""
             <li style="margin-bottom: 0.75rem;">
                 {{ pub.authors }} ({{ pub.year }}).
                 <span style="color: var(--text-muted);">{{ pub.title }} <i>{{ pub.venue }}</i>.</span>
-                <a class="pub-link" href="{{ pub.url }}" target="_blank" rel="noopener">{{ pub.label | default: "arXiv" }}</a>{% if pub.code %} <a class="pub-link" href="{{ pub.code }}" target="_blank" rel="noopener">Code</a>{% endif %}
+                <a class="pub-link" href="{{ pub.url }}" target="_blank" rel="noopener">{{ pub.label | default: "arXiv" }}</a>{% if pub.doi %} <a class="pub-link" href="https://doi.org/{{ pub.doi }}" target="_blank" rel="noopener">DOI</a>{% endif %}{% if pub.code %} <a class="pub-link" href="{{ pub.code }}" target="_blank" rel="noopener">Code</a>{% endif %}
             </li>
             {% endfor %}
         </ul>

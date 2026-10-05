@@ -13,7 +13,7 @@ thrusts:
   - label: Volumetric diffractive networks · arXiv 2026 (preprint)
     url: https://arxiv.org/abs/2606.07896
   - label: Towards ultrafast quantitative phase imaging · Biomedical Optics Express 2024
-    url: https://opg.optica.org/abstract.cfm?uri=boe-15-3-1798
+    url: https://doi.org/10.1364/BOE.504954
 - label: DEEP · de-scattering with excitation patterning
   title: Imaging deep inside living tissue
   text: Cells deep inside living tissue are hard to see because light scatters there, like headlights in fog. Our DEEP methods use multiphoton excitation to light up a whole plane at once, encode it with patterns of light, and recover a sharp image from the scattered signal with computation. Neural networks made DEEP an order of magnitude faster (DEEP²), and we are now making these reconstructions learn from the physics of each experiment instead of from large training sets. The aim is to watch cells, including synapses in the living brain, in their native environment and fast enough to follow what they do.

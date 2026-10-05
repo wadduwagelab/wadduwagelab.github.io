@@ -102,10 +102,10 @@ when it is HTML text. Links inside `text` fields are raw HTML: `<a href=\"URL\">
 ```
 
 **Preprint** (`preprints.yml`, newest first): `year`, `authors`, `title`, `venue: "arXiv:2606.07896"`,
-`url`, optional `code` (repo URL → "Code" button; must be public), optional `label` (button text, default "arXiv").
+`url`, `doi` (arXiv DOI, `10.48550/arXiv.<id>` → "DOI" button), optional `code` (repo URL → "Code" button; must be public), optional `label` (button text, default "arXiv").
 When a preprint is published, move it to `publications.yml`.
 
-**Proceedings** (`proceedings.yml`): `year` + `text` (full citation, venue in `<i>…</i>`). File header says it was synced from Google Scholar (Sep 2026).
+**Proceedings** (`proceedings.yml`): `year` + `text` (full citation, venue in `<i>…</i>`), optional `doi` (bare DOI → "DOI" link). File header says it was synced from Google Scholar (Sep 2026).
 
 **Team member** (`team.yml` → `current`):
 ```yaml
@@ -271,10 +271,10 @@ this folder (or have the user run git in Terminal). For read-only commands use
    Limit" `code`) point to `github.com/wadduwagelab/Differential-BPM-D2NN-official`, which is **private**
    (visitors get 404). A public repo `wadduwagelab/Differential-BPM-D2NN` (created 2026-10-01, same
    `dbpm_d2nn` package) exists; switch the links to it, or make `-official` public. Ask the user which.
-2. **RIPPLE DOI missing:** the CV lists Zenodo DOI `10.5281/zenodo.23046883` for RIPPLE; `software.yml` has `doi: ""`.
+2. ~~RIPPLE DOI missing~~ fixed 2026-10-05. DOIs were added across the site that day (every journal paper and preprint, 21 of 26 proceedings, RIPPLE), each checked against Crossref or DataCite; new entries should carry a DOI where one exists. No DOI was found for five proceedings (two ECI talks, two EMM abstracts, ECBO 2021); OpticalElectronicQPI and All-Optical-QPM have no Zenodo DOI minted.
 3. **Team may be out of date:** M.S. student Sam Handel (joined 2026) is not listed; "Kai" is a commented
    placeholder; incoming PhD student Pabasara Jayawardhana starts Spring 2027. Confirm with the user before adding.
 4. Google Scholar, ORCID and the office address are not on the site (see table above); add only if the user wants.
 5. `site/README.md` still points to `wadduwagelab.github.io` rather than `wadduwagelab.com`.
-6. The WACV 2025 entry in `publications.yml` has `pages` but no `volume` (so pages are not shown) and no `doi`/`url` (no link); the Research section links it as `https://doi.org/10.1109/WACV61041.2025.00067`.
+6. The WACV 2025 entry in `publications.yml` has `pages` but no `volume`, so its pages are not shown (its DOI was added 2026-10-05).
 7. Branch `site-update-2026-09` is fully merged into `main` (same commit); it can be deleted on GitHub when convenient.

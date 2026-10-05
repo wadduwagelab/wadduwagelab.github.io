@@ -2,6 +2,7 @@
   authors: "Jayakody, D., & Wadduwage, D. N."
   title: "Beyond the Thin-Layer Limit: Differentiable Volumetric Training for Visible-Range Diffractive Neural Networks."
   venue: "arXiv:2606.07896"
+  doi: "10.48550/arXiv.2606.07896"
   url: "https://arxiv.org/abs/2606.07896"
   code: "https://github.com/wadduwagelab/Differential-BPM-D2NN-official"
 
@@ -9,6 +10,7 @@
   authors: "Zimianitis, L., Thenahandi, P., Buckhalter, K., Jayakody, D., Kimura, J. O., Liang, X., Cunningham, K., Ahmad, A., Ahluwalia, B. S., Jayarathna, S., Chrisochoides, N., Weissbourd, B., & Wadduwage, D. N."
   title: "Motion-guided sparse correction enables expert-quality point tracking across diverse microscopy regimes."
   venue: "arXiv:2605.29220"
+  doi: "10.48550/arXiv.2605.29220"
   url: "https://arxiv.org/abs/2605.29220"
   code: "https://github.com/wadduwagelab/ripple"
 
@@ -16,6 +18,7 @@
   authors: "Wadduwage, D. N.*, Jayakody, D., & Zimianitis, L."
   title: "Beyond Perfect Scores: Proof-by-Contradiction for Trustworthy Machine Learning."
   venue: "arXiv:2601.06704"
+  doi: "10.48550/arXiv.2601.06704"
   url: "https://arxiv.org/abs/2601.06704"
   code: "https://github.com/wadduwagelab/Beyond-Perfect-Scores"
 
@@ -23,4 +26,5 @@
   authors: "Jayawardana, Y., Jayakody, D., Jayarathna, S., & Wadduwage, D. N."
   title: "Thinking in Groups: Permutation Tests Reveal Near-Out-of-Distribution."
   venue: "arXiv:2403.14058"
+  doi: "10.48550/arXiv.2403.14058"
   url: "https://arxiv.org/abs/2403.14058"
