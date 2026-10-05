@@ -906,10 +906,10 @@ html { scroll-padding-top: var(--header-h, 60px); }
 }
 
 /* --- Ask the lab: chat assistant widget (2026-10) --- */
-.chat-launcher { position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 1100; display: inline-flex; align-items: center; gap: 0.6rem; font-family: 'Silkscreen', monospace; font-size: 1rem; letter-spacing: 0.5px; text-transform: uppercase; color: #fff; background: var(--primary); border: 2px solid var(--primary); box-shadow: 6px 6px 0 var(--accent); padding: 0.7rem 1rem 0.7rem 0.7rem; cursor: pointer; animation: chat-nudge 0.9s steps(6) 1.2s 3; }
-.chat-launcher-mark { display: inline-flex; align-items: center; justify-content: center; width: 1.7rem; height: 1.7rem; background: var(--accent); color: #fff; font-size: 1.05rem; line-height: 1; }
-.chat-launcher:hover, .chat-launcher:focus-visible { background: var(--accent); box-shadow: 6px 6px 0 var(--primary); }
-.chat-launcher:hover .chat-launcher-mark, .chat-launcher:focus-visible .chat-launcher-mark { background: #fff; color: var(--accent); }
+.chat-launcher { --chat-pop: #ffd84d; position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 1100; display: inline-flex; align-items: center; gap: 0.6rem; font-family: 'Silkscreen', monospace; font-size: 1rem; letter-spacing: 0.5px; text-transform: uppercase; color: var(--primary); background: var(--chat-pop); border: 2px solid var(--primary); box-shadow: 6px 6px 0 var(--primary); padding: 0.7rem 1rem 0.7rem 0.7rem; cursor: pointer; animation: chat-nudge 0.9s steps(6) 1.2s 3; }
+.chat-launcher-mark { display: inline-flex; align-items: center; justify-content: center; width: 1.7rem; height: 1.7rem; background: var(--primary); color: var(--chat-pop); font-size: 1.05rem; line-height: 1; }
+.chat-launcher:hover, .chat-launcher:focus-visible { background: var(--primary); color: var(--chat-pop); box-shadow: 6px 6px 0 var(--accent); }
+.chat-launcher:hover .chat-launcher-mark, .chat-launcher:focus-visible .chat-launcher-mark { background: var(--chat-pop); color: var(--primary); }
 @keyframes chat-nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 @media (prefers-reduced-motion: reduce) { .chat-launcher { animation: none; } }
 .chat-launcher[aria-expanded="true"] { display: none; }
