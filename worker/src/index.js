@@ -171,8 +171,24 @@ async function underDailyLimit(env) {
   return true;
 }
 
+// Page loads by city. The widget's status check runs once per page load in a real browser
+// (same-origin fetch), and Cloudflare attaches an approximate city to the request. Only a
+// per-day count per city is kept (KV key "geo:YYYY-MM-DD"); no IP address or browser details.
+async function countCity(request, env) {
+  if (!env.QUOTA || request.headers.get('sec-fetch-site') !== 'same-origin') return;
+  const cf = request.cf || {};
+  if (!cf.country) return;
+  const place = [cf.country, cf.region || '', cf.city || ''].join('|');
+  const key = `geo:${new Date().toISOString().slice(0, 10)}`;
+  const day = (await env.QUOTA.get(key, 'json')) || {};
+  const row = day[place] || { n: 0, lat: Math.round(Number(cf.latitude) * 10) / 10, lon: Math.round(Number(cf.longitude) * 10) / 10 };
+  row.n += 1;
+  day[place] = row;
+  await env.QUOTA.put(key, JSON.stringify(day), { expirationTtl: 400 * 86400 });
+}
+
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname !== '/api/chat') return new Response('Not found', { status: 404 });
 
@@ -186,6 +202,7 @@ export default {
       return new Response(null, { status: 204, headers: { ...headers, 'access-control-allow-methods': 'POST', 'access-control-allow-headers': 'content-type', 'access-control-max-age': '86400' } });
     }
     if (request.method === 'GET') {
+      ctx.waitUntil(countCity(request, env).catch(() => {}));
       const index = await loadIndex(env).catch(() => null);
       const ready = env.ENABLED !== '0' && Boolean(index) && (Boolean(env.GEMINI_API_KEY) || env.MOCK === '1');
       return json({ ok: ready, built: index?.built, papers: index?.papers.map((p) => p.title) });

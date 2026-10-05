@@ -53,7 +53,20 @@ The Worker serves `wadduwagelab.com/api/*`. The widget shows its button only whe
 | `THINKING_LEVEL` | optional Gemini thinking level |
 
 Limits in code: 1,000 characters per question, 12 messages per conversation, at most two papers'
-full text per answer. The Worker stores no questions or answers; only the daily counter is kept.
+full text per answer. The Worker stores no questions or answers; it keeps only the daily counter and the city counts below.
+
+## Visitor locations (page loads by city)
+
+The widget's status check (`GET /api/chat`) runs once per page load in a real browser. For those
+requests the Worker adds one to a per-day, per-city count, using the approximate city Cloudflare
+attaches to the request. It is stored in the `QUOTA` KV namespace under `geo:YYYY-MM-DD` as
+`{"US|Virginia|Norfolk": {"n": 3, "lat": 36.9, "lon": -76.3}, ...}` and expires after 400 days.
+No IP address, browser details or question text is stored. To read it:
+
+```bash
+npx wrangler kv key list --binding QUOTA --remote --prefix geo:
+npx wrangler kv key get "geo:2026-10-05" --binding QUOTA --remote
+```
 
 ## Keeping it current
 
