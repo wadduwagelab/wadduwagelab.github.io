@@ -902,7 +902,7 @@ html { scroll-padding-top: var(--header-h, 60px); }
 .logo { white-space: nowrap; margin-right: 1.25rem; }
 @media (min-width: 769px) {
   nav { max-width: 1080px; }
-  .nav-links { flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem clamp(0.85rem, 1.9vw, 1.6rem); }
+  .nav-links { flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem clamp(0.85rem, 1.75vw, 1.6rem); }
   .nav-links a { font-size: 0.8rem; }
 }
 
@@ -961,3 +961,7 @@ html { scroll-padding-top: var(--header-h, 60px); }
   .nav-links li + li { position: relative; margin-left: clamp(0.55rem, 0.9vw, 0.65rem); padding-left: clamp(0.55rem, 0.9vw, 0.65rem); }
   .nav-links li + li::before { content: ""; position: absolute; left: 0; top: 50%; width: 1px; height: 0.9em; background: var(--primary); transform: translateY(-50%); }
 }
+
+/* --- Nav: highlight Resources (a separate page) in the same yellow as the Ask the lab button --- */
+.nav-links a[href$="/resources/"] { background: #ffd84d; color: var(--primary); border: 1px solid var(--primary); padding: 0.15rem 0.35rem; }
+.nav-links a[href$="/resources/"]:hover, .nav-links a[href$="/resources/"]:focus-visible { background: var(--primary); color: #ffd84d; }
