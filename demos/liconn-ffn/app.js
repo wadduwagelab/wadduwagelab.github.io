@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+// The page loads this script as app.js?v=<build time>; reuse that stamp for data files so a new deploy never mixes with cached old files.
+const V = new URL(import.meta.url).search;
+
 // ---------- ideas chart (numbers from the project's recorded results) ----------
 const IDEAS = [
   { lever: 'B', name: 'Direct network call', x: 1.10, v: 'ok', kind: 'per step', why: 'Same arithmetic, less framework overhead. Output bitwise identical on all 12 seeds.' },
@@ -92,7 +95,7 @@ renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, came
 const cache = new Map();
 async function loadMesh(file, scale) {
   if (cache.has(file)) return cache.get(file);
-  const buf = await (await fetch('data/' + file)).arrayBuffer();
+  const buf = await (await fetch('data/' + file + V)).arrayBuffer();
   const [nv, nf] = new Uint32Array(buf, 0, 2);
   const q = new Uint16Array(buf.slice(8, 8 + nv * 6));
   const idx = new Uint32Array(buf.slice(8 + nv * 6, 8 + nv * 6 + nf * 12));
@@ -162,8 +165,14 @@ async function show(key) {
   document.getElementById('loading').hidden = true;
 }
 
+function fail(e) {
+  console.error(e);
+  const el = document.getElementById('loading'); el.hidden = false;
+  el.textContent = 'Could not load the 3D view. Please reload the page.';
+}
+
 (async () => {
-  manifest = await (await fetch('data/manifest.json')).json();
+  manifest = await (await fetch('data/manifest.json' + V)).json();
   const sel = document.getElementById('scene');
   for (const [g, label] of Object.entries(GROUPS)) {
     const og = document.createElement('optgroup'); og.label = label;
@@ -172,10 +181,10 @@ async function show(key) {
     }
     sel.append(og);
   }
-  sel.onchange = () => show(sel.value);
+  sel.onchange = () => show(sel.value).catch(fail);
   resize();
   const want = new URLSearchParams(location.search).get('scene');  // e.g. ?scene=notebook
   const first = manifest.scenes.some(s => s.key === want) ? want : manifest.scenes[0].key;
   sel.value = first;
   await show(first);
-})();
+})().catch(fail);

@@ -3,7 +3,7 @@ layout: default
 title: "Faster FFN tracing for LICONN"
 ---
 <!-- Demo: speeding up FFN neuron tracing (LICONN data). Page styles in demos/liconn-ffn/style.css, viewer in app.js, meshes in data/. -->
-<link rel="stylesheet" href="{{ '/demos/liconn-ffn/style.css' | relative_url }}">
+<link rel="stylesheet" href="{{ '/demos/liconn-ffn/style.css' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -250,4 +250,4 @@ title: "Faster FFN tracing for LICONN"
         Workflow: Claude Code implements; a Cursor-hosted model provides independent method checks; Codex reviews evidence.</p>
 </section>
 
-<script src="{{ '/demos/liconn-ffn/app.js' | relative_url }}" type="module"></script>
+<script src="{{ '/demos/liconn-ffn/app.js' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}" type="module"></script>
