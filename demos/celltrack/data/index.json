@@ -1,0 +1,10 @@
+[
+ {
+  "tag": "well_A1_f0-96",
+  "label": "Well A1, 0-4 h (sparse)"
+ },
+ {
+  "tag": "well_A1_f480-576",
+  "label": "Well A1, 20-24 h (dense)"
+ }
+]
