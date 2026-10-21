@@ -164,7 +164,7 @@ title: "Faster FFN tracing for LICONN"
     <div class="ffn-flow-wrap">
 <svg class="ffn-flow" viewBox="0 0 1200 520" role="img" aria-labelledby="flow-title flow-desc" xmlns="http://www.w3.org/2000/svg">
 <title id="flow-title">Research workflow flowchart</title>
-<desc id="flow-desc">Swimlane flowchart. The owner sets goal and rules; the runner freezes a contract and runs a baseline; Claude Code implements; Model 2 checks the method from the contract and sources only; the runner runs tests in a disposable copy and hashes everything; Model 3 reviews against the evidence. If it passes, the owner decides what happens next. If not, Claude repairs (at most twice) and the check re-runs; when the limit is reached the problem goes back to the owner.</desc>
+<desc id="flow-desc">Swimlane flowchart. The owner sets goal and rules; the controller (a script, not AI) freezes a contract and runs a baseline; Claude Code implements; Model 2 checks the method from the contract and sources only; the controller runs tests in a disposable copy and hashes everything; Model 3 reviews against the evidence. If it passes, the owner decides what happens next. If not, Claude repairs (at most twice) and the check re-runs; when the limit is reached the problem goes back to the owner.</desc>
 <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker></defs>
 <rect x="0" y="10" width="1200" height="100" fill="#fff"/>
 <line x1="0" x2="1200" y1="10" y2="10" stroke="#000" stroke-width="2"/>
@@ -174,7 +174,7 @@ title: "Faster FFN tracing for LICONN"
 <text class="fl-lane" x="12" y="154">Claude Code</text><text class="fl-sub" x="12" y="172">implements</text>
 <rect x="0" y="210" width="1200" height="100" fill="#fff"/>
 <line x1="0" x2="1200" y1="210" y2="210" stroke="#000" stroke-width="1"/>
-<text class="fl-lane" x="12" y="254">Runner</text><text class="fl-sub" x="12" y="272">controller</text>
+<text class="fl-lane" x="12" y="254">Controller</text><text class="fl-sub" x="12" y="272">a script, not AI</text>
 <rect x="0" y="310" width="1200" height="100" fill="#f2f4ff"/>
 <line x1="0" x2="1200" y1="310" y2="310" stroke="#000" stroke-width="1"/>
 <text class="fl-lane" x="12" y="354">Model 2</text><text class="fl-sub" x="12" y="372">Cursor model</text>
@@ -246,10 +246,10 @@ title: "Faster FFN tracing for LICONN"
             <h3 class="res-h3">How to read it</h3>
             <ol class="res-steps">
                 <li><span><b>The owner sets the rules first.</b> Goal, accuracy tolerance, data and compute are fixed before any result exists.</span></li>
-                <li><span><b>A contract freezes the task.</b> The runner records the allowed files, tests and limits, and runs the unmodified code as a baseline.</span></li>
+                <li><span><b>A contract freezes the task.</b> A contract is the pre-registered plan for one milestone (<a href="#contract">real example below</a>). The controller, a plain script and not an AI, records it, fingerprints the code and runs the unmodified code as a baseline.</span></li>
                 <li><span><b>Claude Code does the engineering</b>: code, cluster jobs, analysis.</span></li>
                 <li><span><b>A second model checks the method</b> from the contract and the original sources only, so it cannot inherit the implementer's assumptions.</span></li>
-                <li><span><b>The runner re-executes everything</b> in a throw-away copy and hashes the code and outputs. An agent saying "it works" is not evidence.</span></li>
+                <li><span><b>The controller re-executes everything</b> in a throw-away copy and hashes the code and outputs. An agent saying "it works" is not evidence.</span></li>
                 <li><span><b>A third model reviews the change against that evidence.</b> If it fails: at most two repairs, then back to the owner.</span></li>
                 <li><span><b>The owner makes the call.</b> Adopt, move on, or change the rules. A rule change is logged and applies only going forward.</span></li>
             </ol>
@@ -264,6 +264,62 @@ title: "Faster FFN tracing for LICONN"
                 <li><b>Human judgement where it matters:</b> on research meaning, not on boilerplate.</li>
             </ul>
         </div>
+    </div>
+
+
+    <h3 class="res-h3 res-h3-gap" id="contract">What a contract looks like: a real one, unedited</h3>
+    <p class="res-lead">This is the actual contract for the float16 / bfloat16 milestone, exactly as the controller recorded it before work began.
+        Every later check was held to it.</p>
+    <div class="ffn-contract">
+        <pre class="ffn-json"><code>{
+  "schema": 1,
+<b class="mk">1</b>"goal": "Implement docs/precision_design.md: the authors' network evaluated in float16 / bfloat16 (with and without float32 LayerNorm), bitwise equal to the authors' network in float32; a screen on network inputs recorded from the reference traces (flip rate, logit difference, V100 time per evaluation); then the 12-seed benchmark on Wahab V100s for the fp16 variant and the better bfloat16 variant, compared with the GPU reference under the owner-confirmed 1% tolerance, with results in docs/precision_results.md. Also record the owner-requested training feasibility study (docs/training_feasibility.md). <mark>pruned.py, reference.py, benchmark.py and run_benchmark.py stay byte-identical</mark>.",
+  "why": "Lever B without training: lower precision should disturb the network far less than dropping blocks, and halves memory traffic on common accelerators. The feasibility study informs whether to allow training (option b).",
+<b class="mk">2</b>"allowed_paths": [
+    "liconn_v2",
+    "tests",
+    "examples",
+    "docs",
+    "README.md",
+    "cluster"
+  ],
+<b class="mk">3</b>"tests": {
+    "kind": "unittest",
+    "directory": "tests",
+    "python": ".venv/bin/python",
+    <mark>"minimum": 83</mark>
+  },
+<b class="mk">4</b>"example": {
+    "script": "examples/run_precision_screen.py",
+    "args": [
+      "--seed",
+      "notebook",
+      "--every",
+      "40"
+    ]
+  },
+  "artifacts": [
+    "outputs/precision_screen.json"
+  ],
+<b class="mk">5</b>"context": [
+    "docs/precision_design.md",
+    "docs/training_feasibility.md",
+    "docs/block_drop_results.md",
+    "liconn_v2/pruned.py",
+    "liconn_v2/reference.py",
+    "liconn_v2/compare.py"
+  ],
+<b class="mk">6</b>"limits": "V100 only; speed is measured wall time on that GPU type, not a hardware-independent number. Open-loop screen plus closed-loop benchmark of two variants; 12 single-object traces on one crop; <mark>no held-out confirmation</mark>. The training feasibility study is a desk study (no training, <mark>no data download beyond metadata</mark>). The previous task 20261020-190412-1e99c0b4 (block drops) ended NEEDS_ATTENTION after three attempts (documentation findings fixed but unreviewed); its files are part of this baseline. Test-first: the example is a placeholder at baseline."
+}</code></pre>
+        <ol class="ffn-notes">
+            <li><b>Goal:</b> what will be built and measured, and what must <em>not</em> change. The reference code stays byte-identical, so the baseline cannot drift.</li>
+            <li><b>Allowed paths:</b> Claude may only edit these folders. Data and other projects are off-limits.</li>
+            <li><b>Tests:</b> at least 83 tests must exist and pass. Deleting or weakening a test to get a pass is not possible.</li>
+            <li><b>Example:</b> a real script the controller runs in a throw-away copy; its output is fingerprinted.</li>
+            <li><b>Context:</b> exactly what the independent checker reads: the design and the original code, not the conversation.</li>
+            <li><b>Limits:</b> what the result may <em>not</em> claim (one GPU type, one crop, no held-out check yet) and what is off-limits.
+                The agent later broke &ldquo;no data download beyond metadata&rdquo;, and the reviewer caught it (<a href="#case-scope">the data-access card</a>).</li>
+        </ol>
     </div>
 
     <h3 class="res-h3 res-h3-gap">28 reviews: most first attempts did not pass</h3>
@@ -297,10 +353,10 @@ title: "Faster FFN tracing for LICONN"
             <blockquote>&ldquo;No &mdash; it works on this machine by environment coincidence (no GPU/Metal plugin installed), not because the config update is placed early enough.&rdquo;</blockquote>
             <p class="ffn-fix"><b>Then:</b> the CPU-only reference was enforced in code, so it reproduces bitwise on any machine, not just this one.</p>
         </article>
-        <article class="ffn-case">
+        <article class="ffn-case" id="case-scope">
             <p class="ffn-case-meta"><i class="ffn-role r-review">Model 3</i><i class="ffn-sev s-med">medium</i>data-access scope</p>
             <blockquote>&ldquo;The survey downloads segmentation voxel data despite the task's explicit restriction to metadata reads.&rdquo;</blockquote>
-            <p class="ffn-fix"><b>Then:</b> it was flagged as a scope breach and taken to the owner, who reviewed it and approved that read explicitly. The approval is recorded in the write-up.</p>
+            <p class="ffn-fix"><b>Then:</b> it broke a limit written in the contract (<a href="#contract">see item 6</a>). It was flagged as a scope breach and taken to the owner, who reviewed it and approved that read explicitly. The approval is recorded in the write-up.</p>
         </article>
         <article class="ffn-case">
             <p class="ffn-case-meta"><i class="ffn-role r-review">Model 3</i><i class="ffn-sev s-med">medium</i>overclaim</p>
@@ -308,7 +364,7 @@ title: "Faster FFN tracing for LICONN"
             <p class="ffn-fix"><b>Then:</b> the conclusion was narrowed to what was actually tested.</p>
         </article>
         <article class="ffn-case ffn-case-wide">
-            <p class="ffn-case-meta"><i class="ffn-role r-owner">Owner</i><i class="ffn-role r-runner">Runner</i>design, not luck</p>
+            <p class="ffn-case-meta"><i class="ffn-role r-owner">Owner</i><i class="ffn-role r-runner">Controller</i>design, not luck</p>
             <blockquote>float16 passed all 12 benchmark seeds at 2.19&times; per step.</blockquote>
             <p class="ffn-fix"><b>Then:</b> the held-out check, fixed in advance, ran 12 new seeds on a separate crop. Two large false merges appeared, so the 2.2&times; is <b>not</b> claimed. On the benchmark alone it would have looked like a clean win.</p>
         </article>
