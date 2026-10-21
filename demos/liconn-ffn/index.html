@@ -160,15 +160,111 @@ title: "Faster FFN tracing for LICONN"
         <li><b>8</b><span>research decisions made by the human owner, written down before results were seen</span></li>
     </ul>
 
-    <h3 class="res-h3 res-h3-gap">The loop, for every milestone</h3>
-    <ol class="ffn-loop">
-        <li><i class="ffn-role r-owner">Owner</i><b>Sets the goal and the rules</b><span>e.g. "judge against the authors' proofread segmentation, every rule at 1%"</span></li>
-        <li><i class="ffn-role r-runner">Runner</i><b>Freezes a contract and runs a baseline</b><span>unmodified code first, so later failures are measured, not explained away</span></li>
-        <li><i class="ffn-role r-impl">Claude Code</i><b>Implements and runs the experiment</b><span>local CPU or the Wahab GPU cluster</span></li>
-        <li><i class="ffn-role r-check">Model 2</i><b>Independent method check</b><span>sees only the contract and the original sources, not the chat</span></li>
-        <li><i class="ffn-role r-runner">Runner</i><b>Tests and example in a disposable copy</b><span>code and outputs are hashed; any later edit makes the result <b>stale</b></span></li>
-        <li><i class="ffn-role r-review">Model 3</i><b>Reviews the change against the evidence</b><span>checked, or needs attention; at most two repairs, then back to the owner</span></li>
-    </ol>
+    <h3 class="res-h3 res-h3-gap">The workflow, for every milestone</h3>
+    <div class="ffn-flow-wrap">
+<svg class="ffn-flow" viewBox="0 0 1200 520" role="img" aria-labelledby="flow-title flow-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="flow-title">Research workflow flowchart</title>
+<desc id="flow-desc">Swimlane flowchart. The owner sets goal and rules; the runner freezes a contract and runs a baseline; Claude Code implements; Model 2 checks the method from the contract and sources only; the runner runs tests in a disposable copy and hashes everything; Model 3 reviews against the evidence. If it passes, the owner decides what happens next. If not, Claude repairs (at most twice) and the check re-runs; when the limit is reached the problem goes back to the owner.</desc>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker></defs>
+<rect x="0" y="10" width="1200" height="100" fill="#fff"/>
+<line x1="0" x2="1200" y1="10" y2="10" stroke="#000" stroke-width="2"/>
+<text class="fl-lane" x="12" y="54">Owner</text><text class="fl-sub" x="12" y="72">human scientist</text>
+<rect x="0" y="110" width="1200" height="100" fill="#f2f4ff"/>
+<line x1="0" x2="1200" y1="110" y2="110" stroke="#000" stroke-width="1"/>
+<text class="fl-lane" x="12" y="154">Claude Code</text><text class="fl-sub" x="12" y="172">implements</text>
+<rect x="0" y="210" width="1200" height="100" fill="#fff"/>
+<line x1="0" x2="1200" y1="210" y2="210" stroke="#000" stroke-width="1"/>
+<text class="fl-lane" x="12" y="254">Runner</text><text class="fl-sub" x="12" y="272">controller</text>
+<rect x="0" y="310" width="1200" height="100" fill="#f2f4ff"/>
+<line x1="0" x2="1200" y1="310" y2="310" stroke="#000" stroke-width="1"/>
+<text class="fl-lane" x="12" y="354">Model 2</text><text class="fl-sub" x="12" y="372">Cursor model</text>
+<rect x="0" y="410" width="1200" height="100" fill="#fff"/>
+<line x1="0" x2="1200" y1="410" y2="410" stroke="#000" stroke-width="1"/>
+<text class="fl-lane" x="12" y="454">Model 3</text><text class="fl-sub" x="12" y="472">Codex</text>
+<line x1="0" x2="1200" y1="510" y2="510" stroke="#000" stroke-width="2"/>
+<line x1="128" x2="128" y1="10" y2="510" stroke="#000" stroke-width="1"/>
+<rect x="135.0" y="28.0" width="130" height="64" fill="#000" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="200" y="56" fill="#fff" text-anchor="middle">Set the goal</text>
+<text class="fl-box" x="200" y="72" fill="#fff" text-anchor="middle">and the rules</text>
+<rect x="133.0" y="15.0" width="22" height="16" fill="#2a3cff"/><text class="fl-num" x="144.0" y="27.0" text-anchor="middle">1</text>
+<rect x="280.0" y="228.0" width="130" height="64" fill="#fff" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="345" y="256" fill="#000" text-anchor="middle">Freeze contract,</text>
+<text class="fl-box" x="345" y="272" fill="#000" text-anchor="middle">run the baseline</text>
+<rect x="278.0" y="215.0" width="22" height="16" fill="#2a3cff"/><text class="fl-num" x="289.0" y="227.0" text-anchor="middle">2</text>
+<rect x="425.0" y="128.0" width="130" height="64" fill="#2a3cff" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="490" y="156" fill="#fff" text-anchor="middle">Implement</text>
+<text class="fl-box" x="490" y="172" fill="#fff" text-anchor="middle">and run</text>
+<rect x="423.0" y="115.0" width="22" height="16" fill="#2a3cff"/><text class="fl-num" x="434.0" y="127.0" text-anchor="middle">3</text>
+<rect x="575.0" y="328.0" width="130" height="64" fill="#cdd3ff" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="640" y="356" fill="#000" text-anchor="middle">Independent</text>
+<text class="fl-box" x="640" y="372" fill="#000" text-anchor="middle">method check</text>
+<rect x="573.0" y="315.0" width="22" height="16" fill="#2a3cff"/><text class="fl-num" x="584.0" y="327.0" text-anchor="middle">4</text>
+<rect x="715.0" y="225.0" width="150" height="70" fill="#fff" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="790" y="248" fill="#000" text-anchor="middle">Tests + example in a</text>
+<text class="fl-box" x="790" y="264" fill="#000" text-anchor="middle">disposable copy;</text>
+<text class="fl-box" x="790" y="280" fill="#000" text-anchor="middle">hash code + outputs</text>
+<rect x="713.0" y="212.0" width="22" height="16" fill="#2a3cff"/><text class="fl-num" x="724.0" y="224.0" text-anchor="middle">5</text>
+<rect x="880.0" y="428.0" width="130" height="64" fill="#ffd84d" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="945" y="456" fill="#000" text-anchor="middle">Review against</text>
+<text class="fl-box" x="945" y="472" fill="#000" text-anchor="middle">the evidence</text>
+<rect x="878.0" y="415.0" width="22" height="16" fill="#2a3cff"/><text class="fl-num" x="889.0" y="427.0" text-anchor="middle">6</text>
+<rect x="880.0" y="128.0" width="130" height="64" fill="#2a3cff" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="945" y="156" fill="#fff" text-anchor="middle">Repair</text>
+<text class="fl-box" x="945" y="172" fill="#fff" text-anchor="middle">(at most 2)</text>
+<rect x="900.0" y="25.0" width="250" height="70" fill="#000" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="1025" y="48" fill="#fff" text-anchor="middle">Owner decides: adopt,</text>
+<text class="fl-box" x="1025" y="64" fill="#fff" text-anchor="middle">next milestone, or</text>
+<text class="fl-box" x="1025" y="80" fill="#fff" text-anchor="middle">change the rules</text>
+<rect x="898.0" y="12.0" width="22" height="16" fill="#2a3cff"/><text class="fl-num" x="909.0" y="24.0" text-anchor="middle">7</text>
+<path d="M1105,422 L1147,460 L1105,498 L1063,460 z" fill="#ffd84d" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="1105" y="465" text-anchor="middle">Pass?</text>
+<path d="M265,60 H345 V226" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah)"/>
+<text class="fl-edge" x="272" y="52" text-anchor="start">goal, tolerance, data</text>
+<path d="M410,260 H465 V194" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah)"/>
+<path d="M525,192 V360 H573" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah)"/>
+<text class="fl-edge" x="533" y="406" text-anchor="start">contract + sources only, not the chat</text>
+<path d="M640,328 V172 H557" fill="none" stroke="#000" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#ah)"/>
+<text class="fl-edge" x="632" y="300" text-anchor="end">gaps, edge cases</text>
+<path d="M555,146 H790 V223" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah)"/>
+<text class="fl-edge" x="600" y="140" text-anchor="start">submit for check</text>
+<path d="M865,260 H945 V426" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah)"/>
+<text class="fl-edge" x="872" y="252" text-anchor="start">outputs + hashes</text>
+<path d="M1010,460 H1061" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah)"/>
+<path d="M1105,422 V97" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah)"/>
+<text class="fl-edge" x="1111" y="264" text-anchor="start">yes: checked</text>
+<path d="M1147,460 H1180 V160 H1012" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah)"/>
+<text class="fl-edge" x="1176" y="152" text-anchor="end">no: needs attention</text>
+<path d="M905,192 V210 H830 V223" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah)"/>
+<text class="fl-edge" x="910" y="208" text-anchor="start">re-check</text>
+<path d="M945,128 V97" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah)"/>
+<text class="fl-edge" x="939" y="120" text-anchor="end">limit reached: escalate</text>
+</svg>
+    </div>
+    <p class="ffn-muted ffn-small ffn-flow-hint">On a phone, scroll the chart sideways.</p>
+    <div class="ffn-two-col ffn-gap">
+        <div>
+            <h3 class="res-h3">How to read it</h3>
+            <ol class="res-steps">
+                <li><span><b>The owner sets the rules first.</b> Goal, accuracy tolerance, data and compute are fixed before any result exists.</span></li>
+                <li><span><b>A contract freezes the task.</b> The runner records the allowed files, tests and limits, and runs the unmodified code as a baseline.</span></li>
+                <li><span><b>Claude Code does the engineering</b>: code, cluster jobs, analysis.</span></li>
+                <li><span><b>A second model checks the method</b> from the contract and the original sources only, so it cannot inherit the implementer's assumptions.</span></li>
+                <li><span><b>The runner re-executes everything</b> in a throw-away copy and hashes the code and outputs. An agent saying "it works" is not evidence.</span></li>
+                <li><span><b>A third model reviews the change against that evidence.</b> If it fails: at most two repairs, then back to the owner.</span></li>
+                <li><span><b>The owner makes the call.</b> Adopt, move on, or change the rules. A rule change is logged and applies only going forward.</span></li>
+            </ol>
+        </div>
+        <div>
+            <h3 class="res-h3">Why it is reliable</h3>
+            <ul class="res-bullets">
+                <li><b>Separation of roles:</b> the model that writes the code never grades it.</li>
+                <li><b>No moving goalposts:</b> the tolerance and tests are frozen, and only the owner can change them.</li>
+                <li><b>Bounded retries:</b> no "retry until it passes"; failures are kept as results.</li>
+                <li><b>Traceable numbers:</b> every figure links to hashed code and outputs, and any later edit marks it stale.</li>
+                <li><b>Human judgement where it matters:</b> on research meaning, not on boilerplate.</li>
+            </ul>
+        </div>
+    </div>
 
     <h3 class="res-h3 res-h3-gap">28 reviews: most first attempts did not pass</h3>
     <div class="ffn-checks" id="checks" aria-label="28 review outcomes"></div>
