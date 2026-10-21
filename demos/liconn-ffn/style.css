@@ -127,7 +127,7 @@
 
 /* workflow flowchart */
 .ffn-flow-wrap { overflow-x: auto; border: 2px solid #000; box-shadow: 5px 5px 0 var(--accent); background: #fff; }
-.ffn-flow { display: block; width: 100%; min-width: 900px; height: auto; font-family: 'Space Grotesk', sans-serif; }
+.ffn-flow { display: block; width: 100%; min-width: 1000px; height: auto; font-family: 'Space Grotesk', sans-serif; }
 .ffn-flow .fl-lane { font-family: 'Silkscreen', monospace; font-size: 13px; text-transform: uppercase; }
 .ffn-flow .fl-sub { font-size: 11.5px; fill: #555; }
 .ffn-flow .fl-box { font-size: 13px; font-weight: 600; }
