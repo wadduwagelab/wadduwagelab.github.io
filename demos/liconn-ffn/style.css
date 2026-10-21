@@ -1,0 +1,73 @@
+/* LICONN FFN demo: page-only styles on top of /assets/css/main.css (Dither Lab theme) */
+.ffn-muted { color: var(--text-muted); }
+.ffn-small { font-size: 0.85rem; line-height: 1.45; }
+.ffn-gap { margin-top: 1.1rem; }
+.res-lead { margin-bottom: 0.9rem; }
+
+/* headline numbers */
+.ffn-stats { list-style: none; margin: 0 0 1.25rem; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.ffn-stats li { background: #fff; border: 2px solid #000; box-shadow: 5px 5px 0 var(--accent); padding: 0.8rem 0.9rem; display: flex; flex-direction: column; gap: 0.3rem; }
+.ffn-stats b { font-family: 'Silkscreen', monospace; font-weight: 400; font-size: 1.6rem; line-height: 1.1; color: var(--accent); }
+.ffn-stats span { font-size: 0.88rem; line-height: 1.4; color: var(--text-muted); }
+
+/* boxes and labels */
+.ffn-box { background: #fff; border: 2px solid #000; box-shadow: 5px 5px 0 var(--accent); padding: 0.9rem 1rem; }
+.ffn-box p { margin: 0 0 0.6rem; font-size: 0.95rem; line-height: 1.5; }
+.ffn-box p:last-child { margin-bottom: 0; }
+.ffn-box .res-bullets { margin-bottom: 0.7rem; }
+.ffn-lever { display: inline-block; font-family: 'Silkscreen', monospace; font-size: 0.8rem; background: var(--accent); color: #fff; padding: 0 0.35rem; margin-right: 0.3rem; }
+.ffn-label { display: block; font-family: 'Silkscreen', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.3px; color: var(--accent); margin-bottom: 0.3rem; }
+.res-steps li > span { grid-column: 2; }
+
+/* ideas chart */
+.ffn-ideas { display: grid; grid-template-columns: minmax(150px, 240px) 1fr; gap: 0.2rem 1rem; align-items: center; }
+.ffn-ideas .name { font-weight: 600; font-size: 0.95rem; }
+.ffn-ideas .name .ffn-lever { font-weight: 400; }
+.ffn-ideas .bar-row { display: flex; align-items: center; min-height: 26px; }
+.ffn-ideas .bar { height: 20px; border: 2px solid #000; }
+.ffn-ideas .val { font-family: 'Silkscreen', monospace; font-size: 0.85rem; margin-left: 0.5rem; }
+.ffn-ideas .val i { font-style: normal; font-family: 'Space Grotesk', sans-serif; color: var(--text-muted); font-size: 0.85rem; }
+.ffn-ideas .why { grid-column: 2; font-size: 0.85rem; color: var(--text-muted); margin: 0 0 0.6rem; line-height: 1.4; }
+.ffn-ideas .axis { grid-column: 2; position: relative; height: 1.4rem; border-top: 2px solid #000; font-family: 'Silkscreen', monospace; font-size: 0.72rem; }
+.ffn-ideas .axis span { position: absolute; top: 0.2rem; transform: translateX(-50%); }
+.v-ok { background: var(--accent); }
+.v-warn { background: #ffd84d; }
+.v-bad { background-color: #fff; background-image: conic-gradient(#000 25%, transparent 0 50%, #000 0 75%, transparent 0); background-size: 4px 4px; }
+.ffn-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font-size: 0.85rem; margin-top: 0.8rem; }
+.ffn-sw { display: inline-block; width: 0.85rem; height: 0.85rem; border: 2px solid #000; margin-right: 0.4rem; vertical-align: -0.1em; }
+
+/* 3D viewer */
+.ffn-viewer { display: grid; grid-template-columns: 270px 1fr; border: 2px solid #000; box-shadow: 5px 5px 0 var(--accent); margin: 0.5rem 0 1.1rem; background: #fff; }
+.ffn-side { padding: 0.9rem 1rem; border-right: 2px solid #000; background: var(--bg-subtle); }
+.ffn-side select { width: 100%; font: inherit; font-size: 0.92rem; padding: 0.3rem 0.4rem; border: 2px solid #000; border-radius: 0; background: #fff; color: #000; margin-bottom: 0.7rem; }
+#layers label { display: flex; align-items: center; gap: 0.45rem; margin: 0.3rem 0; font-size: 0.9rem; cursor: pointer; line-height: 1.3; }
+#layers .ffn-sw { margin-right: 0; flex: none; }
+.ffn-btns { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.8rem 0 0; }
+.ffn-btns button { font-family: 'Silkscreen', monospace; font-size: 0.72rem; text-transform: uppercase; background: #fff; color: #000; border: 2px solid #000; box-shadow: 3px 3px 0 var(--accent); padding: 0.25rem 0.5rem; cursor: pointer; border-radius: 0; }
+.ffn-btns button:hover { color: var(--accent); }
+.ffn-kv { display: grid; grid-template-columns: auto 1fr; gap: 0.15rem 0.7rem; font-size: 0.88rem; margin: 0.9rem 0; }
+.ffn-kv span:nth-child(odd) { color: var(--text-muted); }
+.ffn-kv .note { grid-column: 1 / 3; color: var(--text-main); margin-bottom: 0.3rem; }
+#stage { position: relative; min-height: 480px; background: #fff; }
+#gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+#loading { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-family: 'Silkscreen', monospace; font-size: 0.85rem; }
+
+/* step-time profile */
+.ffn-stack { display: flex; height: 34px; border: 2px solid #000; }
+.ffn-stack div { display: flex; align-items: center; justify-content: center; font-family: 'Silkscreen', monospace; font-size: 0.75rem; overflow: hidden; white-space: nowrap; border-right: 2px solid #000; }
+.ffn-stack div:last-child { border-right: 0; }
+
+@media (max-width: 860px) {
+  .ffn-stats { grid-template-columns: 1fr 1fr; }
+  .ffn-viewer { grid-template-columns: 1fr; }
+  .ffn-side { border-right: 0; border-bottom: 2px solid #000; }
+  #stage { min-height: 380px; }
+}
+@media (max-width: 560px) {
+  .ffn-ideas { grid-template-columns: 1fr; }
+  .ffn-ideas .why, .ffn-ideas .axis { grid-column: 1; }
+  .ffn-ideas .name { margin-top: 0.5rem; }
+  .ffn-ideas .pad { display: none; }
+  .ffn-stats b { font-size: 1.3rem; }
+}
+#layers input { accent-color: #000; }

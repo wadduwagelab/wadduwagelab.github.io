@@ -1,0 +1,158 @@
+---
+layout: default
+title: "Faster FFN tracing for LICONN"
+---
+<!-- Demo: speeding up FFN neuron tracing (LICONN data). Page styles in demos/liconn-ffn/style.css, viewer in app.js, meshes in data/. -->
+<link rel="stylesheet" href="{{ '/demos/liconn-ffn/style.css' | relative_url }}">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+
+<section class="res-head">
+    <p class="res-kicker">Demo &middot; work in progress, October 2026</p>
+    <h1>Faster neuron tracing</h1>
+    <p class="res-intro">LICONN (Tavakoli et al., <i>Nature</i> 2025) maps brain tissue with expansion light microscopy
+        and traces every neuron with a flood-filling network (FFN). Tracing is the expensive step: one network
+        evaluation costs 81.6&nbsp;GFLOP, and a single dendrite can take thousands of them. We are looking for a
+        faster <em>method</em> that finds the same neurons on any hardware, not just more GPUs.</p>
+    <ul class="ffn-stats">
+        <li><b>19.7&nbsp;ms</b><span>per tracing step: the authors' model in float32 on a V100 (426&nbsp;ms on a laptop CPU)</span></li>
+        <li><b>8</b><span>speed-up ideas tested end to end against the authors' proofread segmentation</span></li>
+        <li><b>2.2&times;</b><span>from float16, which passed the benchmark and then failed on held-out data</span></li>
+        <li><b>1.1&times;</b><span>with output bitwise identical so far; about 1.3&times; is the ceiling for that route</span></li>
+    </ul>
+    <div class="res-toc" role="navigation" aria-label="On this page">
+        <a href="#how">How FFN works</a>
+        <a href="#judged">How results are judged</a>
+        <a href="#tried">What was tried</a>
+        <a href="#knife-edge">Key finding (3D)</a>
+        <a href="#time">Where the time goes</a>
+        <a href="#next">Next</a>
+        <a href="#workflow">How the work is run</a>
+    </div>
+</section>
+
+<section id="how" class="bg-subtle">
+    <div class="section-title">
+        <h2>How FFN tracing works</h2>
+        <p>and why it is slow</p>
+    </div>
+    <div class="res-two">
+        <ol class="res-steps">
+            <li><span><b>Seed.</b> Start from one point inside a neuron.</span></li>
+            <li><span><b>Look.</b> The network sees a 33&times;33&times;33-voxel window of the image plus its current guess of the object, and refines the guess.</span></li>
+            <li><span><b>Move.</b> Wherever the guess reaches the window's edge (probability &ge;&nbsp;0.6), queue a new window 8 voxels further along.</span></li>
+            <li><span><b>Repeat</b> until nothing is left to explore. One object takes hundreds to thousands of steps, one after another.</span></li>
+        </ol>
+        <div class="ffn-box">
+            <p><b>Cost = number of steps &times; cost per step.</b> That gives two levers:</p>
+            <p><span class="ffn-lever">A</span> take fewer steps (skip or postpone moves that add little);<br>
+               <span class="ffn-lever">B</span> make each step cheaper (smaller network, lower precision, less overhead).</p>
+            <p class="ffn-muted">Each step depends on the ones before it, so the trace is a closed loop. A tiny change early can steer it somewhere else later. That turned out to be the central finding.</p>
+        </div>
+    </div>
+</section>
+
+<section id="judged">
+    <div class="section-title">
+        <h2>How results are judged</h2>
+        <p>fixed before any idea was tried</p>
+    </div>
+    <div class="res-two">
+        <ul class="res-bullets">
+            <li><b>Reference:</b> the authors' released model and settings (google/ffn), reproduced bitwise on CPU and confirmed on GPU.</li>
+            <li><b>Ground truth:</b> the authors' proofread segmentation of the same tissue (500&sup3;-voxel crop, 18&times;18&times;24&nbsp;nm voxels).</li>
+            <li><b>Benchmark:</b> 12 seeds (axons and dendrites) chosen by a fixed rule.</li>
+            <li><b>Held-out check:</b> a second crop with 12 new seeds, used only to confirm a winner.</li>
+        </ul>
+        <div class="ffn-box">
+            <h3 class="res-h3">Tolerance</h3>
+            <p>A faster variant passes only if, against the reference:</p>
+            <ul class="res-bullets">
+                <li>mean recall, precision and unlabeled fraction change by &le;&nbsp;1&nbsp;point;</li>
+                <li>no single seed loses more than 1 recall point;</li>
+                <li>merged voxels grow by &le;&nbsp;1%, and there are no new merges with other neurons.</li>
+            </ul>
+            <p class="ffn-muted">Every number on this page comes from runs whose code and outputs are hash-pinned and re-checked by tests.</p>
+        </div>
+    </div>
+</section>
+
+<section id="tried" class="bg-subtle">
+    <div class="section-title">
+        <h2>What was tried</h2>
+        <p>speed-up vs the float32 reference</p>
+    </div>
+    <div id="ideas" class="ffn-ideas"></div>
+    <div class="ffn-legend">
+        <span><i class="ffn-sw v-ok"></i>passes (identical output)</span>
+        <span><i class="ffn-sw v-warn"></i>passed benchmark, failed held-out</span>
+        <span><i class="ffn-sw v-bad"></i>fails</span>
+    </div>
+</section>
+
+<section id="knife-edge">
+    <div class="section-title">
+        <h2>Key finding: traces are knife-edge at merge points</h2>
+    </div>
+    <p class="res-lead">float16 changes only <b>0.006%</b> of the network's per-voxel decisions. On the benchmark that was harmless.
+        On held-out data it pushed two dendrite traces across a thin boundary into a large neighbouring neuron, which
+        the trace then followed for thousands of extra steps.</p>
+    <div class="ffn-viewer">
+        <div class="ffn-side">
+            <label class="ffn-label" for="scene">Example</label>
+            <select id="scene"></select>
+            <div id="layers"></div>
+            <div class="ffn-btns"><button id="view-all" type="button">Whole float16 trace</button><button id="view-seed" type="button">Zoom to float32 trace</button></div>
+            <div id="facts" class="ffn-kv"></div>
+            <p class="ffn-muted ffn-small">Drag to rotate, scroll or pinch to zoom, right-drag to pan. Surfaces are marching-cubes meshes of the actual masks (downsampled 2&times;).</p>
+        </div>
+        <div id="stage"><canvas id="gl"></canvas><div id="loading">Loading meshes&hellip;</div></div>
+    </div>
+    <p class="ffn-muted ffn-small">The reverse also happens. On one benchmark seed, float16 happened to <i>avoid</i> a false merge that float32 makes. Tiny numerical changes can flip a merge either way, so a variant can look better on one crop and fail on another.</p>
+</section>
+
+<section id="time" class="bg-subtle">
+    <div class="section-title">
+        <h2>Where a step's time goes</h2>
+        <p>one float16 step on a V100, 10.2&nbsp;ms</p>
+    </div>
+    <p class="res-lead">Only about 40% of the time is the network itself; the rest is bookkeeping around it.</p>
+    <div id="profile" class="ffn-stack"></div>
+    <div id="profile-legend" class="ffn-legend"></div>
+    <p class="res-lead ffn-gap">Removing that overhead keeps the arithmetic, and therefore the output, bitwise identical. Calling the network directly
+        already gives <b>9% faster, identical results</b> in float32 (17.9 vs 19.7&nbsp;ms). Removing all of the overhead would give about 1.3&times;.</p>
+</section>
+
+<section id="next">
+    <div class="section-title">
+        <h2>Next</h2>
+        <p>in order</p>
+    </div>
+    <ol class="res-start">
+        <li class="res-start-card"><h3>Change the yardstick</h3>
+            <p>The per-seed 1% rule cannot tell a real loss from a rare merge flip, and those flips occur in both directions. Next, variants will be judged over <b>many more seeds</b>, with an explicit allowance for rare merge flips plus limits on aggregate accuracy. The exact definition is still to be agreed.</p></li>
+        <li class="res-start-card"><h3>Free speed first</h3>
+            <p>Fuse the bookkeeping (input assembly, canvas update, threading, copies) into the network call. The output stays identical by construction; the gain is up to about 1.3&times;.</p></li>
+        <li class="res-start-card"><h3>Then a cheaper network</h3>
+            <p>Re-check float16 under the new yardstick, then try distilling a smaller student network from the authors' model. Distillation needs no new labels, so the public data is enough. Int8 is an untested idea.</p></li>
+    </ol>
+</section>
+
+<section id="workflow" class="bg-subtle">
+    <div class="section-title">
+        <h2>How the work is run</h2>
+        <p>AI-assisted, human-owned</p>
+    </div>
+    <p class="res-lead">Claude Code writes the code and runs experiments on ODU's Wahab GPU cluster.
+        A second model independently checks the method, and a third reviews every change against the recorded evidence.
+        Every decision that changes the research meaning (tolerance, reference, which data to use) is made by the owner and written down before results are seen.
+        Negative results are kept, not tuned away: seven of eight ideas failed, and that is what revealed the knife-edge behaviour.</p>
+    <p class="ffn-muted ffn-small">Data: LICONN public release (Tavakoli et al., <i>Nature</i> 642, 398&ndash;410, 2025, <a href="https://doi.org/10.1038/s41586-025-08985-1" target="_blank" rel="noopener">doi:10.1038/s41586-025-08985-1</a>), CC BY 4.0;
+        model checkpoint axde_59110972 from the same release. Tracing code: <a href="https://github.com/google/ffn" target="_blank" rel="noopener">google/ffn</a>.</p>
+</section>
+
+<script src="{{ '/demos/liconn-ffn/app.js' | relative_url }}" type="module"></script>

@@ -1,0 +1,124 @@
+{
+ "scale_um": 12.0,
+ "spacing_um_zyx": [
+  0.024,
+  0.018,
+  0.018
+ ],
+ "scenes": [
+  {
+   "key": "heldout250842",
+   "title": "Held-out dendrite 250842",
+   "seed": "heldout_dendrite_250842",
+   "layers": [
+    {
+     "file": "cropB_gt_250842.bin",
+     "verts": 5884,
+     "faces": 11590,
+     "voxels": 66987,
+     "kind": "proofread",
+     "label": "true dendrite (proofread 250842)",
+     "id": 250842
+    },
+    {
+     "file": "cropB_gt_245232.bin",
+     "verts": 52250,
+     "faces": 104434,
+     "voxels": 739082,
+     "kind": "proofread",
+     "label": "neighbour (proofread 245232)",
+     "id": 245232
+    },
+    {
+     "file": "heldout250842_fp32.bin",
+     "verts": 3465,
+     "faces": 6786,
+     "voxels": 57164,
+     "kind": "trace",
+     "label": "fp32"
+    },
+    {
+     "file": "heldout250842_fp16.bin",
+     "verts": 53719,
+     "faces": 107158,
+     "voxels": 811818,
+     "kind": "trace",
+     "label": "fp16"
+    }
+   ]
+  },
+  {
+   "key": "heldout245099",
+   "title": "Held-out dendrite 245099",
+   "seed": "heldout_dendrite_245099",
+   "layers": [
+    {
+     "file": "cropB_gt_245099.bin",
+     "verts": 23272,
+     "faces": 46168,
+     "voxels": 279151,
+     "kind": "proofread",
+     "label": "true dendrite (proofread 245099)",
+     "id": 245099
+    },
+    {
+     "file": "cropB_gt_245232.bin",
+     "verts": 52250,
+     "faces": 104434,
+     "voxels": 739082,
+     "kind": "proofread",
+     "label": "neighbour (proofread 245232)",
+     "id": 245232
+    },
+    {
+     "file": "heldout245099_fp32.bin",
+     "verts": 20684,
+     "faces": 41230,
+     "voxels": 264767,
+     "kind": "trace",
+     "label": "fp32"
+    },
+    {
+     "file": "heldout245099_fp16.bin",
+     "verts": 67083,
+     "faces": 133620,
+     "voxels": 1008698,
+     "kind": "trace",
+     "label": "fp16"
+    }
+   ]
+  },
+  {
+   "key": "bench99141",
+   "title": "Benchmark dendrite 99141",
+   "seed": "dendrite_99141",
+   "layers": [
+    {
+     "file": "cropA_gt_99141.bin",
+     "verts": 26504,
+     "faces": 52724,
+     "voxels": 330195,
+     "kind": "proofread",
+     "label": "true dendrite (proofread 99141)",
+     "id": 99141
+    },
+    {
+     "file": "bench99141_fp32.bin",
+     "verts": 23359,
+     "faces": 46544,
+     "voxels": 329022,
+     "kind": "trace",
+     "label": "fp32"
+    },
+    {
+     "file": "bench99141_fp16.bin",
+     "verts": 23724,
+     "faces": 47252,
+     "voxels": 332154,
+     "kind": "trace",
+     "label": "fp16"
+    }
+   ]
+  }
+ ]
+}
