@@ -49,17 +49,28 @@ for (const [n, ms, bg, fg] of PROFILE) {
   const l = document.createElement('span'); l.innerHTML = `<i class="ffn-sw" style="background:${bg}"></i>${n} ${ms.toFixed(1)} ms`; pleg.append(l);
 }
 
+// ---------- review outcomes, in the order they happened (from the project's check records) ----------
+{
+  const SEQ = 'BACAACAACAAAACACACAAAAAACAAA';  // C = checked, A = needs attention, B = blocked
+  const el = document.getElementById('checks');
+  for (const c of SEQ) { const i = document.createElement('i'); i.className = 'c-' + c; el.append(i); }
+}
+
 // ---------- 3D viewer ----------
+// Scene stats (steps, recall, precision, IoU) come from data/manifest.json, built from the recorded runs.
 const COLORS = { fp32: 0x2a3cff, fp16: 0xf26a00, true: 0x8a8a8a, neighbour: 0xa070ff };
-const FACTS = {
-  heldout250842: { note: 'Held-out crop. float16 crosses into neighbour 245232.',
-    rows: [['steps fp32 / fp16', '79 / 2,266'], ['mask overlap (IoU)', '0.07'], ['precision change', '−93.2 pts'], ['recall change', '−2.25 pts']] },
-  heldout245099: { note: 'Held-out crop. float32 already touches 245232 slightly; float16 crosses over.',
-    rows: [['steps fp32 / fp16', '727 / 2,866'], ['mask overlap (IoU)', '0.23'], ['precision change', '−74.8 pts'], ['recall change', '−5.0 pts']] },
-  bench99141: { note: 'Benchmark crop. A typical seed: float16 and float32 agree closely.',
-    rows: [['steps fp32', '959'], ['mask overlap (IoU)', '0.96'], ['verdict', 'within tolerance']] },
+const SCENES = {
+  heldout250842: { name: 'Held-out dendrite 250842', note: 'float32 stops at the right place after 79 steps. float16 crosses into neighbour 245232 and keeps going for 2,266 steps.' },
+  heldout245099: { name: 'Held-out dendrite 245099', note: 'float32 only touches neighbour 245232 (2,571 voxels). float16 crosses over into it.' },
+  bench1525:     { name: 'Benchmark dendrite 1525 (reverse)', note: 'The reverse: here float32 makes the false merge (into 97123) and float16 avoids it. Same knife edge, other side.' },
+  notebook:      { name: "Authors' notebook example", note: "The authors' own example seed, reproduced bitwise from their notebook before any change." },
+  bench13395:    { name: 'Benchmark axon 13395', note: 'A long axon traced almost completely; float16 agrees closely.' },
+  bench56789:    { name: 'Benchmark dendrite 56789', note: 'A long dendrite traced almost completely; float16 agrees closely.' },
+  bench99141:    { name: 'Benchmark dendrite 99141', note: 'A typical dendrite: float16 and float32 agree closely.' },
+  heldout176723: { name: 'Held-out axon 176723', note: 'Held-out crop: traced almost completely, float16 agrees closely.' },
+  heldout151289: { name: 'Held-out axon 151289', note: 'Held-out crop: float16 agrees closely.' },
 };
-const SCENE_NAMES = { heldout250842: 'Held-out dendrite A (merge)', heldout245099: 'Held-out dendrite B (merge)', bench99141: 'Benchmark dendrite (no merge)' };
+const GROUPS = { merge: 'Merge flips (float16 vs float32)', ok: 'Tracing working as intended' };
 
 const canvas = document.getElementById('gl'), stage = document.getElementById('stage');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -96,20 +107,22 @@ async function loadMesh(file, scale) {
 
 function material(layer) {
   if (layer.kind === 'proofread') {
-    const isTrue = layer.label.startsWith('true');
-    return new THREE.MeshStandardMaterial({ color: isTrue ? COLORS.true : COLORS.neighbour, transparent: true,
+    const isTrue = layer.role === 'true';
+    return new THREE.MeshStandardMaterial({ color: COLORS[layer.role], transparent: true,
       opacity: isTrue ? 0.35 : 0.2, depthWrite: false, roughness: 0.8, side: THREE.DoubleSide });
   }
-  return new THREE.MeshStandardMaterial({ color: COLORS[layer.label], roughness: 0.55, metalness: 0.05,
-    transparent: layer.label === 'fp16', opacity: layer.label === 'fp16' ? 0.6 : 1, depthWrite: layer.label !== 'fp16' });
+  const fp16 = layer.role === 'fp16';
+  return new THREE.MeshStandardMaterial({ color: COLORS[layer.role], roughness: 0.55, metalness: 0.05,
+    transparent: fp16, opacity: fp16 ? 0.6 : 1, depthWrite: !fp16 });
 }
-const LAYER_TEXT = { fp32: 'float32 trace (reference)', fp16: 'float16 trace' };
+const layerText = l => l.kind === 'trace' ? (l.role === 'fp32' ? 'float32 trace (reference)' : 'float16 trace')
+  : (l.role === 'true' ? `proofread: true object (${l.id})` : `proofread: neighbour (${l.id})`);
 
 let manifest, current = [];
 function frame(mode) {
   const box = new THREE.Box3();
   for (const [layer, m] of current)
-    if (mode === 'all' ? layer.label !== 'neighbour' && !layer.label.startsWith('neighbour') : (layer.label === 'fp32' || layer.label.startsWith('true'))) box.expandByObject(m);
+    if (mode === 'all' ? layer.role !== 'neighbour' : (layer.role === 'fp32' || layer.role === 'true')) box.expandByObject(m);
   const c = box.getCenter(new THREE.Vector3()), r = box.getSize(new THREE.Vector3()).length() / 2;
   controls.target.copy(c);
   camera.position.copy(c).add(new THREE.Vector3(0.9, 0.5, 1.2).normalize().multiplyScalar(r * 2.7));
@@ -117,37 +130,52 @@ function frame(mode) {
 }
 document.getElementById('view-all').onclick = () => frame('all');
 document.getElementById('view-seed').onclick = () => frame('seed');
+
+const pct = v => (v * 100).toFixed(1) + '%';
 async function show(key) {
   const sc = manifest.scenes.find(s => s.key === key);
   document.getElementById('loading').hidden = false;
+  const meshes = [];
+  const geoms = await Promise.all(sc.layers.map(l => loadMesh(l.file, manifest.scale_um)));
   group.clear();
   const layersEl = document.getElementById('layers'); layersEl.innerHTML = '';
-  const meshes = [];
-  for (const layer of sc.layers) {
-    const g = await loadMesh(layer.file, manifest.scale_um);
-    const m = new THREE.Mesh(g, material(layer));
-    m.renderOrder = layer.kind === 'proofread' ? 2 : (layer.label === 'fp16' ? 1 : 0);
+  sc.layers.forEach((layer, i) => {
+    const m = new THREE.Mesh(geoms[i], material(layer));
+    m.renderOrder = layer.kind === 'proofread' ? 2 : (layer.role === 'fp16' ? 1 : 0);
     group.add(m); meshes.push([layer, m]);
-    const col = layer.kind === 'proofread' ? (layer.label.startsWith('true') ? COLORS.true : COLORS.neighbour) : COLORS[layer.label];
     const lab = document.createElement('label');
-    lab.innerHTML = `<input type="checkbox" checked><i class="ffn-sw" style="background:#${col.toString(16).padStart(6, '0')}"></i>${layer.kind === 'proofread' ? 'proofread: ' + layer.label : LAYER_TEXT[layer.label]}`;
+    lab.innerHTML = `<input type="checkbox" checked><i class="ffn-sw" style="background:#${COLORS[layer.role].toString(16).padStart(6, '0')}"></i>${layerText(layer)}`;
     const box = lab.querySelector('input');
-    if (layer.label.startsWith('neighbour')) { box.checked = false; m.visible = false; }  // toggle on to show where fp16 went
+    if (layer.role === 'neighbour') { box.checked = false; m.visible = false; }  // toggle on to show the merge partner
     box.onchange = e => { m.visible = e.target.checked; };
     layersEl.append(lab);
-  }
-  current = meshes; frame('all');
-  const f = FACTS[key];
-  document.getElementById('facts').innerHTML = `<span class="note">${f.note}</span>` +
-    f.rows.map(([k, v]) => `<span>${k}</span><span>${v}</span>`).join('');
+  });
+  current = meshes; frame(sc.group === 'merge' ? 'all' : 'seed');
+  const st = sc.stats;
+  document.getElementById('facts').innerHTML = `<span class="note">${SCENES[key].note}</span>
+    <span></span><span class="hd">float32 / float16</span>
+    <span>steps</span><span>${st.steps.map(v => v.toLocaleString('en-US')).join(' / ')}</span>
+    <span>recall</span><span>${st.recall.map(pct).join(' / ')}</span>
+    <span>precision</span><span>${st.precision.map(pct).join(' / ')}</span>
+    <span>mask overlap</span><span>IoU ${st.iou.toFixed(2)}</span>
+    <span>crop</span><span>${sc.crop === 'cropB' ? 'held-out' : 'benchmark'}</span>`;
   document.getElementById('loading').hidden = true;
 }
 
 (async () => {
   manifest = await (await fetch('data/manifest.json')).json();
   const sel = document.getElementById('scene');
-  for (const s of manifest.scenes) { const o = document.createElement('option'); o.value = s.key; o.textContent = SCENE_NAMES[s.key]; sel.append(o); }
+  for (const [g, label] of Object.entries(GROUPS)) {
+    const og = document.createElement('optgroup'); og.label = label;
+    for (const s of manifest.scenes.filter(s => s.group === g)) {
+      const o = document.createElement('option'); o.value = s.key; o.textContent = SCENES[s.key].name; og.append(o);
+    }
+    sel.append(og);
+  }
   sel.onchange = () => show(sel.value);
   resize();
-  await show(manifest.scenes[0].key);
+  const want = new URLSearchParams(location.search).get('scene');  // e.g. ?scene=notebook
+  const first = manifest.scenes.some(s => s.key === want) ? want : manifest.scenes[0].key;
+  sel.value = first;
+  await show(first);
 })();

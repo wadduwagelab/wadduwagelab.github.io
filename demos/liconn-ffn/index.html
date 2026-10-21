@@ -22,7 +22,7 @@ title: "Faster FFN tracing for LICONN"
         <li><b>19.7&nbsp;ms</b><span>per tracing step: the authors' model in float32 on a V100 (426&nbsp;ms on a laptop CPU)</span></li>
         <li><b>8</b><span>speed-up ideas tested end to end against the authors' proofread segmentation</span></li>
         <li><b>2.2&times;</b><span>from float16, which passed the benchmark and then failed on held-out data</span></li>
-        <li><b>1.1&times;</b><span>with output bitwise identical so far; about 1.3&times; is the ceiling for that route</span></li>
+        <li><b>1.1&times;</b><span>with output bitwise identical so far; about 1.3&times; is the most that route can give with the float32 network unchanged</span></li>
     </ul>
     <div class="res-toc" role="navigation" aria-label="On this page">
         <a href="#how">How FFN works</a>
@@ -31,7 +31,7 @@ title: "Faster FFN tracing for LICONN"
         <a href="#knife-edge">Key finding (3D)</a>
         <a href="#time">Where the time goes</a>
         <a href="#next">Next</a>
-        <a href="#workflow">How the work is run</a>
+        <a href="#workflow">How the research is run</a>
     </div>
 </section>
 
@@ -112,7 +112,7 @@ title: "Faster FFN tracing for LICONN"
         </div>
         <div id="stage"><canvas id="gl"></canvas><div id="loading">Loading meshes&hellip;</div></div>
     </div>
-    <p class="ffn-muted ffn-small">The reverse also happens. On one benchmark seed, float16 happened to <i>avoid</i> a false merge that float32 makes. Tiny numerical changes can flip a merge either way, so a variant can look better on one crop and fail on another.</p>
+    <p class="ffn-muted ffn-small">Use the <b>Example</b> menu: the first group shows merge flips, including the reverse case (dendrite 1525), where float16 <i>avoids</i> a false merge that float32 makes. The second group shows tracing working as intended on axons and dendrites from both crops, including the authors' own notebook example. Tiny numerical changes can flip a merge either way, so a variant can look better on one crop and fail on another.</p>
 </section>
 
 <section id="time" class="bg-subtle">
@@ -124,7 +124,7 @@ title: "Faster FFN tracing for LICONN"
     <div id="profile" class="ffn-stack"></div>
     <div id="profile-legend" class="ffn-legend"></div>
     <p class="res-lead ffn-gap">Removing that overhead keeps the arithmetic, and therefore the output, bitwise identical. Calling the network directly
-        already gives <b>9% faster, identical results</b> in float32 (17.9 vs 19.7&nbsp;ms). Removing all of the overhead would give about 1.3&times;.</p>
+        already gives <b>9% faster, identical results</b> in float32 (17.9 vs 19.7&nbsp;ms). In float32 the network itself takes about 14.7 of the 19.7&nbsp;ms, so removing all of the overhead around an unchanged float32 network gives at most about 1.3&times;.</p>
 </section>
 
 <section id="next">
@@ -144,15 +144,110 @@ title: "Faster FFN tracing for LICONN"
 
 <section id="workflow" class="bg-subtle">
     <div class="section-title">
-        <h2>How the work is run</h2>
-        <p>AI-assisted, human-owned</p>
+        <h2>How the research is run</h2>
+        <p>faster, without lowering the bar</p>
     </div>
-    <p class="res-lead">Claude Code writes the code and runs experiments on ODU's Wahab GPU cluster.
-        A second model independently checks the method, and a third reviews every change against the recorded evidence.
-        Every decision that changes the research meaning (tolerance, reference, which data to use) is made by the owner and written down before results are seen.
-        Negative results are kept, not tuned away: seven of eight ideas failed, and that is what revealed the knife-edge behaviour.</p>
-    <p class="ffn-muted ffn-small">Data: LICONN public release (Tavakoli et al., <i>Nature</i> 642, 398&ndash;410, 2025, <a href="https://doi.org/10.1038/s41586-025-08985-1" target="_blank" rel="noopener">doi:10.1038/s41586-025-08985-1</a>), CC BY 4.0;
-        model checkpoint axde_59110972 from the same release. Tracing code: <a href="https://github.com/google/ffn" target="_blank" rel="noopener">google/ffn</a>.</p>
+    <p class="res-lead">Everything above took <b>four days</b> (October 18&ndash;21, 2026): reading the paper, reproducing the authors' result,
+        setting up a GPU cluster, and testing and ruling out eight ideas, including a held-out check. AI agents did the engineering.
+        A structured workflow kept the science honest. Below are numbers and real examples from this project's own logs.</p>
+
+    <ul class="ffn-stats ffn-stats-6">
+        <li><b>19</b><span>task contracts: goal, allowed files, tests and limits frozen before work starts</span></li>
+        <li><b>17</b><span>independent method checks by a second AI model</span></li>
+        <li><b>28</b><span>evidence reviews by a third model, on outputs run in a disposable copy</span></li>
+        <li><b>38</b><span>problems caught and fixed before results were reported (4 high severity)</span></li>
+        <li><b>103</b><span>automated tests, many re-checking hashes of the code and outputs behind each number</span></li>
+        <li><b>8</b><span>research decisions made by the human owner, written down before results were seen</span></li>
+    </ul>
+
+    <h3 class="res-h3 res-h3-gap">The loop, for every milestone</h3>
+    <ol class="ffn-loop">
+        <li><i class="ffn-role r-owner">Owner</i><b>Sets the goal and the rules</b><span>e.g. "judge against the authors' proofread segmentation, every rule at 1%"</span></li>
+        <li><i class="ffn-role r-runner">Runner</i><b>Freezes a contract and runs a baseline</b><span>unmodified code first, so later failures are measured, not explained away</span></li>
+        <li><i class="ffn-role r-impl">Claude Code</i><b>Implements and runs the experiment</b><span>local CPU or the Wahab GPU cluster</span></li>
+        <li><i class="ffn-role r-check">Model 2</i><b>Independent method check</b><span>sees only the contract and the original sources, not the chat</span></li>
+        <li><i class="ffn-role r-runner">Runner</i><b>Tests and example in a disposable copy</b><span>code and outputs are hashed; any later edit makes the result <b>stale</b></span></li>
+        <li><i class="ffn-role r-review">Model 3</i><b>Reviews the change against the evidence</b><span>checked, or needs attention; at most two repairs, then back to the owner</span></li>
+    </ol>
+
+    <h3 class="res-h3 res-h3-gap">28 reviews: most first attempts did not pass</h3>
+    <div class="ffn-checks" id="checks" aria-label="28 review outcomes"></div>
+    <div class="ffn-legend">
+        <span><i class="ffn-sw" style="background:var(--accent)"></i>checked (7)</span>
+        <span><i class="ffn-sw" style="background:#ffd84d"></i>needs attention, repaired or escalated (20)</span>
+        <span><i class="ffn-sw v-bad"></i>blocked (1)</span>
+    </div>
+    <p class="ffn-muted ffn-small">That is the point: problems are found by the process, not by a reader of the paper later. Of the 38 problems found, 21 were in code and 17 were claims in the write-ups that went beyond the evidence.</p>
+
+    <h3 class="res-h3 res-h3-gap">Caught before it became a result: real examples</h3>
+    <div class="ffn-cases">
+        <article class="ffn-case">
+            <p class="ffn-case-meta"><i class="ffn-role r-review">Model 3</i><i class="ffn-sev s-high">high</i>benchmark design</p>
+            <blockquote>&ldquo;Seed selection does not fulfill the requested six axons plus six dendrites&hellip; It silently reduces class counts and introduces a stricter eligibility rule, changing the benchmark population.&rdquo;</blockquote>
+            <p class="ffn-fix"><b>Then:</b> the change went to the owner, who approved the 12-seed rule explicitly. It was recorded in the design before any speed idea was tested.</p>
+        </article>
+        <article class="ffn-case">
+            <p class="ffn-case-meta"><i class="ffn-role r-check">Model 2</i><i class="ffn-role r-review">Model 3</i><i class="ffn-sev s-high">high</i>analysis code</p>
+            <blockquote>&ldquo;final_owner_voxels has a major logic flaw under whole-box overwrite&rdquo; &middot; &ldquo;measures the last decision-changing step rather than the requested last writer.&rdquo;</blockquote>
+            <p class="ffn-fix"><b>Then:</b> two independent models flagged the same bug. It was fixed and re-checked before any number from the waste analysis was reported.</p>
+        </article>
+        <article class="ffn-case">
+            <p class="ffn-case-meta"><i class="ffn-role r-review">Model 3</i><i class="ffn-sev s-med">medium</i>measurement confound</p>
+            <blockquote>&ldquo;Screen accuracy and variant selection use batch 8, while tracing and timing use batch 1. GPU convolution algorithms and floating-point results can depend on batch shape&hellip;&rdquo;</blockquote>
+            <p class="ffn-fix"><b>Then:</b> the precision screen was re-run at batch 1. The first runs are kept, labelled &ldquo;superseded&rdquo;, not deleted.</p>
+        </article>
+        <article class="ffn-case">
+            <p class="ffn-case-meta"><i class="ffn-role r-check">Model 2</i><i class="ffn-sev s-med">medium</i>reproducibility</p>
+            <blockquote>&ldquo;No &mdash; it works on this machine by environment coincidence (no GPU/Metal plugin installed), not because the config update is placed early enough.&rdquo;</blockquote>
+            <p class="ffn-fix"><b>Then:</b> the CPU-only reference was enforced in code, so it reproduces bitwise on any machine, not just this one.</p>
+        </article>
+        <article class="ffn-case">
+            <p class="ffn-case-meta"><i class="ffn-role r-review">Model 3</i><i class="ffn-sev s-med">medium</i>data-access scope</p>
+            <blockquote>&ldquo;The survey downloads segmentation voxel data despite the task's explicit restriction to metadata reads.&rdquo;</blockquote>
+            <p class="ffn-fix"><b>Then:</b> it was flagged as a scope breach and taken to the owner, who reviewed it and approved that read explicitly. The approval is recorded in the write-up.</p>
+        </article>
+        <article class="ffn-case">
+            <p class="ffn-case-meta"><i class="ffn-role r-review">Model 3</i><i class="ffn-sev s-med">medium</i>overclaim</p>
+            <blockquote>&ldquo;The claim that no residual block can be dropped within tolerance is unsupported. Only block 12 and the combined drop of blocks 12 and 17 received closed-loop benchmarks.&rdquo;</blockquote>
+            <p class="ffn-fix"><b>Then:</b> the conclusion was narrowed to what was actually tested.</p>
+        </article>
+        <article class="ffn-case ffn-case-wide">
+            <p class="ffn-case-meta"><i class="ffn-role r-owner">Owner</i><i class="ffn-role r-runner">Runner</i>design, not luck</p>
+            <blockquote>float16 passed all 12 benchmark seeds at 2.19&times; per step.</blockquote>
+            <p class="ffn-fix"><b>Then:</b> the held-out check, fixed in advance, ran 12 new seeds on a separate crop. Two large false merges appeared, so the 2.2&times; is <b>not</b> claimed. On the benchmark alone it would have looked like a clean win.</p>
+        </article>
+    </div>
+
+    <h3 class="res-h3 res-h3-gap">How it differs from one AI assistant working alone</h3>
+    <div class="ffn-table-wrap">
+    <table class="ffn-table">
+        <thead><tr><th></th><th>One assistant session alone</th><th>This workflow</th></tr></thead>
+        <tbody>
+            <tr><th>Who checks the method?</th><td>The same model that wrote the code</td><td>A different model, given only the written contract and the original sources</td></tr>
+            <tr><th>What counts as "it works"?</th><td>The assistant's own report</td><td>Tests and examples re-run in a disposable copy and reviewed against their outputs; agent reports are not evidence</td></tr>
+            <tr><th>Can the goalposts move?</th><td>Quietly, mid-task (see the seed-selection example)</td><td>Tolerance, seeds, files and limits are frozen; changing them needs an owner decision, which is logged</td></tr>
+            <tr><th>Where does a number come from?</th><td>Somewhere in the chat history</td><td>Hashes of the code and outputs, re-checked by tests; the result goes stale if either changes</td></tr>
+            <tr><th>Failed ideas</th><td>Easy to drop or retry until one passes</td><td>Kept with their evidence. Retries are capped, and tests and tolerances cannot be loosened to get a pass</td></tr>
+            <tr><th>The scientist's role</th><td>Reads the final answer</td><td>Makes every decision that changes the research meaning, up front</td></tr>
+        </tbody>
+    </table>
+    </div>
+
+    <h3 class="res-h3 res-h3-gap">Decision log (owner)</h3>
+    <ol class="ffn-decisions">
+        <li><span>Oct 18</span>Target FFN inference; reproduce the authors' example exactly before changing anything.</li>
+        <li><span>Oct 18</span>Judge accuracy against the authors' proofread segmentation; no retraining for now.</li>
+        <li><span>Oct 19</span>Approve the 12-seed benchmark rule (after the reviewer flagged a silent change).</li>
+        <li><span>Oct 19</span>Adopt the V100 GPU run as the reference; every tolerance rule at 1%.</li>
+        <li><span>Oct 19</span>Exclude the seed with the large false merge (dendrite 1525) from the step-waste analysis.</li>
+        <li><span>Oct 20</span>Record step-skipping (lever A) as failed; move to cheaper steps (lever B).</li>
+        <li><span>Oct 20</span>Approve reading the coarse proofread labels for the training-data survey.</li>
+        <li><span>Oct 21</span>Next: judge over many more seeds, with an explicit allowance for rare merge flips.</li>
+    </ol>
+
+    <p class="ffn-muted ffn-small ffn-gap">Data: LICONN public release (Tavakoli et al., <i>Nature</i> 642, 398&ndash;410, 2025, <a href="https://doi.org/10.1038/s41586-025-08985-1" target="_blank" rel="noopener">doi:10.1038/s41586-025-08985-1</a>), CC BY 4.0;
+        model checkpoint axde_59110972 from the same release. Tracing code: <a href="https://github.com/google/ffn" target="_blank" rel="noopener">google/ffn</a>.
+        Workflow: Claude Code implements; a Cursor-hosted model provides independent method checks; Codex reviews evidence.</p>
 </section>
 
 <script src="{{ '/demos/liconn-ffn/app.js' | relative_url }}" type="module"></script>

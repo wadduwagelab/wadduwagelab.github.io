@@ -8,115 +8,448 @@
  "scenes": [
   {
    "key": "heldout250842",
-   "title": "Held-out dendrite 250842",
+   "crop": "cropB",
    "seed": "heldout_dendrite_250842",
+   "cls": "dendrite",
+   "object_id": 250842,
+   "group": "merge",
+   "stats": {
+    "steps": [
+     79,
+     2266
+    ],
+    "recall": [
+     0.7565,
+     0.734
+    ],
+    "precision": [
+     0.9988,
+     0.067
+    ],
+    "iou": 0.066
+   },
    "layers": [
     {
      "file": "cropB_gt_250842.bin",
      "verts": 5884,
      "faces": 11590,
-     "voxels": 66987,
      "kind": "proofread",
-     "label": "true dendrite (proofread 250842)",
+     "role": "true",
      "id": 250842
     },
     {
      "file": "cropB_gt_245232.bin",
-     "verts": 52250,
-     "faces": 104434,
-     "voxels": 739082,
+     "verts": 22836,
+     "faces": 45752,
      "kind": "proofread",
-     "label": "neighbour (proofread 245232)",
+     "role": "neighbour",
      "id": 245232
     },
     {
      "file": "heldout250842_fp32.bin",
      "verts": 3465,
      "faces": 6786,
-     "voxels": 57164,
      "kind": "trace",
-     "label": "fp32"
+     "role": "fp32"
     },
     {
      "file": "heldout250842_fp16.bin",
-     "verts": 53719,
-     "faces": 107158,
-     "voxels": 811818,
+     "verts": 23484,
+     "faces": 46940,
      "kind": "trace",
-     "label": "fp16"
+     "role": "fp16"
     }
    ]
   },
   {
    "key": "heldout245099",
-   "title": "Held-out dendrite 245099",
+   "crop": "cropB",
    "seed": "heldout_dendrite_245099",
+   "cls": "dendrite",
+   "object_id": 245099,
+   "group": "merge",
+   "stats": {
+    "steps": [
+     727,
+     2866
+    ],
+    "recall": [
+     0.8361,
+     0.7862
+    ],
+    "precision": [
+     0.9882,
+     0.2405
+    ],
+    "iou": 0.2301
+   },
    "layers": [
     {
      "file": "cropB_gt_245099.bin",
      "verts": 23272,
      "faces": 46168,
-     "voxels": 279151,
      "kind": "proofread",
-     "label": "true dendrite (proofread 245099)",
+     "role": "true",
      "id": 245099
     },
     {
      "file": "cropB_gt_245232.bin",
-     "verts": 52250,
-     "faces": 104434,
-     "voxels": 739082,
+     "verts": 22836,
+     "faces": 45752,
      "kind": "proofread",
-     "label": "neighbour (proofread 245232)",
+     "role": "neighbour",
      "id": 245232
     },
     {
      "file": "heldout245099_fp32.bin",
      "verts": 20684,
      "faces": 41230,
-     "voxels": 264767,
      "kind": "trace",
-     "label": "fp32"
+     "role": "fp32"
     },
     {
      "file": "heldout245099_fp16.bin",
-     "verts": 67083,
-     "faces": 133620,
-     "voxels": 1008698,
+     "verts": 29487,
+     "faces": 58894,
      "kind": "trace",
-     "label": "fp16"
+     "role": "fp16"
+    }
+   ]
+  },
+  {
+   "key": "bench1525",
+   "crop": "cropA",
+   "seed": "dendrite_1525",
+   "cls": "dendrite",
+   "object_id": 1525,
+   "group": "merge",
+   "stats": {
+    "steps": [
+     2558,
+     376
+    ],
+    "recall": [
+     0.7713,
+     0.7791
+    ],
+    "precision": [
+     0.1783,
+     0.9955
+    ],
+    "iou": 0.1754
+   },
+   "layers": [
+    {
+     "file": "cropA_gt_1525.bin",
+     "verts": 14594,
+     "faces": 29050,
+     "kind": "proofread",
+     "role": "true",
+     "id": 1525
+    },
+    {
+     "file": "cropA_gt_97123.bin",
+     "verts": 22545,
+     "faces": 45010,
+     "kind": "proofread",
+     "role": "neighbour",
+     "id": 97123
+    },
+    {
+     "file": "bench1525_fp32.bin",
+     "verts": 25327,
+     "faces": 50530,
+     "kind": "trace",
+     "role": "fp32"
+    },
+    {
+     "file": "bench1525_fp16.bin",
+     "verts": 11246,
+     "faces": 22444,
+     "kind": "trace",
+     "role": "fp16"
+    }
+   ]
+  },
+  {
+   "key": "notebook",
+   "crop": "cropA",
+   "seed": "notebook",
+   "cls": "unclassified",
+   "object_id": 97257,
+   "group": "ok",
+   "stats": {
+    "steps": [
+     359,
+     360
+    ],
+    "recall": [
+     0.9759,
+     0.9718
+    ],
+    "precision": [
+     0.9992,
+     0.9998
+    ],
+    "iou": 0.9307
+   },
+   "layers": [
+    {
+     "file": "cropA_gt_97257.bin",
+     "verts": 10568,
+     "faces": 21090,
+     "kind": "proofread",
+     "role": "true",
+     "id": 97257
+    },
+    {
+     "file": "notebook_fp32.bin",
+     "verts": 11170,
+     "faces": 22332,
+     "kind": "trace",
+     "role": "fp32"
+    },
+    {
+     "file": "notebook_fp16.bin",
+     "verts": 11105,
+     "faces": 22198,
+     "kind": "trace",
+     "role": "fp16"
+    }
+   ]
+  },
+  {
+   "key": "bench13395",
+   "crop": "cropA",
+   "seed": "axon_13395",
+   "cls": "axon",
+   "object_id": 13395,
+   "group": "ok",
+   "stats": {
+    "steps": [
+     532,
+     541
+    ],
+    "recall": [
+     0.9894,
+     0.9887
+    ],
+    "precision": [
+     0.9984,
+     0.9988
+    ],
+    "iou": 0.9515
+   },
+   "layers": [
+    {
+     "file": "cropA_gt_13395.bin",
+     "verts": 13158,
+     "faces": 26310,
+     "kind": "proofread",
+     "role": "true",
+     "id": 13395
+    },
+    {
+     "file": "bench13395_fp32.bin",
+     "verts": 13865,
+     "faces": 27730,
+     "kind": "trace",
+     "role": "fp32"
+    },
+    {
+     "file": "bench13395_fp16.bin",
+     "verts": 13799,
+     "faces": 27550,
+     "kind": "trace",
+     "role": "fp16"
+    }
+   ]
+  },
+  {
+   "key": "bench56789",
+   "crop": "cropA",
+   "seed": "dendrite_56789",
+   "cls": "dendrite",
+   "object_id": 56789,
+   "group": "ok",
+   "stats": {
+    "steps": [
+     934,
+     939
+    ],
+    "recall": [
+     0.9909,
+     0.9838
+    ],
+    "precision": [
+     0.9928,
+     0.9904
+    ],
+    "iou": 0.9537
+   },
+   "layers": [
+    {
+     "file": "cropA_gt_56789.bin",
+     "verts": 20509,
+     "faces": 40928,
+     "kind": "proofread",
+     "role": "true",
+     "id": 56789
+    },
+    {
+     "file": "bench56789_fp32.bin",
+     "verts": 20680,
+     "faces": 41266,
+     "kind": "trace",
+     "role": "fp32"
+    },
+    {
+     "file": "bench56789_fp16.bin",
+     "verts": 20829,
+     "faces": 41588,
+     "kind": "trace",
+     "role": "fp16"
     }
    ]
   },
   {
    "key": "bench99141",
-   "title": "Benchmark dendrite 99141",
+   "crop": "cropA",
    "seed": "dendrite_99141",
+   "cls": "dendrite",
+   "object_id": 99141,
+   "group": "ok",
+   "stats": {
+    "steps": [
+     959,
+     979
+    ],
+    "recall": [
+     0.8812,
+     0.8872
+    ],
+    "precision": [
+     0.9917,
+     0.9901
+    ],
+    "iou": 0.9559
+   },
    "layers": [
     {
      "file": "cropA_gt_99141.bin",
      "verts": 26504,
      "faces": 52724,
-     "voxels": 330195,
      "kind": "proofread",
-     "label": "true dendrite (proofread 99141)",
+     "role": "true",
      "id": 99141
     },
     {
      "file": "bench99141_fp32.bin",
      "verts": 23359,
      "faces": 46544,
-     "voxels": 329022,
      "kind": "trace",
-     "label": "fp32"
+     "role": "fp32"
     },
     {
      "file": "bench99141_fp16.bin",
      "verts": 23724,
      "faces": 47252,
-     "voxels": 332154,
      "kind": "trace",
-     "label": "fp16"
+     "role": "fp16"
+    }
+   ]
+  },
+  {
+   "key": "heldout176723",
+   "crop": "cropB",
+   "seed": "heldout_axon_176723",
+   "cls": "axon",
+   "object_id": 176723,
+   "group": "ok",
+   "stats": {
+    "steps": [
+     521,
+     503
+    ],
+    "recall": [
+     0.9937,
+     0.9912
+    ],
+    "precision": [
+     0.9941,
+     0.997
+    ],
+    "iou": 0.938
+   },
+   "layers": [
+    {
+     "file": "cropB_gt_176723.bin",
+     "verts": 12550,
+     "faces": 25114,
+     "kind": "proofread",
+     "role": "true",
+     "id": 176723
+    },
+    {
+     "file": "heldout176723_fp32.bin",
+     "verts": 13856,
+     "faces": 27704,
+     "kind": "trace",
+     "role": "fp32"
+    },
+    {
+     "file": "heldout176723_fp16.bin",
+     "verts": 13462,
+     "faces": 26850,
+     "kind": "trace",
+     "role": "fp16"
+    }
+   ]
+  },
+  {
+   "key": "heldout151289",
+   "crop": "cropB",
+   "seed": "heldout_axon_151289",
+   "cls": "axon",
+   "object_id": 151289,
+   "group": "ok",
+   "stats": {
+    "steps": [
+     280,
+     283
+    ],
+    "recall": [
+     0.9415,
+     0.9495
+    ],
+    "precision": [
+     0.9941,
+     0.9979
+    ],
+    "iou": 0.9307
+   },
+   "layers": [
+    {
+     "file": "cropB_gt_151289.bin",
+     "verts": 8820,
+     "faces": 17582,
+     "kind": "proofread",
+     "role": "true",
+     "id": 151289
+    },
+    {
+     "file": "heldout151289_fp32.bin",
+     "verts": 9084,
+     "faces": 18148,
+     "kind": "trace",
+     "role": "fp32"
+    },
+    {
+     "file": "heldout151289_fp16.bin",
+     "verts": 9214,
+     "faces": 18408,
+     "kind": "trace",
+     "role": "fp16"
     }
    ]
   }
