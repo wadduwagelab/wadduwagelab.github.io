@@ -159,7 +159,7 @@ title: ""
             {% for pub in year_group.items %}
             <li style="margin-bottom: 0.75rem;">
                 {{ pub.authors }} ({{ pub.year }}). 
-                <span style="color: var(--text-muted);">{{ pub.title }} <i>{{ pub.journal }}</i>{% if pub.volume %}, {{ pub.volume }}{% if pub.pages %} ({{ pub.pages }}){% endif %}{% endif %}.</span>{% if pub.doi %} <a class="pub-link" href="https://doi.org/{{ pub.doi }}" target="_blank" rel="noopener">DOI</a>{% elsif pub.url %} <a class="pub-link" href="{{ pub.url }}" target="_blank" rel="noopener">Link</a>{% endif %}{% for pr in pub.press %} <a class="pub-link pub-press" href="{{ pr.url }}" target="_blank" rel="noopener">{{ pr.name }}</a>{% endfor %}
+                <span style="color: var(--text-muted);">{{ pub.title }} <i>{{ pub.journal }}</i>{% if pub.volume %}, {{ pub.volume }}{% if pub.pages %} ({{ pub.pages }}){% endif %}{% endif %}.</span>{% if pub.doi %} <a class="pub-link" href="https://doi.org/{{ pub.doi }}" target="_blank" rel="noopener">DOI</a>{% elsif pub.url %} <a class="pub-link" href="{{ pub.url }}" target="_blank" rel="noopener">Link</a>{% endif %}{% if pub.arxiv %} <a class="pub-link" href="https://arxiv.org/abs/{{ pub.arxiv }}" target="_blank" rel="noopener">arXiv</a>{% endif %}{% for pr in pub.press %} <a class="pub-link pub-press" href="{{ pr.url }}" target="_blank" rel="noopener">{{ pr.name }}</a>{% endfor %}
             </li>
             {% endfor %}
             {% endfor %}

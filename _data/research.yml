@@ -10,8 +10,8 @@ thrusts:
     url: https://doi.org/10.1364/OE.546074
   - label: 3D nanoprecise metastructures, with the Boyden and So labs · Nature Photonics 2026
     url: https://doi.org/10.1038/s41566-026-01896-1
-  - label: Volumetric diffractive networks · arXiv 2026 (preprint)
-    url: https://arxiv.org/abs/2606.07896
+  - label: Volumetric diffractive networks · Optics Express 2026 (in press)
+    url: https://doi.org/10.1364/OE.609758
   - label: Towards ultrafast quantitative phase imaging · Biomedical Optics Express 2024
     url: https://doi.org/10.1364/BOE.504954
 - label: DEEP · de-scattering with excitation patterning

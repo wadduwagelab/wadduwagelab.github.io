@@ -103,7 +103,7 @@ when it is HTML text. Links inside `text` fields are raw HTML: `<a href=\"URL\">
 
 **Preprint** (`preprints.yml`, newest first): `year`, `authors`, `title`, `venue: "arXiv:2606.07896"`,
 `url`, `doi` (arXiv DOI, `10.48550/arXiv.<id>` → "DOI" button), optional `code` (repo URL → "Code" button; must be public), optional `label` (button text, default "arXiv").
-When a preprint is published, move it to `publications.yml`.
+When a preprint is accepted or published, move it to `publications.yml` (journal `"Optics Express (in press)"` until it has volume and pages) and keep its arXiv id as `arxiv: "2606.07896"` (→ "arXiv" button; the chat corpus builder also uses it). Update the paper's links in `research.yml`, `resources.yml` and `software.yml` to the journal DOI.
 
 **Proceedings** (`proceedings.yml`): `year` + `text` (full citation, venue in `<i>…</i>`), optional `doi` (bare DOI → "DOI" link). File header says it was synced from Google Scholar (Sep 2026).
 

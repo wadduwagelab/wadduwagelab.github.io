@@ -1,4 +1,11 @@
 - year: 2026
+  authors: "Jayakody, D., & Wadduwage, D. N."
+  title: "Beyond the Thin-Layer Limit: Differentiable Volumetric Training for Visible-Range Diffractive Neural Networks."
+  journal: "Optics Express (in press)"
+  doi: "10.1364/oe.609758"
+  arxiv: "2606.07896"
+
+- year: 2026
   authors: "Kay, J. E., Corrigan, J. J., Volk, L. B., Armijo, A. L., Owiti, N. A., Pribyl, L. J., Nazari, I. S., Torous, D. K., Avlasevich, S. L., Croy, R. G., Wadduwage, D. N., Carrasco, S. E., Dertinger, S. D., Essigmann, J. M., Samson, L. D., & Engelward, B. P."
   title: "Sex and base excision repair as key susceptibility factors for alkylation-induced mutations, toxicity and hepatic cancer."
   journal: "DNA Repair"
