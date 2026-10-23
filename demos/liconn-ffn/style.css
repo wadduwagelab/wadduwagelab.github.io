@@ -150,3 +150,12 @@
 @media (max-width: 860px) { .ffn-contract { grid-template-columns: 1fr; } .ffn-json { font-size: 11.5px; } }
 .ffn-mini th, .ffn-mini td { font-size: 0.88rem; padding: 0.35rem 0.5rem; } .ffn-mini { margin-bottom: 0.6rem; border: 2px solid #000; }
 #fix .res-steps { align-content: start; } .ffn-mini tbody th { width: auto; white-space: nowrap; }
+.ffn-mini td small { color: var(--text-muted); font-size: 0.78rem; white-space: nowrap; }
+.ffn-mini td:nth-child(2) { color: var(--text-main); width: auto; }
+.ffn-mini td:nth-child(3) { color: var(--text-muted); }
+.ffn-mini-wrap { overflow-x: auto; }
+@media (max-width: 560px) {
+  .ffn-mini tbody th { white-space: normal; }
+  .ffn-mini td small { display: block; }
+  .ffn-mini th, .ffn-mini td { padding: 0.3rem 0.35rem; font-size: 0.8rem; }
+}

@@ -132,18 +132,19 @@ title: "Faster FFN tracing for LICONN"
         </ol>
         <div class="ffn-box">
             <h3 class="res-h3">On the 300-seed rule</h3>
-            <table class="ffn-table ffn-mini">
-                <thead><tr><th></th><th>float16</th><th>+ float32 head</th></tr></thead>
+            <div class="ffn-mini-wrap"><table class="ffn-table ffn-mini">
+                <thead><tr><th></th><th>original (float32)</th><th>float16</th><th>+ float32 head</th></tr></thead>
                 <tbody>
-                    <tr><th>new merges (&le;&nbsp;3)</th><td>3</td><td>1</td></tr>
-                    <tr><th>early stops (&le;&nbsp;3)</th><td><b>10</b></td><td>1</td></tr>
-                    <tr><th>mean recall</th><td>&minus;0.11</td><td>+0.27</td></tr>
-                    <tr><th>mean precision</th><td>&minus;0.31</td><td>+0.13</td></tr>
-                    <tr><th>time per step</th><td>8.88&nbsp;ms</td><td>8.95&nbsp;ms</td></tr>
-                    <tr><th>verdict</th><td>fails</td><td><b>passes</b></td></tr>
+                    <tr><th>mean recall</th><td>84.7%</td><td>84.6% <small>(&minus;0.11)</small></td><td>85.0% <small>(+0.27)</small></td></tr>
+                    <tr><th>mean precision</th><td>98.4%</td><td>98.1% <small>(&minus;0.31)</small></td><td>98.5% <small>(+0.13)</small></td></tr>
+                    <tr><th>new merges (&le;&nbsp;3)</th><td>reference</td><td>3</td><td>1</td></tr>
+                    <tr><th>early stops (&le;&nbsp;3)</th><td>reference</td><td><b>10</b></td><td>1</td></tr>
+                    <tr><th>time per step</th><td>19.58&nbsp;ms</td><td>8.88&nbsp;ms</td><td>8.95&nbsp;ms</td></tr>
+                    <tr><th>tracing all 300</th><td>1,838&nbsp;s</td><td>852&nbsp;s</td><td>830&nbsp;s</td></tr>
+                    <tr><th>verdict</th><td>reference</td><td>fails</td><td><b>passes</b></td></tr>
                 </tbody>
-            </table>
-            <p class="ffn-muted ffn-small">float32 reference: 19.58&nbsp;ms per step, so 2.2&times; faster. Caveat: the fix was chosen on 20 of these 300 seeds, including all 10 of float16's early stops. It needs confirming on 300 fresh seeds before it counts.</p>
+            </table></div>
+            <p class="ffn-muted ffn-small">Recall and precision are against the authors' proofread segmentation, averaged over the 300 seeds; changes from the original are in points. New merges and early stops are counted against the original. Speed: one V100, separate jobs, so about 2.2&times;. Caveat: the fix was chosen on 20 of these 300 seeds, including all 10 of float16's early stops. It needs confirming on 300 fresh seeds before it counts.</p>
         </div>
     </div>
 </section>
