@@ -6,8 +6,9 @@ const V = new URL(import.meta.url).search;
 
 // ---------- ideas chart (numbers from the project's recorded results) ----------
 const IDEAS = [
+  { lever: 'B', name: 'float16 + float32 output head', x: 2.19, v: 'ok', kind: 'per step', why: 'Passes the 300-seed rule: 1 new merge and 1 early stop (limits 3). Chosen on 20 of those seeds, so confirmation on fresh seeds is pending.' },
   { lever: 'B', name: 'Direct network call', x: 1.10, v: 'ok', kind: 'per step', why: 'Same arithmetic, less framework overhead. Output bitwise identical on all 12 seeds.' },
-  { lever: 'B', name: 'float16 network', x: 2.19, v: 'warn', kind: 'per step', why: 'Passed the 12 benchmark seeds. Held-out crop: two dendrites merged into a neighbour (precision −93 and −75 points).' },
+  { lever: 'B', name: 'float16 network', x: 2.19, v: 'warn', kind: 'per step', why: 'Passed the 12 benchmark seeds, then failed on more: two large merges on the held-out crop, and 10 early stops on the 300-seed rule.' },
   { lever: 'B', name: 'bfloat16 network', x: 1.33, v: 'bad', kind: 'per step', why: 'New large merge on one benchmark dendrite (931 → 4,357 steps).' },
   { lever: 'A', name: 'Postpone + drop enclosed moves', x: 1.52, v: 'bad', kind: 'fewer steps', why: '34% fewer steps, but mostly by avoiding one existing false merge; per-seed recall losses.' },
   { lever: 'A', name: 'Postpone low-yield moves', x: 1.36, v: 'bad', kind: 'fewer steps', why: 'Two seeds lose 1.5–2.4 recall points.' },
@@ -54,7 +55,7 @@ for (const [n, ms, bg, fg] of PROFILE) {
 
 // ---------- review outcomes, in the order they happened (from the project's check records) ----------
 {
-  const SEQ = 'BACAACAACAAAACACACAAAAAACAAA';  // C = checked, A = needs attention, B = blocked
+  const SEQ = 'BACAACAACAAAACACACAAAAAACAAAABAAAC';  // C = checked, A = needs attention, B = blocked
   const el = document.getElementById('checks');
   for (const c of SEQ) { const i = document.createElement('i'); i.className = 'c-' + c; el.append(i); }
 }

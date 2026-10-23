@@ -148,3 +148,5 @@
 .ffn-notes a, .res-steps a, .ffn-fix a { color: inherit; text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 2px; }
 #contract, #case-scope { scroll-margin-top: 90px; }
 @media (max-width: 860px) { .ffn-contract { grid-template-columns: 1fr; } .ffn-json { font-size: 11.5px; } }
+.ffn-mini th, .ffn-mini td { font-size: 0.88rem; padding: 0.35rem 0.5rem; } .ffn-mini { margin-bottom: 0.6rem; border: 2px solid #000; }
+#fix .res-steps { align-content: start; } .ffn-mini tbody th { width: auto; white-space: nowrap; }
