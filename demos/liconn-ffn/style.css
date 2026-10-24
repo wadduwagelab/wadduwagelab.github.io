@@ -161,3 +161,4 @@
 }
 .ffn-checks .c-F { background: #000; }
 .ffn-mini-2 td:nth-child(3) { color: var(--text-main); }
+.ffn-train td:last-child { background: #fff; color: var(--text-main); }

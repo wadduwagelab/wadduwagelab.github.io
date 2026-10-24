@@ -20,9 +20,9 @@ title: "Faster FFN tracing for LICONN"
         faster <em>method</em> that finds the same neurons on any hardware, not just more GPUs.</p>
     <ul class="ffn-stats">
         <li><b>19.7&nbsp;ms</b><span>per tracing step: the authors' model in float32 on a V100 (426&nbsp;ms on a laptop CPU)</span></li>
-        <li><b>9</b><span>speed-up ideas tested end to end against the authors' proofread segmentation</span></li>
-        <li><b>2.2&times;</b><span>float16 with a float32 output head: passes the owner's 2% rule on 300 fresh seeds (the rule was relaxed from 1% after that result)</span></li>
-        <li><b>1.1&times;</b><span>with output bitwise identical so far; about 1.3&times; is the most that route can give with the float32 network unchanged</span></li>
+        <li><b>10</b><span>speed-up ideas tested end to end against the authors' proofread segmentation</span></li>
+        <li><b>3.2&times;</b><span>per step: float16 with a float32 output head, plus the fast tracer (5.96 vs 19.27&nbsp;ms on a V100). Passes the owner's 2% rule on 300 fresh seeds; the rule was relaxed from 1% after that result</span></li>
+        <li><b>1.12&times;</b><span>in float32 with output bitwise identical: the fast tracer (624 traces checked, in both number formats)</span></li>
     </ul>
     <div class="res-toc" role="navigation" aria-label="On this page">
         <a href="#how">How FFN works</a>
@@ -31,7 +31,8 @@ title: "Faster FFN tracing for LICONN"
         <a href="#knife-edge">Key finding (3D)</a>
         <a href="#fix">The fix</a>
         <a href="#confirm">Fresh-seed check</a>
-        <a href="#time">Where the time goes</a>
+        <a href="#time">Fast tracer</a>
+        <a href="#vit">ViT model</a>
         <a href="#next">Next</a>
         <a href="#workflow">How the research is run</a>
     </div>
@@ -189,47 +190,232 @@ title: "Faster FFN tracing for LICONN"
 
 <section id="time" class="bg-subtle">
     <div class="section-title">
-        <h2>Where a step's time goes</h2>
-        <p>one float16 step on a V100, 10.2&nbsp;ms</p>
+        <h2>Where a step's time goes, and the fast tracer</h2>
+        <p>same output, less overhead</p>
     </div>
-    <p class="res-lead">Only about 40% of the time is the network itself; the rest is bookkeeping around it.</p>
+    <p class="res-lead">Profiling one float16 step (10.2&nbsp;ms on a V100) showed that only about 40% was the network itself.
+        The rest was bookkeeping around it: assembling the input, updating the canvas, handing work between threads, and copying.</p>
     <div id="profile" class="ffn-stack"></div>
     <div id="profile-legend" class="ffn-legend"></div>
-    <p class="res-lead ffn-gap">Removing that overhead keeps the arithmetic, and therefore the output, bitwise identical. Calling the network directly
-        already gives <b>9% faster, identical results</b> in float32 (17.9 vs 19.7&nbsp;ms). In float32 the network itself takes about 14.7 of the 19.7&nbsp;ms, so removing all of the overhead around an unchanged float32 network gives at most about 1.3&times;.</p>
+    <p class="res-lead ffn-gap">The <b>fast tracer</b> removes that overhead without changing a single number of FFN's output:</p>
+    <ul class="res-bullets">
+        <li>The image and the canvas stay on the GPU.</li>
+        <li>The network is called directly, with no executor threads.</li>
+        <li>Input assembly, the canvas update and the six face maxima that decide the next moves run as small compiled GPU functions.</li>
+        <li>Only six scores and six positions come back to the CPU, where FFN's own queue code runs unchanged.</li>
+    </ul>
+    <div id="profile-after" class="ffn-stack ffn-gap"></div>
+    <div id="profile-after-legend" class="ffn-legend"></div>
+    <div class="res-two ffn-gap">
+        <div class="ffn-box">
+            <h3 class="res-h3">Fast tracer, V100</h3>
+            <div class="ffn-mini-wrap"><table class="ffn-table ffn-mini ffn-mini-2">
+                <thead><tr><th></th><th>original path</th><th>fast tracer</th></tr></thead>
+                <tbody>
+                    <tr><th>float32, 12 seeds</th><td>19.27&nbsp;ms</td><td>17.16&nbsp;ms <small>(1.12&times;)</small></td></tr>
+                    <tr><th>float32 head, 12 seeds</th><td>8.55&nbsp;ms</td><td>5.96&nbsp;ms <small>(1.43&times;)</small></td></tr>
+                    <tr><th>vs original float32</th><td>19.27&nbsp;ms</td><td><b>5.96&nbsp;ms <small>(3.23&times;)</small></b></td></tr>
+                    <tr><th>300 fresh seeds</th><td>19.51&nbsp;ms <small>(float32)</small></td><td>6.41&nbsp;ms <small>(3.04&times;)</small></td></tr>
+                    <tr><th>identical traces</th><td colspan="2"><b>624 of 624</b> (canvas, visit order, step count)</td></tr>
+                </tbody>
+            </table></div>
+            <p class="ffn-muted ffn-small">Time per tracing step. The 12-seed rows were timed in the same job as the original path; the 300-seed row compares separate jobs. Both paths' timers exclude per-trace setup, about 0.6&nbsp;s per trace, mostly copying the image to the GPU. Counting it, the float32-head gain is 1.37&times; rather than 1.43&times; (exploratory measurement).</p>
+        </div>
+        <ul class="res-bullets">
+            <li><b>Accuracy carries over.</b> Every trace is bitwise identical to the network it speeds up, so the 2% verdict for the float32-head network stands unchanged.</li>
+            <li><b>Exactness needed care.</b> FFN picks moves with NumPy, where the first NaN counts as the maximum. The GPU's argmax does not reliably return the first of several NaNs, so traces changed (3 of 12 benchmark seeds and 4 of the first 168 fresh seeds, with the float32-head network) until NaNs were located explicitly.</li>
+            <li><b>Doing it naively was slower.</b> Computing the six face maxima as six separate GPU reductions took 6.83&nbsp;ms per step, slower than leaving them on the CPU (6.36&nbsp;ms). One stacked reduction brought it to 5.96&nbsp;ms.</li>
+            <li><b>What is left.</b> The network is now about 4.6 of the 5.96&nbsp;ms. Going much further needs a faster network, or a different method (below).</li>
+        </ul>
+    </div>
 </section>
 
-<section id="next">
+<section id="vit">
+    <div class="section-title">
+        <h2>A different approach: a single-pass ViT</h2>
+        <p>in progress: training started October 24</p>
+    </div>
+    <p class="res-lead">FFN finds one neuron at a time, one small window after another. Even with the fast tracer, a neuron takes about 2.5&nbsp;s and hundreds of steps.
+        The owner asked for a different kind of model: a vision transformer (ViT) that looks at a whole 128&sup3;-voxel block <b>once</b>
+        and predicts, for every voxel, whether it belongs with its neighbours. That segments <b>all neurons in the block</b> in one pass.
+        A timing probe of a simpler version took 42&nbsp;ms per block on a V100. <b>No accuracy result exists yet.</b></p>
+
+    <h3 class="res-h3 res-h3-gap">Architecture</h3>
+    <div class="ffn-flow-wrap">
+<svg class="ffn-flow" viewBox="0 0 980 410" role="img" aria-labelledby="vit-title vit-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="vit-title">ViT segmentation model architecture</title>
+<desc id="vit-desc">A U-shaped hybrid network. A 128-cubed image block passes through convolutional encoder levels at full, half and quarter resolution (16, 32 and 64 channels). The quarter-resolution features are cut into 4,096 tokens of width 384, which pass through 8 transformer blocks with global self-attention. A convolutional decoder upsamples back to full resolution, joining the encoder features through skip connections, and outputs 6 affinities per voxel.</desc>
+<defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker></defs>
+<rect x="20" y="10" width="190" height="46" fill="#000" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="115" y="30" fill="#fff" text-anchor="middle">Input: image block</text>
+<text class="fl-box" x="115" y="46" fill="#fff" text-anchor="middle">128 &#215; 128 &#215; 128</text>
+<rect x="770" y="10" width="190" height="46" fill="#ffd84d" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="865" y="30" text-anchor="middle">Output: 6 affinities</text>
+<text class="fl-box" x="865" y="46" text-anchor="middle">for every voxel</text>
+<rect x="20" y="70" width="190" height="56" fill="#fff" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="115" y="93" text-anchor="middle">2 convolutions, 16 ch</text>
+<text class="fl-edge" x="115" y="111" text-anchor="middle">full resolution, 128&#179;</text>
+<rect x="80" y="160" width="190" height="56" fill="#fff" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="175" y="183" text-anchor="middle">downsample, conv, 32 ch</text>
+<text class="fl-edge" x="175" y="201" text-anchor="middle">half resolution, 64&#179;</text>
+<rect x="140" y="250" width="190" height="56" fill="#fff" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="235" y="273" text-anchor="middle">downsample, conv, 64 ch</text>
+<text class="fl-edge" x="235" y="291" text-anchor="middle">quarter resolution, 32&#179;</text>
+<rect x="200" y="340" width="190" height="56" fill="#cdd3ff" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="295" y="363" text-anchor="middle">cut into 4,096 tokens</text>
+<text class="fl-edge" x="295" y="381" text-anchor="middle">each 8&#179; voxels, width 384</text>
+<rect x="420" y="340" width="220" height="56" fill="#2a3cff" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="530" y="363" fill="#fff" text-anchor="middle">8 transformer blocks</text>
+<text class="fl-box" x="530" y="381" fill="#fff" text-anchor="middle">every token sees the block</text>
+<rect x="650" y="250" width="190" height="56" fill="#fff" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="745" y="273" text-anchor="middle">upsample + skip, 64 ch</text>
+<text class="fl-edge" x="745" y="291" text-anchor="middle">2 convolutions, 32&#179;</text>
+<rect x="710" y="160" width="190" height="56" fill="#fff" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="805" y="183" text-anchor="middle">upsample + skip, 32 ch</text>
+<text class="fl-edge" x="805" y="201" text-anchor="middle">2 convolutions, 64&#179;</text>
+<rect x="770" y="70" width="190" height="56" fill="#fff" stroke="#000" stroke-width="2"/>
+<text class="fl-box" x="865" y="93" text-anchor="middle">upsample + skip, 16 ch</text>
+<text class="fl-edge" x="865" y="111" text-anchor="middle">2 convolutions, 128&#179;</text>
+<path d="M115,56 V68" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah2)"/>
+<path d="M175,126 V158" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah2)"/>
+<path d="M235,216 V248" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah2)"/>
+<path d="M295,306 V338" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah2)"/>
+<path d="M390,368 H418" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah2)"/>
+<path d="M640,368 H745 V308" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah2)"/>
+<path d="M805,250 V218" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah2)"/>
+<path d="M865,160 V128" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah2)"/>
+<path d="M865,70 V58" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#ah2)"/>
+<path d="M210,98 H768" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ah2)"/>
+<text class="fl-edge" x="490" y="92" text-anchor="middle">skip: full-resolution detail (thin axons)</text>
+<path d="M270,188 H708" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ah2)"/>
+<text class="fl-edge" x="490" y="182" text-anchor="middle">skip</text>
+<path d="M330,278 H648" fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ah2)"/>
+<text class="fl-edge" x="490" y="272" text-anchor="middle">skip</text>
+</svg>
+    </div>
+    <p class="ffn-muted ffn-small ffn-flow-hint">On a phone, scroll the diagram sideways.</p>
+    <div class="ffn-two-col ffn-gap">
+        <ul class="res-bullets">
+            <li><b>Type:</b> a hybrid of a vision transformer and a U-Net (in the style of UNETR and TransUNet), written in JAX/Flax.</li>
+            <li><b>The single pass:</b> 8 transformer blocks with global self-attention (6 heads, MLP width 1,536) over 4,096 tokens. Each token covers 8&times;8&times;8 voxels (144&times;144&times;192&nbsp;nm), and every token attends to the whole block.</li>
+            <li><b>Why the convolutions:</b> a token is wider than a thin axon. The convolutional encoder and its skip connections carry full- and half-resolution detail to the decoder. An independent model check pointed out that without them, thin axons could not be resolved.</li>
+            <li><b>Size:</b> 16.8&nbsp;M parameters, 14.2&nbsp;M of them in the transformer. FFN's network has 20 residual blocks and works on a 33&sup3; window.</li>
+            <li><b>Numbers:</b> float16 arithmetic with float32 weights.</li>
+        </ul>
+        <div class="ffn-box">
+            <h3 class="res-h3">What it predicts: affinities</h3>
+            <p>For every voxel <i>v</i> and six offsets <i>o</i>, the model predicts how likely <i>v</i> and <i>v&minus;o</i> belong to the same neuron.</p>
+            <ul class="res-bullets">
+                <li><b>3 nearest neighbours:</b> one voxel back in z, y and x. These build the segmentation.</li>
+                <li><b>3 long-range:</b> 3 voxels in z, 4 in y and x, each 72&nbsp;nm. They are extra training targets that make the model use context.</li>
+            </ul>
+            <p class="ffn-muted ffn-small">Targets come from the proofread labels. Both voxels in the same labelled neuron: 1. Different labels, at least one labelled: 0, a boundary. Both unlabelled: ignored, because about half of each crop has no label.</p>
+        </div>
+    </div>
+
+    <h3 class="res-h3 res-h3-gap">How the loss is calculated</h3>
+    <div class="res-two">
+        <div class="ffn-box">
+            <p style="font-family: ui-monospace, Menlo, monospace; font-size: 0.95rem;">L = &frac16; &Sigma;<sub>c</sub> &Sigma;<sub>v</sub> w<sub>c,v</sub> &middot; BCE(z<sub>c,v</sub>, y<sub>c,v</sub>)</p>
+            <p style="font-family: ui-monospace, Menlo, monospace; font-size: 0.95rem;">w<sub>c,v</sub> = m<sub>c,v</sub> &middot; ( y<sub>c,v</sub> / 2P<sub>c</sub> + (1&minus;y<sub>c,v</sub>) / 2N<sub>c</sub> )</p>
+            <p class="ffn-muted ffn-small"><i>z</i>: predicted logit; <i>y</i>: target (0 or 1); <i>m</i>: 1 unless the pair is ignored; <i>P<sub>c</sub></i>, <i>N<sub>c</sub></i>: numbers of positive and negative targets of channel <i>c</i> in the batch; BCE: binary cross-entropy on the sigmoid.</p>
+        </div>
+        <ul class="res-bullets">
+            <li><b>Class-balanced.</b> Inside neurons, &ldquo;same neuron&rdquo; pairs outnumber boundary pairs by tens to one. Each channel's positives and negatives therefore get equal total weight, so the model cannot do well by ignoring boundaries.</li>
+            <li><b>Averaged over the 6 channels</b>, then over the batch.</li>
+            <li><b>Stable in float16:</b> the loss is scaled by 1,024 before gradients are taken. Any step with a non-finite gradient is skipped and counted; more than 1% skipped marks the run as unstable.</li>
+        </ul>
+    </div>
+
+    <h3 class="res-h3 res-h3-gap">Training</h3>
+    <div class="ffn-mini-wrap">
+    <table class="ffn-table ffn-mini ffn-train">
+        <tbody>
+            <tr><th>Data</th><td>Proofread crops 0&ndash;11 (500&sup3; voxels each) for training. Crop 12 for choosing the checkpoint and the merge threshold. The 28 fresh crops with the 300 fresh seeds are the test set; the benchmark and held-out crops are never used.</td></tr>
+            <tr><th>Batches</th><td>2 random 128&sup3; blocks per step. Flips in z, y and x, swapping y and x (z is never swapped, as its voxels are larger), and small changes of brightness and contrast.</td></tr>
+            <tr><th>Optimiser</th><td>AdamW, peak learning rate 3&middot;10<sup>&minus;4</sup> after 1,000 warm-up steps, cosine decay to zero, weight decay 0.05.</td></tr>
+            <tr><th>Length</th><td>170,000 steps, fixed in advance from a timing run (0.74&nbsp;s per step on one V100): about 35 hours.</td></tr>
+            <tr><th>Checkpoint</th><td>Every 2,000 steps the loss is measured on 8 fixed blocks of crop 12. The lowest-loss checkpoint is the model that is tested, which guards against overfitting 12 crops.</td></tr>
+        </tbody>
+    </table>
+    </div>
+
+    <h3 class="res-h3 res-h3-gap">From affinities to neurons</h3>
+    <div class="res-two">
+        <ol class="res-steps">
+            <li><span><b>Tile.</b> 128&sup3; blocks every 96 voxels cover a crop; each voxel is taken from exactly one block.</span></li>
+            <li><span><b>Boundary map.</b> One minus the mean affinity of the six edges around each voxel.</span></li>
+            <li><span><b>Fragments.</b> A watershed grows small fragments from the centres of confident regions, so even a thin axon gets its own fragment.</span></li>
+            <li><span><b>Merge.</b> Repeatedly join the two touching fragments with the highest mean affinity across their contact, counting only confident voxels, until the best is below a threshold. The threshold is chosen on crop 12.</span></li>
+            <li><span><b>Score.</b> For each seed, take the segment that contains it and score it exactly as FFN's traces are scored.</span></li>
+        </ol>
+        <div class="ffn-box">
+            <h3 class="res-h3">Checked with perfect affinities first</h3>
+            <p>Before any training, the merge step was run on crop 12 with the true affinities from the labels, over 457 neurons:</p>
+            <div class="ffn-mini-wrap"><table class="ffn-table ffn-mini ffn-mini-2">
+                <thead><tr><th></th><th>recall</th><th>precision</th></tr></thead>
+                <tbody>
+                    <tr><th>first design</th><td>81.2%</td><td>99.8%</td></tr>
+                    <tr><th>confident contacts only</th><td><b>87.4%</b></td><td>99.1%</td></tr>
+                    <tr><th>ceiling (see note)</th><td>88.7%</td><td></td></tr>
+                </tbody>
+            </table></div>
+            <p class="ffn-muted ffn-small">Neurons leave and re-enter a 500&sup3; crop, so a segment grown from a seed can reach only its connected piece: 88.7% of a neuron on average. FFN can sometimes bridge such gaps; it exceeded this ceiling on 10 of 37 seeds checked. The comparison therefore has a built-in edge for FFN. With perfect affinities the whole post-processing took about 80&nbsp;s of CPU time per crop.</p>
+        </div>
+    </div>
+
+    <h3 class="res-h3 res-h3-gap">How it will be judged</h3>
+    <div class="res-two">
+        <div class="ffn-box">
+            <p>A different method cannot be held to &ldquo;the same traces as FFN&rdquo;. The owner set a rule against the proofread ground truth before training. On the 300 fresh seeds, compared with the float32-head FFN:</p>
+            <ul class="res-bullets">
+                <li><b>Competitive:</b> mean recall and precision each within 2 points of FFN; net new merges and net new early stops at most 6 each (2%).</li>
+                <li><b>Promising</b> (worth a larger run): within 5 points; at most 15 each (5%).</li>
+                <li>Otherwise <b>fail</b>.</li>
+            </ul>
+            <p class="ffn-muted ffn-small">&ldquo;Net&rdquo;: a merge the ViT adds counts against it, and a merge FFN makes that the ViT avoids counts for it. Gross counts and the comparison with float32 FFN are reported alongside.</p>
+        </div>
+        <ul class="res-bullets">
+            <li><b>Speed headline, fixed in advance:</b> the ViT's total time for all 28 test crops, GPU and CPU, against FFN's estimated time to trace every neuron of the same size in those crops.</li>
+            <li><b>Order:</b> crop 12 is run and inspected first. The test crops are segmented once, afterwards.</li>
+            <li><b>Leakage, disclosed:</b> the crops touch, so a neuron can cross from a training crop into a test crop; those seeds are reported separately. FFN's own network was trained on this volume too.</li>
+            <li><b>Checked by two other models before training.</b> Gemini found five design flaws, all fixed. They included a boundary map that looked only one way, so one face of every neurite looked like a boundary. Grok asked for crop 12 to be inspected first and the speed headline to be fixed in advance.</li>
+        </ul>
+    </div>
+</section>
+
+<section id="next" class="bg-subtle">
     <div class="section-title">
         <h2>Next</h2>
         <p>in order</p>
     </div>
     <ol class="res-start">
+        <li class="res-start-card"><h3>Finish the ViT pilot</h3>
+            <p>Training ends in about a day and a half. Then crop 12 is inspected, the 28 test crops are segmented once, and the result is judged by the rule above.</p></li>
+        <li class="res-start-card"><h3>Deploy the fast tracer</h3>
+            <p>Copy the image to the GPU once per crop instead of once per trace, and run several traces per GPU. A probe kept every trace identical and raised throughput by up to 1.7&times;, though part of that gain overlapped evaluation work.</p></li>
         <li class="res-start-card"><h3>Understand the dendrite merges</h3>
-            <p>All remaining errors are rare dendrite merges. Diagnosing them, as was done for the early stops, could show whether a further small change removes them at the same speed.</p></li>
-        <li class="res-start-card"><h3>Free speed first</h3>
-            <p>Fuse the bookkeeping (input assembly, canvas update, threading, copies) into the network call. The output stays identical by construction; the gain is up to about 1.3&times;.</p></li>
-        <li class="res-start-card"><h3>Then a cheaper network</h3>
-            <p>Try distilling a smaller student network from the authors' model. Distillation needs no new labels, so the public data is enough. Int8 is an untested idea.</p></li>
+            <p>The float32-head network's remaining errors are rare dendrite merges. Diagnosing them, as was done for the early stops, could show whether a small change removes them at the same speed.</p></li>
     </ol>
 </section>
 
-<section id="workflow" class="bg-subtle">
+<section id="workflow">
     <div class="section-title">
         <h2>How the research is run</h2>
         <p>faster, without lowering the bar</p>
     </div>
-    <p class="res-lead">Everything above took <b>six days</b> (October 18&ndash;23, 2026): reading the paper, reproducing the authors' result,
-        setting up a GPU cluster, testing nine ideas, a held-out check, a 300-seed rule, a diagnosis that led to the fix, and a fresh-seed confirmation. AI agents did the engineering.
+    <p class="res-lead">Everything above took <b>seven days</b> (October 18&ndash;24, 2026): reading the paper, reproducing the authors' result,
+        setting up a GPU cluster, testing ten ideas, a held-out check, a 300-seed rule, a diagnosis that led to the fix, a fresh-seed confirmation,
+        an exact fast tracer, and the design and start of a ViT model. AI agents did the engineering.
         A structured workflow kept the science honest. Below are numbers and real examples from this project's own logs.</p>
 
     <ul class="ffn-stats ffn-stats-6">
-        <li><b>26</b><span>task contracts: goal, allowed files, tests and limits frozen before work starts</span></li>
-        <li><b>24</b><span>independent method checks by a second AI model</span></li>
-        <li><b>39</b><span>evidence reviews by a third model, on outputs run in a disposable copy</span></li>
-        <li><b>49</b><span>problems caught and fixed before results were reported (7 high severity)</span></li>
-        <li><b>190</b><span>automated tests, many re-checking hashes of the code and outputs behind each number</span></li>
-        <li><b>16</b><span>research decisions made by the human owner, written down before results were seen</span></li>
+        <li><b>30</b><span>task contracts: goal, allowed files, tests and limits frozen before work starts</span></li>
+        <li><b>29</b><span>independent method checks by a second AI model</span></li>
+        <li><b>42</b><span>evidence reviews by a third model, on outputs run in a disposable copy</span></li>
+        <li><b>55</b><span>problems caught and fixed before results were reported (9 high severity)</span></li>
+        <li><b>223</b><span>automated tests, many re-checking hashes of the code and outputs behind each number</span></li>
+        <li><b>20</b><span>research decisions made by the human owner, written down before results were seen</span></li>
     </ul>
 
     <h3 class="res-h3 res-h3-gap">The workflow, for every milestone</h3>
@@ -409,15 +595,15 @@ title: "Faster FFN tracing for LICONN"
         </ol>
     </div>
 
-    <h3 class="res-h3 res-h3-gap">39 reviews: most first attempts did not pass</h3>
-    <div class="ffn-checks" id="checks" aria-label="28 review outcomes"></div>
+    <h3 class="res-h3 res-h3-gap">42 reviews: most first attempts did not pass</h3>
+    <div class="ffn-checks" id="checks" aria-label="42 review outcomes"></div>
     <div class="ffn-legend">
-        <span><i class="ffn-sw" style="background:var(--accent)"></i>checked (10)</span>
-        <span><i class="ffn-sw" style="background:#ffd84d"></i>needs attention, repaired or escalated (25)</span>
+        <span><i class="ffn-sw" style="background:var(--accent)"></i>checked (11)</span>
+        <span><i class="ffn-sw" style="background:#ffd84d"></i>needs attention, repaired or escalated (27)</span>
         <span><i class="ffn-sw v-bad"></i>blocked (3)</span>
         <span><i class="ffn-sw" style="background:#000"></i>tests failed (1)</span>
     </div>
-    <p class="ffn-muted ffn-small">That is the point: problems are found by the process, not by a reader of the paper later. Of the 49 problems found, 28 were in code and 21 were claims in the write-ups that went beyond the evidence.</p>
+    <p class="ffn-muted ffn-small">That is the point: problems are found by the process, not by a reader of the paper later. Of the 55 problems found, 32 were in code and 23 were claims in the write-ups that went beyond the evidence.</p>
 
     <h3 class="res-h3 res-h3-gap">Caught before it became a result: real examples</h3>
     <div class="ffn-cases">
@@ -471,6 +657,16 @@ title: "Faster FFN tracing for LICONN"
             <blockquote>&ldquo;The pre-registered ERL sanity gate was changed from 3 to 5 bounding-box diagonals after examining pilot skeletons.&rdquo;</blockquote>
             <p class="ffn-fix"><b>Then:</b> the change was the AI's, not the owner's. The owner kept the original gate, so the fresh-seed ERL is withheld rather than reported.</p>
         </article>
+        <article class="ffn-case">
+            <p class="ffn-case-meta"><i class="ffn-role r-review">Model 3</i><i class="ffn-sev s-high">high</i>evidence that trusted itself</p>
+            <blockquote>&ldquo;The evidence checks largely trust comparison booleans produced by the runner instead of independently comparing all three required fingerprints against the pinned reference records.&rdquo;</blockquote>
+            <p class="ffn-fix"><b>Then:</b> the fast tracer's evidence test was rewritten. It now compares the canvas hash, visit-order hash and step count itself for the 612 traces that have a recorded run, rather than reading a runner's &ldquo;matches&rdquo; flag. The remaining 12 have no recorded run and rest on the comparison made in the same job, which the write-up says.</p>
+        </article>
+        <article class="ffn-case">
+            <p class="ffn-case-meta"><i class="ffn-role r-check">Model 2</i>design flaw before training</p>
+            <blockquote>&ldquo;Defining b(v) &hellip; uses only the 3 backward edges at v and ignores the 3 forward edges.&rdquo;</blockquote>
+            <p class="ffn-fix"><b>Then:</b> the ViT's boundary map now uses all six edges. With perfect affinities, the fixed pipeline reached 87.4% recall against an 88.7% ceiling. All of this happened before any GPU time was spent on training.</p>
+        </article>
         <article class="ffn-case ffn-case-wide">
             <p class="ffn-case-meta"><i class="ffn-role r-owner">Owner</i><i class="ffn-role r-runner">Controller</i>design, not luck</p>
             <blockquote>float16 passed all 12 benchmark seeds at 2.19&times; per step.</blockquote>
@@ -511,11 +707,15 @@ title: "Faster FFN tracing for LICONN"
         <li><span>Oct 23</span>Raise the fresh-data cap from 12 to 16 to 20&nbsp;GB as usable seeds became scarce.</li>
         <li><span>Oct 23</span>Keep the pre-registered ERL sanity gate (3&times;), rejecting the AI's amendment to 5&times;.</li>
         <li><span>Oct 23</span>Keep the float32-head network and set the tolerance to 2% (6 of 300), after its fresh-seed result.</li>
+        <li><span>Oct 23</span>Keep the fast tracer's contract (move selection on the GPU) instead of relaxing it, then vectorise it to recover the speed.</li>
+        <li><span>Oct 23</span>Explore a proofreading assistant: draft a correction catalogue, assessed first by models from three families.</li>
+        <li><span>Oct 24</span>Try a single-pass ViT that segments every neuron in a block, trained on the proofread labels, within 2&ndash;4 V100-days.</li>
+        <li><span>Oct 24</span>Judge it against the ground truth next to FFN, with a tiered rule (competitive, promising) fixed before training.</li>
     </ol>
 
     <p class="ffn-muted ffn-small ffn-gap">Data: LICONN public release (Tavakoli et al., <i>Nature</i> 642, 398&ndash;410, 2025, <a href="https://doi.org/10.1038/s41586-025-08985-1" target="_blank" rel="noopener">doi:10.1038/s41586-025-08985-1</a>), CC BY 4.0;
         model checkpoint axde_59110972 from the same release. Tracing code: <a href="https://github.com/google/ffn" target="_blank" rel="noopener">google/ffn</a>.
-        Workflow: Claude Code implements; a Cursor-hosted model provides independent method checks; Codex reviews evidence.</p>
+        Workflow: Claude Code implements; Cursor-hosted models (Gemini, Grok) provide independent method checks; Codex reviews evidence.</p>
 </section>
 
 <script src="{{ '/demos/liconn-ffn/app.js' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}" type="module"></script>

@@ -6,6 +6,8 @@ const V = new URL(import.meta.url).search;
 
 // ---------- ideas chart (numbers from the project's recorded results) ----------
 const IDEAS = [
+  { lever: 'B', name: 'float32 head + fast tracer', x: 3.23, v: 'ok', kind: 'per step', why: 'The float32-head network with the bookkeeping on the GPU: 5.96 vs 19.27 ms per step. Traces bitwise identical to the float32-head network, so its 2% verdict carries over.' },
+  { lever: 'B', name: 'Fast tracer (float32)', x: 1.12, v: 'ok', kind: 'per step', why: 'Image, canvas, input assembly and move selection on the GPU. Bitwise identical on all 312 float32 traces (300 fresh and 12 benchmark seeds).' },
   { lever: 'B', name: 'float16 + float32 output head', x: 2.19, v: 'ok', kind: 'per step', why: 'Fresh 300 seeds: 5 new merges (1.7%, all dendrites) and 3 early stops. Passes the owner\'s 2% rule, set after this result; fails the earlier 1% rule.' },
   { lever: 'B', name: 'Direct network call', x: 1.10, v: 'ok', kind: 'per step', why: 'Same arithmetic, less framework overhead. Output bitwise identical on all 12 seeds.' },
   { lever: 'B', name: 'float16 network', x: 2.19, v: 'warn', kind: 'per step', why: 'Passed the 12 benchmark seeds, then failed on more: two large merges on the held-out crop, and 10 early stops on the 300-seed rule.' },
@@ -16,7 +18,7 @@ const IDEAS = [
   { lever: 'B', name: 'Drop 1 of 20 residual blocks', x: null, v: 'bad', kind: '', why: 'Mean recall −3.4 points. Every block matters: the best single drop already flips 1.2% of decisions.' },
   { lever: 'B', name: 'Drop 2 residual blocks', x: null, v: 'bad', kind: '', why: 'Mean recall −10.5 points.' },
 ];
-const XMAX = 2.4, FILL = 0.62;  // bars use at most 62% of the row so labels fit on phones
+const XMAX = 3.4, FILL = 0.62;  // bars use at most 62% of the row so labels fit on phones
 const ideas = document.getElementById('ideas');
 const pad = () => { const e = document.createElement('div'); e.className = 'pad'; return e; };
 for (const d of IDEAS) {
@@ -34,28 +36,39 @@ for (const d of IDEAS) {
 }
 {
   const axis = document.createElement('div'); axis.className = 'axis';
-  for (const t of [1, 1.5, 2]) {
+  for (const t of [1, 2, 3]) {
     const s = document.createElement('span'); s.style.left = ((t - 1) / (XMAX - 1) * 100 * FILL) + '%'; s.textContent = t + '×'; axis.append(s);
   }
   ideas.append(pad(), axis);
 }
 
-// ---------- step-time profile ----------
-const PROFILE = [
+// ---------- step-time profiles: before (profiled float16 step) and after (fast tracer, float32 head) ----------
+function drawProfile(stackId, legendId, parts) {
+  const total = parts.reduce((a, p) => a + p[1], 0);
+  const stack = document.getElementById(stackId), leg = document.getElementById(legendId);
+  for (const [n, ms, bg, fg] of parts) {
+    const d = document.createElement('div'); d.style.width = (ms / total * 100) + '%'; d.style.background = bg; d.style.color = fg;
+    d.title = `${n}: ${ms} ms`; if (ms >= 1.3) d.textContent = ms.toFixed(1); stack.append(d);
+    const l = document.createElement('span'); l.innerHTML = `<i class="ffn-sw" style="background:${bg}"></i>${n} ${ms.toFixed(1)} ms`; leg.append(l);
+  }
+}
+drawProfile('profile', 'profile-legend', [
   ['network', 4.0, 'var(--accent)', '#fff'], ['canvas update', 2.0, '#cdd3ff', '#000'], ['input assembly', 1.7, '#eef0ff', '#000'],
   ['thread hand-off', 1.5, '#cdd3ff', '#000'], ['copy back', 0.7, '#eef0ff', '#000'], ['movement', 0.3, '#cdd3ff', '#000'],
-];
-const total = PROFILE.reduce((a, p) => a + p[1], 0);
-const stack = document.getElementById('profile'), pleg = document.getElementById('profile-legend');
-for (const [n, ms, bg, fg] of PROFILE) {
-  const d = document.createElement('div'); d.style.width = (ms / total * 100) + '%'; d.style.background = bg; d.style.color = fg;
-  d.title = `${n}: ${ms} ms`; if (ms >= 1.4) d.textContent = ms.toFixed(1); stack.append(d);
-  const l = document.createElement('span'); l.innerHTML = `<i class="ffn-sw" style="background:${bg}"></i>${n} ${ms.toFixed(1)} ms`; pleg.append(l);
+]);
+{  // the fast tracer's step: 5.96 ms in total, the network measured at about 4.6 ms per call; the bar is drawn to the same scale as 10.2 ms
+  const parts = [['network', 4.6, 'var(--accent)', '#fff'], ['everything else', 1.36, '#ffd84d', '#000']];
+  drawProfile('profile-after', 'profile-after-legend', parts);
+  document.getElementById('profile-after').style.width = (5.96 / 10.2 * 100) + '%';
+  const lab = document.createElement('span'); lab.innerHTML = '<b>after: fast tracer, float32 head, 5.96 ms</b>';
+  document.getElementById('profile-after-legend').prepend(lab);
+  const lab0 = document.createElement('span'); lab0.innerHTML = '<b>before: profiled float16 step, 10.2 ms</b>';
+  document.getElementById('profile-legend').prepend(lab0);
 }
 
 // ---------- review outcomes, in the order they happened (from the project's check records) ----------
 {
-  const SEQ = 'BACAACAACAAAACACACAAAAAACAAAABAAACBFACC';  // F = tests failed  // C = checked, A = needs attention, B = blocked
+  const SEQ = 'BACAACAACAAAACACACAAAAAACAAAABAAACBFACCAAC';  // F = tests failed  // C = checked, A = needs attention, B = blocked
   const el = document.getElementById('checks');
   for (const c of SEQ) { const i = document.createElement('i'); i.className = 'c-' + c; el.append(i); }
 }
