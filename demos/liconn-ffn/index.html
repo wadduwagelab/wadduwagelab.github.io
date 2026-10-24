@@ -364,6 +364,28 @@ title: "Faster FFN tracing for LICONN"
         </div>
     </div>
 
+    <h3 class="res-h3 res-h3-gap" id="vit-example">Example: from affinities to segments, one slice</h3>
+    <p class="res-lead">A 64&times;256&times;256-voxel block of crop 12 (the tuning crop) run through the pipeline's own code. The panels show its middle slice, 4.6&times;4.6&nbsp;&micro;m.
+        The trained model is not ready yet, so the affinities here are made from the proofread labels plus smooth random noise, as a stand-in for its output.
+        They are not model predictions.</p>
+    <div class="ffn-affex">
+        <figure><img src="{{ '/demos/liconn-ffn/data/affinity-example/image.png' | relative_url }}" alt="LICONN image slice" loading="lazy" width="512" height="512">
+            <figcaption><b>1 Image.</b> The LICONN data the model sees.</figcaption></figure>
+        <figure><img src="{{ '/demos/liconn-ffn/data/affinity-example/boundary.png' | relative_url }}" alt="Boundary map" loading="lazy" width="512" height="512">
+            <figcaption><b>2 Boundary map.</b> One minus the mean affinity around each voxel, shown inverted: bright means inside a neuron, dark means a boundary.</figcaption></figure>
+        <figure><img src="{{ '/demos/liconn-ffn/data/affinity-example/markers.png' | relative_url }}" alt="Markers on the boundary map" loading="lazy" width="512" height="512">
+            <figcaption><b>3 Markers.</b> The centres of confident regions (red), found as peaks of the distance to the nearest boundary. Thin neurites get one too. The peaks are found in 3D, so most fragments' markers lie in other slices.</figcaption></figure>
+        <figure><img src="{{ '/demos/liconn-ffn/data/affinity-example/fragments.png' | relative_url }}" alt="Watershed fragments" loading="lazy" width="512" height="512">
+            <figcaption><b>4 Fragments.</b> A watershed grows a fragment from each marker until fragments meet at boundaries. It is deliberately over-split: 3,277 fragments in this block.</figcaption></figure>
+        <figure><img id="affex-seg" src="{{ '/demos/liconn-ffn/data/affinity-example/segments_0.85.png' | relative_url }}" alt="Segments after merging" loading="lazy" width="512" height="512">
+            <figcaption><b>5 Merged segments.</b> Touching fragments are joined, highest mean affinity first, while it stays above the threshold.
+                <label class="ffn-label ffn-affex-label" for="affex-t">threshold <span id="affex-tv">0.85</span> &middot; <span id="affex-n">1,850</span> segments in the block</label>
+                <input id="affex-t" type="range" min="0" max="9" step="1" value="2" aria-label="merge threshold"></figcaption></figure>
+        <figure><img src="{{ '/demos/liconn-ffn/data/affinity-example/labels.png' | relative_url }}" alt="Proofread labels" loading="lazy" width="512" height="512">
+            <figcaption><b>6 Ground truth.</b> The authors' proofread labels; black means unlabelled. Colours are not matched to panel 5.</figcaption></figure>
+    </div>
+    <p class="ffn-muted ffn-small">Try the slider. At high thresholds neurons stay split into fragments. Around 0.85 the large dendrite becomes one segment. Lower down, it swallows its neighbours: these are false merges, the error the threshold must avoid. The threshold is chosen once, on crop 12, by mean F1. The block is processed in 3D, so a segment that looks broken in this slice can be connected above or below it. Every voxel ends up in some segment, including unlabelled space. Unlabelled affinities here are set to 0.3 (uncertain, leaning towards boundary), with noise of standard deviation 0.2.</p>
+
     <h3 class="res-h3 res-h3-gap">How it will be judged</h3>
     <div class="res-two">
         <div class="ffn-box">

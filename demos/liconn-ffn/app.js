@@ -66,6 +66,24 @@ drawProfile('profile', 'profile-legend', [
   document.getElementById('profile-legend').prepend(lab0);
 }
 
+// ---------- affinity-to-segment example: merge-threshold slider (segment counts from data/affinity-example/meta.json) ----------
+{
+  const T = [[0.95, 3031], [0.90, 2484], [0.85, 1850], [0.80, 1553], [0.70, 1395], [0.60, 1232], [0.50, 954], [0.40, 862], [0.30, 825], [0.20, 796]];
+  const img = document.getElementById('affex-seg'), slider = document.getElementById('affex-t');
+  if (img && slider) {
+    const base = img.getAttribute('src').replace(/segments_[0-9.]+\.png.*$/, '');
+    for (const [t] of T) { const pre = new Image(); pre.src = `${base}segments_${t.toFixed(2)}.png${V}`; }  // no flicker while sliding
+    const show = () => {
+      const [t, n] = T[+slider.value];
+      img.src = `${base}segments_${t.toFixed(2)}.png${V}`;
+      document.getElementById('affex-tv').textContent = t.toFixed(2);
+      document.getElementById('affex-n').textContent = n.toLocaleString('en-US');
+    };
+    slider.addEventListener('input', show);
+    show();
+  }
+}
+
 // ---------- review outcomes, in the order they happened (from the project's check records) ----------
 {
   const SEQ = 'BACAACAACAAAACACACAAAAAACAAAABAAACBFACCAAC';  // F = tests failed  // C = checked, A = needs attention, B = blocked

@@ -1,0 +1,76 @@
+{
+ "crop": 12,
+ "block_zyx": [
+  218,
+  0,
+  244
+ ],
+ "shape_zyx": [
+  64,
+  256,
+  256
+ ],
+ "slice_z": 250,
+ "labelled_fraction_slice": 0.6917266845703125,
+ "noise_sd": 0.2,
+ "unlabelled_pair_affinity": 0.3,
+ "noise_sigma_zyx": [
+  1,
+  2,
+  2
+ ],
+ "fragments": 3277,
+ "thresholds": [
+  {
+   "threshold": 0.95,
+   "segments": 3031,
+   "merges": 246
+  },
+  {
+   "threshold": 0.9,
+   "segments": 2484,
+   "merges": 793
+  },
+  {
+   "threshold": 0.85,
+   "segments": 1850,
+   "merges": 1427
+  },
+  {
+   "threshold": 0.8,
+   "segments": 1553,
+   "merges": 1724
+  },
+  {
+   "threshold": 0.7,
+   "segments": 1395,
+   "merges": 1882
+  },
+  {
+   "threshold": 0.6,
+   "segments": 1232,
+   "merges": 2045
+  },
+  {
+   "threshold": 0.5,
+   "segments": 954,
+   "merges": 2323
+  },
+  {
+   "threshold": 0.4,
+   "segments": 862,
+   "merges": 2415
+  },
+  {
+   "threshold": 0.3,
+   "segments": 825,
+   "merges": 2452
+  },
+  {
+   "threshold": 0.2,
+   "segments": 796,
+   "merges": 2481
+  }
+ ],
+ "markers_in_block": 3277
+}

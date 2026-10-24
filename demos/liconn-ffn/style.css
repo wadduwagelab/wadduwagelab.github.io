@@ -162,3 +162,13 @@
 .ffn-checks .c-F { background: #000; }
 .ffn-mini-2 td:nth-child(3) { color: var(--text-main); }
 .ffn-train td:last-child { background: #fff; color: var(--text-main); }
+/* affinity-to-segment example */
+.ffn-affex { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-bottom: 0.8rem; }
+.ffn-affex figure { margin: 0; background: #fff; border: 2px solid #000; box-shadow: 5px 5px 0 var(--accent); }
+.ffn-affex img { display: block; width: 100%; height: auto; image-rendering: pixelated; border-bottom: 2px solid #000; }
+.ffn-affex figcaption { padding: 0.55rem 0.7rem 0.7rem; font-size: 0.85rem; line-height: 1.4; }
+.ffn-affex-label { margin: 0.5rem 0 0.2rem; text-transform: none; }
+.ffn-affex input[type=range] { width: 100%; accent-color: var(--accent); }
+#vit-example { scroll-margin-top: 90px; }
+@media (max-width: 860px) { .ffn-affex { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .ffn-affex { grid-template-columns: 1fr; } }
