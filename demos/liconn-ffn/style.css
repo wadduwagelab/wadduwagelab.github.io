@@ -172,3 +172,7 @@
 #vit-example { scroll-margin-top: 90px; }
 @media (max-width: 860px) { .ffn-affex { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 480px) { .ffn-affex { grid-template-columns: 1fr; } }
+.ffn-worked { min-width: 1000px; }
+.ffn-loss td:nth-child(2) { color: var(--text-main); }
+#vit-worked { scroll-margin-top: 90px; }
+.res-bullets a { color: inherit; text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 2px; }

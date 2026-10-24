@@ -1,0 +1,87 @@
+{
+ "patch_origin_zyx_in_crop12": [
+  250,
+  3,
+  311
+ ],
+ "labels": [
+  275090,
+  314495
+ ],
+ "loss_parts": {
+  "x": {
+   "positives": 46,
+   "negatives": 19,
+   "loss": 0.02651021052278616
+  },
+  "y": {
+   "positives": 58,
+   "negatives": 3,
+   "loss": 0.08430264583714517
+  }
+ },
+ "patch_loss": 0.05540642817996566,
+ "highlighted": {
+  "a": {
+   "channel": "y",
+   "r": 6,
+   "c": 7,
+   "target": 1,
+   "prediction": 0.896,
+   "bce": 0.109,
+   "weight": 0.0086
+  },
+  "b": {
+   "channel": "y",
+   "r": 1,
+   "c": 0,
+   "target": 0,
+   "prediction": 0.163,
+   "bce": 0.178,
+   "weight": 0.1667
+  },
+  "c": {
+   "channel": "x",
+   "r": 6,
+   "c": 1,
+   "target": 1,
+   "prediction": 0.706,
+   "bce": 0.349,
+   "weight": 0.0109
+  },
+  "d": {
+   "channel": "x",
+   "r": 0,
+   "c": 1,
+   "target": null,
+   "prediction": 0.435,
+   "bce": null,
+   "weight": 0
+  }
+ },
+ "contacts": {
+  "merge": {
+   "fragments": [
+    1429,
+    1690
+   ],
+   "crossing_edges_in_patch": 16,
+   "counted_in_patch": 14,
+   "mean_in_patch": 0.9571028649806976,
+   "mean_3d": 0.9340738325283445,
+   "pairs_3d": 116
+  },
+  "keep": {
+   "fragments": [
+    1429,
+    1780
+   ],
+   "crossing_edges_in_patch": 5,
+   "counted_in_patch": 0,
+   "mean_in_patch": null,
+   "mean_3d": 0.5926532944043478,
+   "pairs_3d": 3
+  }
+ },
+ "merge_threshold_example": 0.85
+}
