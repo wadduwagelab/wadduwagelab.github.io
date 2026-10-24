@@ -416,6 +416,36 @@
   ]
  ],
  "merge_threshold_example": 0.85,
+ "output_voxel": {
+  "patch_rc": [
+   6,
+   5
+  ],
+  "channels": [
+   "previous slice (z \u2212 1)",
+   "voxel above (y \u2212 1)",
+   "voxel to the left (x \u2212 1)",
+   "3 slices back (z \u2212 3)",
+   "4 voxels up (y \u2212 4)",
+   "4 voxels left (x \u2212 4)"
+  ],
+  "prediction": [
+   1.0,
+   0.997,
+   0.0,
+   0.0,
+   1.0,
+   0.0
+  ],
+  "target": [
+   1,
+   1,
+   0,
+   0,
+   1,
+   0
+  ]
+ },
  "markers_in_patch": [
   [
    5,
