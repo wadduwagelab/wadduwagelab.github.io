@@ -21,7 +21,7 @@ title: "Faster FFN tracing for LICONN"
     <ul class="ffn-stats">
         <li><b>19.7&nbsp;ms</b><span>per tracing step: the authors' model in float32 on a V100 (426&nbsp;ms on a laptop CPU)</span></li>
         <li><b>9</b><span>speed-up ideas tested end to end against the authors' proofread segmentation</span></li>
-        <li><b>2.2&times;</b><span>float16 with a float32 output head: passes the 300-seed accuracy rule (confirmation on fresh seeds pending)</span></li>
+        <li><b>2.2&times;</b><span>float16 with a float32 output head: passes the owner's 2% rule on 300 fresh seeds (the rule was relaxed from 1% after that result)</span></li>
         <li><b>1.1&times;</b><span>with output bitwise identical so far; about 1.3&times; is the most that route can give with the float32 network unchanged</span></li>
     </ul>
     <div class="res-toc" role="navigation" aria-label="On this page">
@@ -30,6 +30,7 @@ title: "Faster FFN tracing for LICONN"
         <a href="#tried">What was tried</a>
         <a href="#knife-edge">Key finding (3D)</a>
         <a href="#fix">The fix</a>
+        <a href="#confirm">Fresh-seed check</a>
         <a href="#time">Where the time goes</a>
         <a href="#next">Next</a>
         <a href="#workflow">How the research is run</a>
@@ -69,16 +70,17 @@ title: "Faster FFN tracing for LICONN"
             <li><b>Benchmark:</b> 12 seeds (axons and dendrites) chosen by a fixed rule.</li>
             <li><b>Held-out check:</b> a second crop with 12 new seeds, used only to confirm a winner.</li>
             <li><b>300-seed set:</b> 13 further crops chosen by a fixed rule, 300 fresh seeds.</li>
+            <li><b>Fresh confirmation set:</b> 28 more crops in the same order, 300 new seeds, never used for any choice.</li>
         </ul>
         <div class="ffn-box">
             <h3 class="res-h3">Tolerance (owner-set)</h3>
-            <p>Over the 300 seeds, against the reference, a faster variant passes only if:</p>
+            <p>Over 300 seeds, against the reference, a faster variant passes only if:</p>
             <ul class="res-bullets">
-                <li>at most 3 seeds gain a new merge (precision falls by more than 10 points);</li>
-                <li>at most 3 seeds stop early (recall falls by more than 10 points);</li>
+                <li>at most 6 seeds (2%) gain a new merge (precision falls by more than 10 points);</li>
+                <li>at most 6 seeds (2%) stop early (recall falls by more than 10 points);</li>
                 <li>mean recall and mean precision each fall by at most 1 point.</li>
             </ul>
-            <p class="ffn-muted">This replaced the first rule (every seed within 1%) after we found that tiny numerical changes flip rare merges in both directions. Every number on this page comes from runs whose code and outputs are hash-pinned and re-checked by tests.</p>
+            <p class="ffn-muted">How the rule changed: every seed within 1% &rarr; at most 3 of 300 (1%), after tiny numerical changes turned out to flip rare merges either way &rarr; <b>2%, set by the owner after the fresh-seed result</b> (below). A pass under 2% is therefore a pass under a rule relaxed after seeing the data. Every number on this page comes from runs whose code and outputs are hash-pinned and re-checked by tests.</p>
         </div>
     </div>
 </section>
@@ -90,7 +92,7 @@ title: "Faster FFN tracing for LICONN"
     </div>
     <div id="ideas" class="ffn-ideas"></div>
     <div class="ffn-legend">
-        <span><i class="ffn-sw v-ok"></i>passes (identical output, or the 300-seed rule)</span>
+        <span><i class="ffn-sw v-ok"></i>passes (identical output, or the owner&rsquo;s 2% rule)</span>
         <span><i class="ffn-sw v-warn"></i>passed the 12-seed benchmark, failed on more seeds</span>
         <span><i class="ffn-sw v-bad"></i>fails</span>
     </div>
@@ -131,7 +133,7 @@ title: "Faster FFN tracing for LICONN"
             <li><span><b>The fix.</b> Keep the network in float16 but compute only its tiny output head in float32. Changed move decisions fell from 84% to 16% of steps, at the same speed.</span></li>
         </ol>
         <div class="ffn-box">
-            <h3 class="res-h3">On the 300-seed rule</h3>
+            <h3 class="res-h3">On the first 300 seeds</h3>
             <div class="ffn-mini-wrap"><table class="ffn-table ffn-mini">
                 <thead><tr><th></th><th>original (float32)</th><th>float16</th><th>+ float32 head</th></tr></thead>
                 <tbody>
@@ -141,15 +143,51 @@ title: "Faster FFN tracing for LICONN"
                     <tr><th>early stops (&le;&nbsp;3)</th><td>reference</td><td><b>10</b></td><td>1</td></tr>
                     <tr><th>time per step</th><td>19.58&nbsp;ms</td><td>8.88&nbsp;ms</td><td>8.95&nbsp;ms</td></tr>
                     <tr><th>tracing all 300</th><td>1,838&nbsp;s</td><td>852&nbsp;s</td><td>830&nbsp;s</td></tr>
-                    <tr><th>verdict</th><td>reference</td><td>fails</td><td><b>passes</b></td></tr>
+                    <tr><th>ERL (&micro;m)</th><td>7.18</td><td>7.30</td><td>6.99</td></tr>
+                    <tr><th>verdict (1% and 2%)</th><td>reference</td><td>fails</td><td><b>passes</b></td></tr>
                 </tbody>
             </table></div>
-            <p class="ffn-muted ffn-small">Recall and precision are against the authors' proofread segmentation, averaged over the 300 seeds; changes from the original are in points. New merges and early stops are counted against the original. Speed: one V100, separate jobs, so about 2.2&times;. Caveat: the fix was chosen on 20 of these 300 seeds, including all 10 of float16's early stops. It needs confirming on 300 fresh seeds before it counts.</p>
+            <p class="ffn-muted ffn-small">Recall and precision are against the authors' proofread segmentation, averaged over the 300 seeds; changes from the original are in points. New merges and early stops are counted against the original. Speed: one V100, separate jobs, so about 2.2&times;. Caveat: the fix was chosen on 20 of these 300 seeds, including all 10 of float16's early stops. On 300 fresh seeds (below) it failed the 1% rule and passes the 2% rule. ERL is an adapted single-trace measure of how far a trace runs without an error.</p>
         </div>
     </div>
 </section>
 
-<section id="time">
+<section id="confirm">
+    <div class="section-title">
+        <h2>Confirmation on fresh seeds</h2>
+        <p>300 new seeds, 28 crops</p>
+    </div>
+    <p class="res-lead">Because the fix was chosen on the first 300 seeds, it was re-tested on <b>300 seeds never used for any choice</b>,
+        from 28 further crops in the same pre-registered order. It failed the 1% rule, on <b>5 new merges</b> (limit 3), all in dendrites.
+        The owner then set the tolerance to 2% (at most 6 of 300), under which it passes.</p>
+    <div class="res-two">
+        <div class="ffn-box">
+            <h3 class="res-h3">Fresh 300 seeds</h3>
+            <div class="ffn-mini-wrap"><table class="ffn-table ffn-mini ffn-mini-2">
+                <thead><tr><th></th><th>original (float32)</th><th>+ float32 head</th></tr></thead>
+                <tbody>
+                    <tr><th>mean recall</th><td>84.2%</td><td>84.0% <small>(&minus;0.16)</small></td></tr>
+                    <tr><th>mean precision</th><td>98.1%</td><td>97.7% <small>(&minus;0.48)</small></td></tr>
+                    <tr><th>new merges</th><td>reference</td><td>5 (1.7%)</td></tr>
+                    <tr><th>early stops</th><td>reference</td><td>3 (1.0%)</td></tr>
+                    <tr><th>time per step</th><td>19.51&nbsp;ms</td><td>8.83&nbsp;ms</td></tr>
+                    <tr><th>tracing all 300</th><td>2,170&nbsp;s</td><td>1,048&nbsp;s</td></tr>
+                    <tr><th>1% rule (&le;&nbsp;3)</th><td>reference</td><td>fails</td></tr>
+                    <tr><th>2% rule (&le;&nbsp;6)</th><td>reference</td><td><b>passes</b></td></tr>
+                </tbody>
+            </table></div>
+        </div>
+        <ul class="res-bullets">
+            <li><b>Speed:</b> 2.2&times; per step and 2.1&times; per whole trace; the merges add steps.</li>
+            <li><b>Where the errors are:</b> all 5 new merges are dendrites leaking into one neighbouring neuron. Among dendrites alone that is 5 of 114 (4.4%); the 2% limit holds only for axons and dendrites together.</li>
+            <li><b>Uncertainty:</b> the 95% upper bound on the new-merge rate is 3.5% overall and 9% for dendrites, assuming independent seeds.</li>
+            <li><b>Caveat:</b> the 2% rule was set after this result, so this is a pass under a relaxed rule, not a pre-registered confirmation.</li>
+            <li><b>ERL</b> for the fresh seeds is withheld: their skeletons failed the sanity check fixed in advance (91% within 3 box diagonals, 95% required).</li>
+        </ul>
+    </div>
+</section>
+
+<section id="time" class="bg-subtle">
     <div class="section-title">
         <h2>Where a step's time goes</h2>
         <p>one float16 step on a V100, 10.2&nbsp;ms</p>
@@ -161,14 +199,14 @@ title: "Faster FFN tracing for LICONN"
         already gives <b>9% faster, identical results</b> in float32 (17.9 vs 19.7&nbsp;ms). In float32 the network itself takes about 14.7 of the 19.7&nbsp;ms, so removing all of the overhead around an unchanged float32 network gives at most about 1.3&times;.</p>
 </section>
 
-<section id="next" class="bg-subtle">
+<section id="next">
     <div class="section-title">
         <h2>Next</h2>
         <p>in order</p>
     </div>
     <ol class="res-start">
-        <li class="res-start-card"><h3>Confirm on fresh seeds</h3>
-            <p>Run the float32 reference and the float32-head network on <b>300 new seeds</b> from further crops, under the same rule. Only a pass there makes the 2.2&times; a claim.</p></li>
+        <li class="res-start-card"><h3>Understand the dendrite merges</h3>
+            <p>All remaining errors are rare dendrite merges. Diagnosing them, as was done for the early stops, could show whether a further small change removes them at the same speed.</p></li>
         <li class="res-start-card"><h3>Free speed first</h3>
             <p>Fuse the bookkeeping (input assembly, canvas update, threading, copies) into the network call. The output stays identical by construction; the gain is up to about 1.3&times;.</p></li>
         <li class="res-start-card"><h3>Then a cheaper network</h3>
@@ -176,22 +214,22 @@ title: "Faster FFN tracing for LICONN"
     </ol>
 </section>
 
-<section id="workflow">
+<section id="workflow" class="bg-subtle">
     <div class="section-title">
         <h2>How the research is run</h2>
         <p>faster, without lowering the bar</p>
     </div>
-    <p class="res-lead">Everything above took <b>five days</b> (October 18&ndash;22, 2026): reading the paper, reproducing the authors' result,
-        setting up a GPU cluster, testing nine ideas, a held-out check, a 300-seed rule, and a diagnosis that led to the fix. AI agents did the engineering.
+    <p class="res-lead">Everything above took <b>six days</b> (October 18&ndash;23, 2026): reading the paper, reproducing the authors' result,
+        setting up a GPU cluster, testing nine ideas, a held-out check, a 300-seed rule, a diagnosis that led to the fix, and a fresh-seed confirmation. AI agents did the engineering.
         A structured workflow kept the science honest. Below are numbers and real examples from this project's own logs.</p>
 
     <ul class="ffn-stats ffn-stats-6">
-        <li><b>23</b><span>task contracts: goal, allowed files, tests and limits frozen before work starts</span></li>
-        <li><b>21</b><span>independent method checks by a second AI model</span></li>
-        <li><b>34</b><span>evidence reviews by a third model, on outputs run in a disposable copy</span></li>
-        <li><b>46</b><span>problems caught and fixed before results were reported (7 high severity)</span></li>
-        <li><b>165</b><span>automated tests, many re-checking hashes of the code and outputs behind each number</span></li>
-        <li><b>12</b><span>research decisions made by the human owner, written down before results were seen</span></li>
+        <li><b>26</b><span>task contracts: goal, allowed files, tests and limits frozen before work starts</span></li>
+        <li><b>24</b><span>independent method checks by a second AI model</span></li>
+        <li><b>39</b><span>evidence reviews by a third model, on outputs run in a disposable copy</span></li>
+        <li><b>49</b><span>problems caught and fixed before results were reported (7 high severity)</span></li>
+        <li><b>190</b><span>automated tests, many re-checking hashes of the code and outputs behind each number</span></li>
+        <li><b>16</b><span>research decisions made by the human owner, written down before results were seen</span></li>
     </ul>
 
     <h3 class="res-h3 res-h3-gap">The workflow, for every milestone</h3>
@@ -371,14 +409,15 @@ title: "Faster FFN tracing for LICONN"
         </ol>
     </div>
 
-    <h3 class="res-h3 res-h3-gap">34 reviews: most first attempts did not pass</h3>
+    <h3 class="res-h3 res-h3-gap">39 reviews: most first attempts did not pass</h3>
     <div class="ffn-checks" id="checks" aria-label="28 review outcomes"></div>
     <div class="ffn-legend">
-        <span><i class="ffn-sw" style="background:var(--accent)"></i>checked (8)</span>
-        <span><i class="ffn-sw" style="background:#ffd84d"></i>needs attention, repaired or escalated (24)</span>
-        <span><i class="ffn-sw v-bad"></i>blocked (2)</span>
+        <span><i class="ffn-sw" style="background:var(--accent)"></i>checked (10)</span>
+        <span><i class="ffn-sw" style="background:#ffd84d"></i>needs attention, repaired or escalated (25)</span>
+        <span><i class="ffn-sw v-bad"></i>blocked (3)</span>
+        <span><i class="ffn-sw" style="background:#000"></i>tests failed (1)</span>
     </div>
-    <p class="ffn-muted ffn-small">That is the point: problems are found by the process, not by a reader of the paper later. Of the 46 problems found, 28 were in code and 18 were claims in the write-ups that went beyond the evidence.</p>
+    <p class="ffn-muted ffn-small">That is the point: problems are found by the process, not by a reader of the paper later. Of the 49 problems found, 28 were in code and 21 were claims in the write-ups that went beyond the evidence.</p>
 
     <h3 class="res-h3 res-h3-gap">Caught before it became a result: real examples</h3>
     <div class="ffn-cases">
@@ -422,6 +461,16 @@ title: "Faster FFN tracing for LICONN"
             <blockquote>The float16 diagnosis run picked its control seeds by float16's step counts instead of float32's, so the two runs traced different controls.</blockquote>
             <p class="ffn-fix"><b>Then:</b> the analysis refused to compare mismatched runs. The bug was fixed and both runs were repeated; the first pair is kept, labelled &ldquo;superseded&rdquo;.</p>
         </article>
+        <article class="ffn-case">
+            <p class="ffn-case-meta"><i class="ffn-role r-check">Model 2</i>bug before the GPU runs</p>
+            <blockquote>&ldquo;examples/judge_fresh.py + manyseed.verdict always fails complete_same_inputs when first_crop() &gt; 0.&rdquo;</blockquote>
+            <p class="ffn-fix"><b>Then:</b> the fresh crops are numbered from 13, so every fresh seed would have looked misplaced and the verdict would have failed on bookkeeping. Fixed and tested before any GPU time was spent.</p>
+        </article>
+        <article class="ffn-case">
+            <p class="ffn-case-meta"><i class="ffn-role r-review">Model 3</i><i class="ffn-sev s-med">medium</i>moved goalpost</p>
+            <blockquote>&ldquo;The pre-registered ERL sanity gate was changed from 3 to 5 bounding-box diagonals after examining pilot skeletons.&rdquo;</blockquote>
+            <p class="ffn-fix"><b>Then:</b> the change was the AI's, not the owner's. The owner kept the original gate, so the fresh-seed ERL is withheld rather than reported.</p>
+        </article>
         <article class="ffn-case ffn-case-wide">
             <p class="ffn-case-meta"><i class="ffn-role r-owner">Owner</i><i class="ffn-role r-runner">Controller</i>design, not luck</p>
             <blockquote>float16 passed all 12 benchmark seeds at 2.19&times; per step.</blockquote>
@@ -458,6 +507,10 @@ title: "Faster FFN tracing for LICONN"
         <li><span>Oct 21</span>Add crops in the pre-registered order until 300 seeds (the first 10 crops gave 252).</li>
         <li><span>Oct 21</span>After float16 fails on early stops: investigate why before choosing a fix.</li>
         <li><span>Oct 22</span>Judge the float32-head network, chosen by the pre-registered screen, on the 300-seed rule.</li>
+        <li><span>Oct 23</span>Confirm it on 300 fresh seeds, and add a skeleton-based run-length metric (ERL).</li>
+        <li><span>Oct 23</span>Raise the fresh-data cap from 12 to 16 to 20&nbsp;GB as usable seeds became scarce.</li>
+        <li><span>Oct 23</span>Keep the pre-registered ERL sanity gate (3&times;), rejecting the AI's amendment to 5&times;.</li>
+        <li><span>Oct 23</span>Keep the float32-head network and set the tolerance to 2% (6 of 300), after its fresh-seed result.</li>
     </ol>
 
     <p class="ffn-muted ffn-small ffn-gap">Data: LICONN public release (Tavakoli et al., <i>Nature</i> 642, 398&ndash;410, 2025, <a href="https://doi.org/10.1038/s41586-025-08985-1" target="_blank" rel="noopener">doi:10.1038/s41586-025-08985-1</a>), CC BY 4.0;

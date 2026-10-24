@@ -159,3 +159,5 @@
   .ffn-mini td small { display: block; }
   .ffn-mini th, .ffn-mini td { padding: 0.3rem 0.35rem; font-size: 0.8rem; }
 }
+.ffn-checks .c-F { background: #000; }
+.ffn-mini-2 td:nth-child(3) { color: var(--text-main); }
