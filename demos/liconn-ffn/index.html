@@ -484,6 +484,23 @@ title: "Faster FFN tracing for LICONN"
         Try the slider. At 0.95 the large neuron at the top is in many pieces. As the threshold falls they join up, but before the last pieces join, the segment also takes in areas that the labels give to other neurons (compare its upper-left part with panel 6). No threshold gives the whole neuron and nothing else.
         No threshold reproduces panel 6, because the edge predictions themselves are wrong in places. The block is processed in 3D, so a segment that looks broken in this slice can be connected in another.</p>
 
+    <h3 class="res-h3 res-h3-gap" id="vit-block3d">The same block in 3D</h3>
+    <p class="res-lead">The whole 64&times;256&times;256-voxel block of the example above (4.6&times;4.6&times;1.5&nbsp;&micro;m), with every object as a surface.
+        Switch between the ViT's segments at threshold 0.50 (panel 5) and the proofread labels (panel 6); colours match the panels.
+        Tick neurons on or off in the list, or use <b>All</b> and <b>None</b>. The image slice of panel 1 can be shown in place.</p>
+    <div class="ffn-viewer">
+        <div class="ffn-side">
+            <label class="ffn-label" for="b3-set">Show</label>
+            <select id="b3-set"><option value="vit">ViT segments, threshold 0.50</option><option value="labels">Proofread labels (ground truth)</option></select>
+            <label class="ffn-b3-check"><input type="checkbox" id="b3-slice"> image slice (panel 1)</label>
+            <div class="ffn-btns"><button id="b3-all" type="button">All</button><button id="b3-none" type="button">None</button><button id="b3-top" type="button">Largest 10</button></div>
+            <p class="ffn-small" id="b3-count"></p>
+            <div id="b3-list" class="ffn-layers ffn-b3-list"></div>
+            <p class="ffn-muted ffn-small">Drag to rotate, scroll or pinch to zoom, right-drag to pan. Click a surface to find it in the list. Objects under 100 voxels are left out; larger ones are meshed at half resolution.</p>
+        </div>
+        <div id="b3-stage" class="ffn-stage"><canvas id="b3-gl" class="ffn-gl"></canvas><div id="b3-loading" class="ffn-loading">Loading meshes&hellip;</div></div>
+    </div>
+
     <h3 class="res-h3 res-h3-gap">How it will be judged</h3>
     <div class="res-two">
         <div class="ffn-box">

@@ -275,3 +275,115 @@ viewer({
     <span>size</span><span>${st.object_voxels.toLocaleString('en-US')} voxels</span>`;
   },
 });
+
+// ---------- the slice example's block in 3D: every object, ViT segments or proofread labels (data/block3d) ----------
+{
+  const canvas = document.getElementById('b3-gl'), stage = document.getElementById('b3-stage');
+  if (canvas) {
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const scene = new THREE.Scene(); scene.background = new THREE.Color(0xffffff);
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 100);
+    camera.up.set(0, 0, 1);  // z (the slice axis) up; set before the controls read it
+    const controls = new OrbitControls(camera, canvas); controls.enableDamping = true;
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x8088a0, 1.4));
+    const sun = new THREE.DirectionalLight(0xffffff, 1.6); camera.add(sun); sun.position.set(1, 1, 2); scene.add(camera);
+    const group = new THREE.Group(); scene.add(group);
+    const resize = () => {
+      const w = stage.clientWidth, h = stage.clientHeight;
+      renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    };
+    new ResizeObserver(resize).observe(stage);
+    let onScreen = false;
+    new IntersectionObserver(es => { onScreen = es[0].isIntersecting; }).observe(stage);
+    renderer.setAnimationLoop(() => { if (onScreen) { controls.update(); renderer.render(scene, camera); } });
+    const loading = document.getElementById('b3-loading'), list = document.getElementById('b3-list');
+    const count = document.getElementById('b3-count');
+    let meta, sets = {}, current = [];
+
+    async function loadSet(name) {  // one mesh per object, cut from the set's concatenated buffer
+      if (sets[name]) return sets[name];
+      const buf = await (await fetch(`data/block3d/${name}.bin${V}`)).arrayBuffer();
+      const [nv, nf] = new Uint32Array(buf, 0, 2);
+      const q = new Uint16Array(buf, 8, nv * 3);
+      const idx = new Uint32Array(buf.slice(8 + nv * 6, 8 + nv * 6 + nf * 12));
+      const objs = meta[name].objects.map(o => {
+        const pos = new Float32Array(o.nv * 3);
+        for (let i = 0; i < pos.length; i++) pos[i] = q[o.v0 * 3 + i] / 65535 * meta.scale_um;
+        const f = new Uint32Array(o.nf * 3);
+        for (let i = 0; i < f.length; i++) f[i] = idx[o.f0 * 3 + i] - o.v0;
+        const g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        g.setIndex(new THREE.BufferAttribute(f, 1));
+        g.computeVertexNormals();
+        const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: o.colour, roughness: 0.6, metalness: 0.05 }));
+        m.userData = o;
+        return m;
+      });
+      return (sets[name] = objs);
+    }
+
+    // the image slice of panel 1, at its depth in the block
+    const [sz, sy, sx] = [0.024, 0.018, 0.018];  // um per voxel, as block3d.json spacing_um_zyx
+    const img = document.querySelector('.ffn-affex img');
+    const tex = new THREE.TextureLoader().load(img ? img.getAttribute('src') : '');
+    tex.flipY = false; tex.colorSpace = THREE.SRGBColorSpace; tex.magFilter = THREE.NearestFilter;
+    const plane = new THREE.Mesh(new THREE.PlaneGeometry(256 * sx, 256 * sy),
+      new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide }));
+    plane.position.set(127.5 * sx, 127.5 * sy, 32 * sz); plane.visible = false; scene.add(plane);
+    document.getElementById('b3-slice').onchange = e => { plane.visible = e.target.checked; };
+
+    const total = name => name === 'vit'
+      ? `of ${meta.vit.segments_total} segments in the block; ${meta.vit.segments_total - meta.vit.objects.length} under 100 voxels left out`
+      : `of ${meta.labels.neurons_total} labelled neurons in the block; ${meta.labels.neurons_total - meta.labels.objects.length} under 100 voxels left out`;
+    const updateCount = () => {
+      const n = current.filter(m => m.visible).length;
+      count.textContent = `${n} shown (${total(document.getElementById('b3-set').value)})`;
+    };
+    async function show(name) {
+      loading.hidden = false;
+      const objs = await loadSet(name);
+      group.clear(); list.innerHTML = '';
+      for (const m of objs) {
+        group.add(m);
+        const o = m.userData, lab = document.createElement('label');
+        lab.innerHTML = `<input type="checkbox"${m.visible ? ' checked' : ''}><i class="ffn-sw" style="background:${o.colour}"></i>${name === 'vit' ? 'segment' : 'neuron'} ${o.id} &middot; ${o.voxels.toLocaleString('en-US')} voxels`;
+        const box = lab.querySelector('input');
+        box.onchange = () => { m.visible = box.checked; updateCount(); };
+        m.userData.row = lab; m.userData.box = box;
+        list.append(lab);
+      }
+      current = objs; updateCount(); loading.hidden = true;
+    }
+    const setAll = pred => { current.forEach((m, i) => { m.visible = pred(i); m.userData.box.checked = m.visible; }); updateCount(); };
+    document.getElementById('b3-all').onclick = () => setAll(() => true);
+    document.getElementById('b3-none').onclick = () => setAll(() => false);
+    document.getElementById('b3-top').onclick = () => setAll(i => i < 10);  // the list is sorted by size
+    document.getElementById('b3-set').onchange = e => show(e.target.value).catch(fail);
+
+    // click a surface: highlight its row in the list
+    const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+    let down = null;
+    canvas.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; });
+    canvas.addEventListener('pointerup', e => {
+      if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 4) return;  // a drag, not a click
+      const r = canvas.getBoundingClientRect();
+      ptr.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
+      ray.setFromCamera(ptr, camera);
+      const hit = ray.intersectObjects(current.filter(m => m.visible))[0];
+      list.querySelectorAll('label.hit').forEach(l => l.classList.remove('hit'));
+      if (hit) { const row = hit.object.userData.row; row.classList.add('hit'); row.scrollIntoView({ block: 'nearest' }); }
+    });
+
+    const fail = e => { console.error(e); loading.hidden = false; loading.textContent = 'Could not load the 3D view. Please reload the page.'; };
+    (async () => {
+      meta = await (await fetch('data/block3d/block3d.json' + V)).json();
+      resize();
+      await show('vit');
+      const c = new THREE.Vector3(128 * sx, 128 * sy, 32 * sz);
+      controls.target.copy(c);
+      camera.position.copy(c).add(new THREE.Vector3(0.6, -1.0, 1.1).normalize().multiplyScalar(10));
+      controls.update();
+    })().catch(fail);
+  }
+}

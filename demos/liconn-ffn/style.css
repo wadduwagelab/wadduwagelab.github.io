@@ -178,3 +178,7 @@
 #vit-worked { scroll-margin-top: 90px; }
 .res-bullets a { color: inherit; text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 2px; }
 .ffn-two-col > *, .res-two > * { min-width: 0; }
+.ffn-b3-list { max-height: 300px; overflow-y: auto; border: 2px solid #000; background: #fff; padding: 0.2rem 0.5rem; }
+.ffn-b3-list label.hit { background: #ffd84d; }
+.ffn-b3-check { display: flex; align-items: center; gap: 0.45rem; font-size: 0.9rem; margin: 0 0 0.6rem; cursor: pointer; }
+.ffn-b3-check input { accent-color: #000; }
