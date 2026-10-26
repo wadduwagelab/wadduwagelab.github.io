@@ -1,0 +1,293 @@
+{
+ "scale_um": 12.0,
+ "threshold": 0.5,
+ "model": "step-66,000 checkpoint, training run 2 (Slurm 7448381)",
+ "source": "mesh job 7452015, meshes.py",
+ "scenes": [
+  {
+   "key": "vit12_p90",
+   "crop": "crop12",
+   "object_id": 283374,
+   "group": "vit",
+   "stats": {
+    "vit_recall": 0.9057416473154383,
+    "vit_precision": 0.9248725247911909,
+    "vit_f1": 0.9152071222055064,
+    "object_voxels": 163211,
+    "seed_in_background": false,
+    "lost_to_background": 0.03498538701435565,
+    "pieces_over_1pct": 4,
+    "f1_rank_of_457": 411
+   },
+   "layers": [
+    {
+     "file": "vit12/vit12_p90_true.bin",
+     "verts": 38098,
+     "faces": 76168,
+     "kind": "proofread",
+     "role": "true",
+     "id": 283374
+    },
+    {
+     "file": "vit12/vit12_p90_seed.bin",
+     "verts": 38140,
+     "faces": 76280,
+     "kind": "trace",
+     "role": "vit"
+    },
+    {
+     "file": "vit12/vit12_p90_piece0.bin",
+     "verts": 2542,
+     "faces": 5080,
+     "kind": "trace",
+     "role": "piece0",
+     "object_voxels_in_piece": 4054,
+     "piece_voxels": 4348
+    },
+    {
+     "file": "vit12/vit12_p90_piece1.bin",
+     "verts": 1578,
+     "faces": 3152,
+     "kind": "trace",
+     "role": "piece1",
+     "object_voxels_in_piece": 3057,
+     "piece_voxels": 3068
+    },
+    {
+     "file": "vit12/vit12_p90_piece2.bin",
+     "verts": 1506,
+     "faces": 3008,
+     "kind": "trace",
+     "role": "piece2",
+     "object_voxels_in_piece": 2342,
+     "piece_voxels": 2586
+    },
+    {
+     "file": "vit12/vit12_p90_piece3.bin",
+     "verts": 664,
+     "faces": 1324,
+     "kind": "trace",
+     "role": "piece3",
+     "object_voxels_in_piece": 95,
+     "piece_voxels": 616
+    }
+   ]
+  },
+  {
+   "key": "vit12_p50",
+   "crop": "crop12",
+   "object_id": 318428,
+   "group": "vit",
+   "stats": {
+    "vit_recall": 0.38898431496632463,
+    "vit_precision": 1.0,
+    "vit_f1": 0.5600989309598581,
+    "object_voxels": 88492,
+    "seed_in_background": false,
+    "lost_to_background": 0.10970483207521584,
+    "pieces_over_1pct": 11,
+    "f1_rank_of_457": 229
+   },
+   "layers": [
+    {
+     "file": "vit12/vit12_p50_true.bin",
+     "verts": 40336,
+     "faces": 80656,
+     "kind": "proofread",
+     "role": "true",
+     "id": 318428
+    },
+    {
+     "file": "vit12/vit12_p50_seed.bin",
+     "verts": 12028,
+     "faces": 24056,
+     "kind": "trace",
+     "role": "vit"
+    },
+    {
+     "file": "vit12/vit12_p50_piece0.bin",
+     "verts": 7024,
+     "faces": 14044,
+     "kind": "trace",
+     "role": "piece0",
+     "object_voxels_in_piece": 9661,
+     "piece_voxels": 10267
+    },
+    {
+     "file": "vit12/vit12_p50_piece1.bin",
+     "verts": 4460,
+     "faces": 8920,
+     "kind": "trace",
+     "role": "piece1",
+     "object_voxels_in_piece": 8391,
+     "piece_voxels": 8977
+    },
+    {
+     "file": "vit12/vit12_p50_piece2.bin",
+     "verts": 3186,
+     "faces": 6368,
+     "kind": "trace",
+     "role": "piece2",
+     "object_voxels_in_piece": 5341,
+     "piece_voxels": 5698
+    },
+    {
+     "file": "vit12/vit12_p50_piece3.bin",
+     "verts": 2484,
+     "faces": 4964,
+     "kind": "trace",
+     "role": "piece3",
+     "object_voxels_in_piece": 2746,
+     "piece_voxels": 2917
+    }
+   ]
+  },
+  {
+   "key": "vit12_p10",
+   "crop": "crop12",
+   "object_id": 318443,
+   "group": "vit",
+   "stats": {
+    "vit_recall": 0.04363971718413772,
+    "vit_precision": 1.0,
+    "vit_f1": 0.08362985130899923,
+    "object_voxels": 81325,
+    "seed_in_background": false,
+    "lost_to_background": 0.13357516138948664,
+    "pieces_over_1pct": 8,
+    "f1_rank_of_457": 46
+   },
+   "layers": [
+    {
+     "file": "vit12/vit12_p10_true.bin",
+     "verts": 37546,
+     "faces": 75108,
+     "kind": "proofread",
+     "role": "true",
+     "id": 318443
+    },
+    {
+     "file": "vit12/vit12_p10_seed.bin",
+     "verts": 2256,
+     "faces": 4508,
+     "kind": "trace",
+     "role": "vit"
+    },
+    {
+     "file": "vit12/vit12_p10_piece0.bin",
+     "verts": 21684,
+     "faces": 43372,
+     "kind": "trace",
+     "role": "piece0",
+     "object_voxels_in_piece": 34819,
+     "piece_voxels": 37230
+    },
+    {
+     "file": "vit12/vit12_p10_piece1.bin",
+     "verts": 9766,
+     "faces": 19528,
+     "kind": "trace",
+     "role": "piece1",
+     "object_voxels_in_piece": 17391,
+     "piece_voxels": 18481
+    },
+    {
+     "file": "vit12/vit12_p10_piece2.bin",
+     "verts": 1872,
+     "faces": 3740,
+     "kind": "trace",
+     "role": "piece2",
+     "object_voxels_in_piece": 3017,
+     "piece_voxels": 3087
+    },
+    {
+     "file": "vit12/vit12_p10_piece3.bin",
+     "verts": 1494,
+     "faces": 2988,
+     "kind": "trace",
+     "role": "piece3",
+     "object_voxels_in_piece": 1741,
+     "piece_voxels": 1764
+    }
+   ]
+  },
+  {
+   "key": "vit12_ffn346093",
+   "crop": "crop12",
+   "object_id": 346093,
+   "group": "vit",
+   "stats": {
+    "vit_recall": 0.5233287858117326,
+    "vit_precision": 0.8451722071421017,
+    "vit_f1": 0.6464050040779461,
+    "object_voxels": 91625,
+    "seed_in_background": false,
+    "lost_to_background": 0.048807639836289225,
+    "pieces_over_1pct": 5,
+    "f1_rank_of_457": 283,
+    "ffn_recall": 0.7682182810368349,
+    "ffn_precision": 0.9995171963306921
+   },
+   "layers": [
+    {
+     "file": "vit12/vit12_ffn346093_true.bin",
+     "verts": 30280,
+     "faces": 60540,
+     "kind": "proofread",
+     "role": "true",
+     "id": 346093
+    },
+    {
+     "file": "vit12/vit12_ffn346093_seed.bin",
+     "verts": 18326,
+     "faces": 36648,
+     "kind": "trace",
+     "role": "vit"
+    },
+    {
+     "file": "vit12/vit12_ffn346093_piece0.bin",
+     "verts": 6352,
+     "faces": 12700,
+     "kind": "trace",
+     "role": "piece0",
+     "object_voxels_in_piece": 20397,
+     "piece_voxels": 21653
+    },
+    {
+     "file": "vit12/vit12_ffn346093_piece1.bin",
+     "verts": 4976,
+     "faces": 9948,
+     "kind": "trace",
+     "role": "piece1",
+     "object_voxels_in_piece": 13205,
+     "piece_voxels": 13546
+    },
+    {
+     "file": "vit12/vit12_ffn346093_piece2.bin",
+     "verts": 1806,
+     "faces": 3608,
+     "kind": "trace",
+     "role": "piece2",
+     "object_voxels_in_piece": 3486,
+     "piece_voxels": 3579
+    },
+    {
+     "file": "vit12/vit12_ffn346093_piece3.bin",
+     "verts": 1926,
+     "faces": 3848,
+     "kind": "trace",
+     "role": "piece3",
+     "object_voxels_in_piece": 2077,
+     "piece_voxels": 3626
+    },
+    {
+     "file": "vit12/vit12_ffn346093_ffn.bin",
+     "verts": 22140,
+     "faces": 44276,
+     "kind": "trace",
+     "role": "ffn"
+    }
+   ]
+  }
+ ]
+}

@@ -262,7 +262,7 @@ title: "Faster FFN tracing for LICONN"
             <li><b>The test crops have not been run.</b> They are segmented once, and this model would fail the rule below. An error breakdown on crop 12 is running to decide between retraining and fine-tuning a pretrained model.</li>
         </ul>
     </div>
-    <div class="ffn-viewer" id="vit-viewer" hidden>
+    <div class="ffn-viewer" id="vit-viewer">
         <div class="ffn-side">
             <label class="ffn-label" for="vit-scene">Neuron</label>
             <select id="vit-scene"></select>
@@ -273,7 +273,7 @@ title: "Faster FFN tracing for LICONN"
         </div>
         <div id="vit-stage" class="ffn-stage"><canvas id="vit-gl" class="ffn-gl"></canvas><div id="vit-loading" class="ffn-loading">Loading meshes&hellip;</div></div>
     </div>
-    <p class="ffn-muted ffn-small" id="vit-viewer-note" hidden>Grey: the proofread neuron. Blue: the ViT segment that holds the seed, the one that is scored. Other colours: the largest other ViT segments that hold parts of the same neuron, i.e. the splits. The neurons are picked by their F1 rank among the 457, not by eye.</p>
+    <p class="ffn-muted ffn-small" id="vit-viewer-note">Grey: the proofread neuron. Blue: the ViT segment that holds the seed, the one that is scored. Other colours: the four largest other ViT segments that hold parts of the same neuron, i.e. the splits. Orange (one neuron only): FFN's trace from the same seed. The neurons are picked by their F1 rank among the 457, not by eye.</p>
 
     <h3 class="res-h3 res-h3-gap">Architecture</h3>
     <div class="ffn-flow-wrap">

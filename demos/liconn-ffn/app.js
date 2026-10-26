@@ -246,16 +246,16 @@ viewer({
 const VIT_NAMES = { p90: 'A good case (90th percentile)', p50: 'A typical case (median)', p10: 'A poor case (10th percentile)',
   ffn346093: 'Dendrite 346093: ViT and FFN' };
 const VIT_NOTES = {
-  p90: 'Ranked by F1 among the 457 crop-12 neurons and picked by rank, not by eye. Even here part of the neuron is in other pieces.',
-  p50: 'The median neuron. It is split into several pieces; the seed\'s segment holds only part of it.',
-  p10: 'One of the worst tenth. The neuron is broken into many pieces, and the seed\'s segment holds little of it.',
-  ffn346093: 'The only crop-12 neuron with a recorded FFN trace (orange, see-through). FFN follows the dendrite much further than the ViT segment.',
+  p90: 'Ranked by F1 among the 457 crop-12 neurons and picked by rank, not by eye. A good case: the seed\'s segment holds 91% of the neuron, with a few small pieces split off.',
+  p50: 'The median neuron. Nothing wrong is joined (precision 100%), but the neuron is broken into 11 pieces and the seed\'s segment holds only 39% of it.',
+  p10: 'One of the worst tenth. The seed lands in a small piece holding 4% of the neuron; the largest piece (green) holds 43%.',
+  ffn346093: 'The only crop-12 neuron with a recorded FFN trace (orange, see-through). FFN recovers 77% of it with almost nothing wrong; the ViT\'s segment recovers 52% and includes parts of other neurons.',
 };
 viewer({
   ids: { canvas: 'vit-gl', stage: 'vit-stage', select: 'vit-scene', layers: 'vit-layers', facts: 'vit-facts', loading: 'vit-loading', all: 'vit-view-all', seed: 'vit-view-seed' },
   url: 'data/vit12/scenes.json', query: 'vit',
   groups: { vit: 'Crop 12 neurons, picked by F1 rank' },
-  notes: VIT_NOTES,
+  notes: Object.fromEntries(Object.entries(VIT_NOTES).map(([k, n]) => ['vit12_' + k, n])),
   names: s => VIT_NAMES[s.key.replace('vit12_', '')],
   layerText: l => l.role === 'true' ? `proofread neuron (${l.id})`
     : l.role === 'vit' ? 'ViT segment holding the seed'
@@ -268,9 +268,10 @@ viewer({
     return `<span></span><span class="hd">${ffn ? 'ViT / FFN' : 'ViT'}</span>
     <span>recall</span><span>${pct(st.vit_recall)}${ffn ? ' / ' + pct(st.ffn_recall) : ''}</span>
     <span>precision</span><span>${pct(st.vit_precision)}${ffn ? ' / ' + pct(st.ffn_precision) : ''}</span>
-    <span>F1 rank</span><span>${st.f1_rank_of_457} of 457 (F1 ${st.vit_f1.toFixed(2)})</span>
-    <span>pieces</span><span>${st.pieces_over_1pct} holding &ge;1% of the neuron</span>
-    <span>missed</span><span>${pct(st.lost_to_background)} called background</span>
+    <span>F1</span><span>${st.vit_f1.toFixed(2)}${ffn ? ' / ' + (2 * st.ffn_recall * st.ffn_precision / (st.ffn_recall + st.ffn_precision)).toFixed(2) : ''}</span>
+    <span>F1 rank</span><span>${st.f1_rank_of_457} of 457 (1 = worst)</span>
+    <span>ViT pieces</span><span>${st.pieces_over_1pct} holding &ge;1% of the neuron</span>
+    <span>background</span><span>${pct(st.lost_to_background)} of the neuron called background</span>
     <span>size</span><span>${st.object_voxels.toLocaleString('en-US')} voxels</span>`;
   },
 });
