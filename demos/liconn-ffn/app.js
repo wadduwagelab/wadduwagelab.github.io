@@ -68,7 +68,7 @@ drawProfile('profile', 'profile-legend', [
 
 // ---------- affinity-to-segment example: merge-threshold slider (segment counts from data/affinity-example/meta.json) ----------
 {
-  const T = [[0.95, 3031], [0.90, 2484], [0.85, 1850], [0.80, 1553], [0.70, 1395], [0.60, 1232], [0.50, 954], [0.40, 862], [0.30, 825], [0.20, 796]];
+  const T = [[0.95, 1830], [0.90, 1589], [0.85, 1436], [0.80, 1321], [0.70, 1149], [0.60, 969], [0.50, 711], [0.40, 482], [0.30, 296], [0.20, 198]];
   const img = document.getElementById('affex-seg'), slider = document.getElementById('affex-t');
   if (img && slider) {
     const base = img.getAttribute('src').replace(/segments_[0-9.]+\.png.*$/, '');
@@ -91,38 +91,13 @@ drawProfile('profile', 'profile-legend', [
   for (const c of SEQ) { const i = document.createElement('i'); i.className = 'c-' + c; el.append(i); }
 }
 
-// ---------- 3D viewer ----------
-// Scene stats (steps, recall, precision, IoU) come from data/manifest.json, built from the recorded runs.
-const COLORS = { fp32: 0x2a3cff, fp16: 0xf26a00, true: 0x8a8a8a, neighbour: 0xa070ff };
-const SCENES = {
-  heldout250842: { name: 'Held-out dendrite 250842', note: 'float32 stops at the right place after 79 steps. float16 crosses into neighbour 245232 and keeps going for 2,266 steps.' },
-  heldout245099: { name: 'Held-out dendrite 245099', note: 'float32 only touches neighbour 245232 (2,571 voxels). float16 crosses over into it.' },
-  bench1525:     { name: 'Benchmark dendrite 1525 (reverse)', note: 'The reverse: here float32 makes the false merge (into 97123) and float16 avoids it. Same knife edge, other side.' },
-  notebook:      { name: "Authors' notebook example", note: "The authors' own example seed, reproduced bitwise from their notebook before any change." },
-  bench13395:    { name: 'Benchmark axon 13395', note: 'A long axon traced almost completely; float16 agrees closely.' },
-  bench56789:    { name: 'Benchmark dendrite 56789', note: 'A long dendrite traced almost completely; float16 agrees closely.' },
-  bench99141:    { name: 'Benchmark dendrite 99141', note: 'A typical dendrite: float16 and float32 agree closely.' },
-  heldout176723: { name: 'Held-out axon 176723', note: 'Held-out crop: traced almost completely, float16 agrees closely.' },
-  heldout151289: { name: 'Held-out axon 151289', note: 'Held-out crop: float16 agrees closely.' },
-};
-const GROUPS = { merge: 'Merge flips (float16 vs float32)', ok: 'Tracing working as intended' };
-
-const canvas = document.getElementById('gl'), stage = document.getElementById('stage');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-const scene = new THREE.Scene(); scene.background = new THREE.Color(0xffffff);
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 200);
-const controls = new OrbitControls(camera, canvas); controls.enableDamping = true;
-scene.add(new THREE.HemisphereLight(0xffffff, 0x8088a0, 1.4));
-const sun = new THREE.DirectionalLight(0xffffff, 1.6); camera.add(sun); sun.position.set(1, 1, 2); scene.add(camera);
-const group = new THREE.Group(); scene.add(group);
-
-function resize() {
-  const w = stage.clientWidth, h = stage.clientHeight;
-  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
-}
-new ResizeObserver(resize).observe(stage);
-renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+// ---------- 3D viewers ----------
+// Two viewers share this code: FFN traces (data/manifest.json) and ViT segments of crop 12 (data/vit12/scenes.json).
+// Scene stats come from those files, built from the recorded runs.
+const COLORS = { fp32: 0x2a3cff, fp16: 0xf26a00, true: 0x8a8a8a, neighbour: 0xa070ff,
+  vit: 0x2a3cff, ffn: 0xf26a00, piece0: 0x1a9e5c, piece1: 0xd1007a, piece2: 0xc9a400, piece3: 0x00a3c4 };
+const hex = c => '#' + COLORS[c].toString(16).padStart(6, '0');
+const pct = v => (v * 100).toFixed(1) + '%';
 
 const cache = new Map();
 async function loadMesh(file, scale) {
@@ -146,77 +121,156 @@ function material(layer) {
     return new THREE.MeshStandardMaterial({ color: COLORS[layer.role], transparent: true,
       opacity: isTrue ? 0.35 : 0.2, depthWrite: false, roughness: 0.8, side: THREE.DoubleSide });
   }
-  const fp16 = layer.role === 'fp16';
+  const see = layer.role === 'fp16' || layer.role === 'ffn';  // drawn see-through over the other trace
   return new THREE.MeshStandardMaterial({ color: COLORS[layer.role], roughness: 0.55, metalness: 0.05,
-    transparent: fp16, opacity: fp16 ? 0.6 : 1, depthWrite: !fp16 });
+    transparent: see, opacity: see ? 0.6 : 1, depthWrite: !see });
 }
-const layerText = l => l.kind === 'trace' ? (l.role === 'fp32' ? 'float32 trace (reference)' : 'float16 trace')
-  : (l.role === 'true' ? `proofread: true object (${l.id})` : `proofread: neighbour (${l.id})`);
 
-let manifest, current = [];
-function frame(mode) {
-  const box = new THREE.Box3();
-  for (const [layer, m] of current)
-    if (mode === 'all' ? layer.role !== 'neighbour' : (layer.role === 'fp32' || layer.role === 'true')) box.expandByObject(m);
-  const c = box.getCenter(new THREE.Vector3()), r = box.getSize(new THREE.Vector3()).length() / 2;
-  controls.target.copy(c);
-  camera.position.copy(c).add(new THREE.Vector3(0.9, 0.5, 1.2).normalize().multiplyScalar(r * 2.7));
-  camera.near = r / 100; camera.far = r * 30; camera.updateProjectionMatrix();
+// cfg: { ids: {canvas, stage, select, layers, facts, loading, all, seed}, url, groups, notes, names,
+//        layerText(layer), factsHtml(scene), focus(layer, mode), firstFrame(scene), query }
+function viewer(cfg) {
+  const $ = k => document.getElementById(cfg.ids[k]);
+  const canvas = $('canvas'), stage = $('stage');
+  if (!canvas) return;
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const scene = new THREE.Scene(); scene.background = new THREE.Color(0xffffff);
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 200);
+  const controls = new OrbitControls(camera, canvas); controls.enableDamping = true;
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8088a0, 1.4));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.6); camera.add(sun); sun.position.set(1, 1, 2); scene.add(camera);
+  const group = new THREE.Group(); scene.add(group);
+  const resize = () => {
+    const w = stage.clientWidth, h = stage.clientHeight;
+    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  };
+  new ResizeObserver(resize).observe(stage);
+  // render only while on screen, so two viewers do not both draw all the time
+  let onScreen = false;
+  new IntersectionObserver(es => { onScreen = es[0].isIntersecting; }).observe(stage);
+  renderer.setAnimationLoop(() => { if (onScreen) { controls.update(); renderer.render(scene, camera); } });
+
+  let manifest, current = [];
+  const frame = mode => {
+    const box = new THREE.Box3();
+    for (const [layer, m] of current) if (cfg.focus(layer, mode)) box.expandByObject(m);
+    if (box.isEmpty()) for (const [, m] of current) box.expandByObject(m);  // e.g. a seed in predicted background
+    const c = box.getCenter(new THREE.Vector3()), r = box.getSize(new THREE.Vector3()).length() / 2;
+    controls.target.copy(c);
+    camera.position.copy(c).add(new THREE.Vector3(0.9, 0.5, 1.2).normalize().multiplyScalar(r * 2.7));
+    camera.near = r / 100; camera.far = r * 30; camera.updateProjectionMatrix();
+  };
+  $('all').onclick = () => frame('all');
+  $('seed').onclick = () => frame('seed');
+
+  const loading = $('loading');
+  async function show(key) {
+    const sc = manifest.scenes.find(s => s.key === key);
+    loading.hidden = false;
+    const geoms = await Promise.all(sc.layers.map(l => loadMesh(l.file, manifest.scale_um)));
+    group.clear();
+    const layersEl = $('layers'); layersEl.innerHTML = '';
+    const meshes = [];
+    sc.layers.forEach((layer, i) => {
+      const m = new THREE.Mesh(geoms[i], material(layer));
+      m.renderOrder = layer.kind === 'proofread' ? 2 : (layer.role === 'fp16' || layer.role === 'ffn' ? 1 : 0);
+      group.add(m); meshes.push([layer, m]);
+      const lab = document.createElement('label');
+      lab.innerHTML = `<input type="checkbox" checked><i class="ffn-sw" style="background:${hex(layer.role)}"></i>${cfg.layerText(layer)}`;
+      const box = lab.querySelector('input');
+      if (layer.role === 'neighbour') { box.checked = false; m.visible = false; }  // toggle on to show the merge partner
+      box.onchange = e => { m.visible = e.target.checked; };
+      layersEl.append(lab);
+    });
+    current = meshes; frame(cfg.firstFrame(sc));
+    $('facts').innerHTML = `<span class="note">${cfg.notes[key]}</span>` + cfg.factsHtml(sc);
+    loading.hidden = true;
+  }
+  const fail = e => {
+    console.error(e);
+    loading.hidden = false; loading.textContent = 'Could not load the 3D view. Please reload the page.';
+  };
+  (async () => {
+    manifest = await (await fetch(cfg.url + V)).json();
+    const sel = $('select');
+    for (const [g, label] of Object.entries(cfg.groups)) {
+      const og = document.createElement('optgroup'); og.label = label;
+      for (const s of manifest.scenes.filter(s => s.group === g)) {
+        const o = document.createElement('option'); o.value = s.key; o.textContent = cfg.names(s); og.append(o);
+      }
+      sel.append(og);
+    }
+    sel.onchange = () => show(sel.value).catch(fail);
+    resize();
+    const want = cfg.query && new URLSearchParams(location.search).get(cfg.query);  // e.g. ?scene=notebook
+    const first = manifest.scenes.some(s => s.key === want) ? want : manifest.scenes[0].key;
+    sel.value = first;
+    await show(first);
+  })().catch(fail);
 }
-document.getElementById('view-all').onclick = () => frame('all');
-document.getElementById('view-seed').onclick = () => frame('seed');
 
-const pct = v => (v * 100).toFixed(1) + '%';
-async function show(key) {
-  const sc = manifest.scenes.find(s => s.key === key);
-  document.getElementById('loading').hidden = false;
-  const meshes = [];
-  const geoms = await Promise.all(sc.layers.map(l => loadMesh(l.file, manifest.scale_um)));
-  group.clear();
-  const layersEl = document.getElementById('layers'); layersEl.innerHTML = '';
-  sc.layers.forEach((layer, i) => {
-    const m = new THREE.Mesh(geoms[i], material(layer));
-    m.renderOrder = layer.kind === 'proofread' ? 2 : (layer.role === 'fp16' ? 1 : 0);
-    group.add(m); meshes.push([layer, m]);
-    const lab = document.createElement('label');
-    lab.innerHTML = `<input type="checkbox" checked><i class="ffn-sw" style="background:#${COLORS[layer.role].toString(16).padStart(6, '0')}"></i>${layerText(layer)}`;
-    const box = lab.querySelector('input');
-    if (layer.role === 'neighbour') { box.checked = false; m.visible = false; }  // toggle on to show the merge partner
-    box.onchange = e => { m.visible = e.target.checked; };
-    layersEl.append(lab);
-  });
-  current = meshes; frame(sc.group === 'merge' ? 'all' : 'seed');
-  const st = sc.stats;
-  document.getElementById('facts').innerHTML = `<span class="note">${SCENES[key].note}</span>
-    <span></span><span class="hd">float32 / float16</span>
+// FFN traces: float32 against float16
+const SCENES = {
+  heldout250842: { name: 'Held-out dendrite 250842', note: 'float32 stops at the right place after 79 steps. float16 crosses into neighbour 245232 and keeps going for 2,266 steps.' },
+  heldout245099: { name: 'Held-out dendrite 245099', note: 'float32 only touches neighbour 245232 (2,571 voxels). float16 crosses over into it.' },
+  bench1525:     { name: 'Benchmark dendrite 1525 (reverse)', note: 'The reverse: here float32 makes the false merge (into 97123) and float16 avoids it. Same knife edge, other side.' },
+  notebook:      { name: "Authors' notebook example", note: "The authors' own example seed, reproduced bitwise from their notebook before any change." },
+  bench13395:    { name: 'Benchmark axon 13395', note: 'A long axon traced almost completely; float16 agrees closely.' },
+  bench56789:    { name: 'Benchmark dendrite 56789', note: 'A long dendrite traced almost completely; float16 agrees closely.' },
+  bench99141:    { name: 'Benchmark dendrite 99141', note: 'A typical dendrite: float16 and float32 agree closely.' },
+  heldout176723: { name: 'Held-out axon 176723', note: 'Held-out crop: traced almost completely, float16 agrees closely.' },
+  heldout151289: { name: 'Held-out axon 151289', note: 'Held-out crop: float16 agrees closely.' },
+};
+viewer({
+  ids: { canvas: 'gl', stage: 'stage', select: 'scene', layers: 'layers', facts: 'facts', loading: 'loading', all: 'view-all', seed: 'view-seed' },
+  url: 'data/manifest.json', query: 'scene',
+  groups: { merge: 'Merge flips (float16 vs float32)', ok: 'Tracing working as intended' },
+  notes: Object.fromEntries(Object.entries(SCENES).map(([k, s]) => [k, s.note])),
+  names: s => SCENES[s.key].name,
+  layerText: l => l.kind === 'trace' ? (l.role === 'fp32' ? 'float32 trace (reference)' : 'float16 trace')
+    : (l.role === 'true' ? `proofread: true object (${l.id})` : `proofread: neighbour (${l.id})`),
+  focus: (l, mode) => mode === 'all' ? l.role !== 'neighbour' : (l.role === 'fp32' || l.role === 'true'),
+  firstFrame: sc => sc.group === 'merge' ? 'all' : 'seed',
+  factsHtml: sc => {
+    const st = sc.stats;
+    return `<span></span><span class="hd">float32 / float16</span>
     <span>steps</span><span>${st.steps.map(v => v.toLocaleString('en-US')).join(' / ')}</span>
     <span>recall</span><span>${st.recall.map(pct).join(' / ')}</span>
     <span>precision</span><span>${st.precision.map(pct).join(' / ')}</span>
     <span>mask overlap</span><span>IoU ${st.iou.toFixed(2)}</span>
     <span>crop</span><span>${sc.crop === 'cropB' ? 'held-out' : 'benchmark'}</span>`;
-  document.getElementById('loading').hidden = true;
-}
+  },
+});
 
-function fail(e) {
-  console.error(e);
-  const el = document.getElementById('loading'); el.hidden = false;
-  el.textContent = 'Could not load the 3D view. Please reload the page.';
-}
-
-(async () => {
-  manifest = await (await fetch('data/manifest.json' + V)).json();
-  const sel = document.getElementById('scene');
-  for (const [g, label] of Object.entries(GROUPS)) {
-    const og = document.createElement('optgroup'); og.label = label;
-    for (const s of manifest.scenes.filter(s => s.group === g)) {
-      const o = document.createElement('option'); o.value = s.key; o.textContent = SCENES[s.key].name; og.append(o);
-    }
-    sel.append(og);
-  }
-  sel.onchange = () => show(sel.value).catch(fail);
-  resize();
-  const want = new URLSearchParams(location.search).get('scene');  // e.g. ?scene=notebook
-  const first = manifest.scenes.some(s => s.key === want) ? want : manifest.scenes[0].key;
-  sel.value = first;
-  await show(first);
-})().catch(fail);
+// ViT segments of crop 12 (the tuning crop), step-66,000 model, merge threshold 0.5
+const VIT_NAMES = { p90: 'A good case (90th percentile)', p50: 'A typical case (median)', p10: 'A poor case (10th percentile)',
+  ffn346093: 'Dendrite 346093: ViT and FFN' };
+const VIT_NOTES = {
+  p90: 'Ranked by F1 among the 457 crop-12 neurons and picked by rank, not by eye. Even here part of the neuron is in other pieces.',
+  p50: 'The median neuron. It is split into several pieces; the seed\'s segment holds only part of it.',
+  p10: 'One of the worst tenth. The neuron is broken into many pieces, and the seed\'s segment holds little of it.',
+  ffn346093: 'The only crop-12 neuron with a recorded FFN trace (orange, see-through). FFN follows the dendrite much further than the ViT segment.',
+};
+viewer({
+  ids: { canvas: 'vit-gl', stage: 'vit-stage', select: 'vit-scene', layers: 'vit-layers', facts: 'vit-facts', loading: 'vit-loading', all: 'vit-view-all', seed: 'vit-view-seed' },
+  url: 'data/vit12/scenes.json', query: 'vit',
+  groups: { vit: 'Crop 12 neurons, picked by F1 rank' },
+  notes: VIT_NOTES,
+  names: s => VIT_NAMES[s.key.replace('vit12_', '')],
+  layerText: l => l.role === 'true' ? `proofread neuron (${l.id})`
+    : l.role === 'vit' ? 'ViT segment holding the seed'
+    : l.role === 'ffn' ? 'FFN trace (float16, float32 head)'
+    : `another ViT segment: ${l.object_voxels_in_piece.toLocaleString('en-US')} voxels of this neuron`,
+  focus: (l, mode) => l.role === (mode === 'all' ? 'true' : 'vit'),
+  firstFrame: () => 'all',
+  factsHtml: sc => {
+    const st = sc.stats, ffn = st.ffn_recall !== undefined;
+    return `<span></span><span class="hd">${ffn ? 'ViT / FFN' : 'ViT'}</span>
+    <span>recall</span><span>${pct(st.vit_recall)}${ffn ? ' / ' + pct(st.ffn_recall) : ''}</span>
+    <span>precision</span><span>${pct(st.vit_precision)}${ffn ? ' / ' + pct(st.ffn_precision) : ''}</span>
+    <span>F1 rank</span><span>${st.f1_rank_of_457} of 457 (F1 ${st.vit_f1.toFixed(2)})</span>
+    <span>pieces</span><span>${st.pieces_over_1pct} holding &ge;1% of the neuron</span>
+    <span>missed</span><span>${pct(st.lost_to_background)} called background</span>
+    <span>size</span><span>${st.object_voxels.toLocaleString('en-US')} voxels</span>`;
+  },
+});

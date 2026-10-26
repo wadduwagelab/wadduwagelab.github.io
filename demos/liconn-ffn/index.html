@@ -110,12 +110,12 @@ title: "Faster FFN tracing for LICONN"
         <div class="ffn-side">
             <label class="ffn-label" for="scene">Example</label>
             <select id="scene"></select>
-            <div id="layers"></div>
+            <div id="layers" class="ffn-layers"></div>
             <div class="ffn-btns"><button id="view-all" type="button">Whole float16 trace</button><button id="view-seed" type="button">Zoom to float32 trace</button></div>
             <div id="facts" class="ffn-kv"></div>
             <p class="ffn-muted ffn-small">Drag to rotate, scroll or pinch to zoom, right-drag to pan. Surfaces are marching-cubes meshes of the actual masks (downsampled 2&times;).</p>
         </div>
-        <div id="stage"><canvas id="gl"></canvas><div id="loading">Loading meshes&hellip;</div></div>
+        <div id="stage" class="ffn-stage"><canvas id="gl" class="ffn-gl"></canvas><div id="loading" class="ffn-loading">Loading meshes&hellip;</div></div>
     </div>
     <p class="ffn-muted ffn-small">Use the <b>Example</b> menu: the first group shows merge flips, including the reverse case (dendrite 1525), where float16 <i>avoids</i> a false merge that float32 makes. The second group shows tracing working as intended on axons and dendrites from both crops, including the authors' own notebook example. Tiny numerical changes can flip a merge either way, so a variant can look better on one crop and fail on another.</p>
 </section>
@@ -233,12 +233,47 @@ title: "Faster FFN tracing for LICONN"
 <section id="vit">
     <div class="section-title">
         <h2>A different approach: a single-pass ViT</h2>
-        <p>in progress: training started October 24</p>
+        <p>first result on the tuning crop, October 26: well short of FFN</p>
     </div>
     <p class="res-lead">FFN finds one neuron at a time, one small window after another. Even with the fast tracer, a neuron takes about 2.5&nbsp;s and hundreds of steps.
         The owner asked for a different kind of model: a vision transformer (ViT) that looks at a whole 128&sup3;-voxel block <b>once</b>
         and predicts, for every voxel, whether it belongs with its neighbours. That segments <b>all neurons in the block</b> in one pass.
-        A timing probe of a simpler version took 42&nbsp;ms per block on a V100. <b>No accuracy result exists yet.</b></p>
+        A timing probe of a simpler version took 42&nbsp;ms per block on a V100.</p>
+
+    <h3 class="res-h3 res-h3-gap" id="vit-result">First result: crop 12, the tuning crop</h3>
+    <div class="res-two">
+        <div class="ffn-box">
+            <p>The model now has a 7th output, the probability that a voxel belongs to a neuron, so the space between neurons (label 0) comes out as background.
+               Training run 2 stopped itself at step 67,344 of 170,000, when nearly every step overflowed in float16. The best checkpoint, step 66,000 (validation loss 0.268), was saved before that and is the model shown here.</p>
+            <div class="ffn-mini-wrap"><table class="ffn-table ffn-mini">
+                <thead><tr><th></th><th>recall</th><th>precision</th><th>F1</th></tr></thead>
+                <tbody>
+                    <tr><th>ViT, merge threshold 0.5</th><td>50.2%</td><td>82.6%</td><td><b>0.53</b></td></tr>
+                    <tr><th>same pipeline, true labels as output</th><td>88.7%</td><td>99.7%</td><td>0.92</td></tr>
+                    <tr><th>FFN, mean per seed (crops 0&ndash;12)</th><td>85.0%</td><td>98.5%</td><td>0.89</td></tr>
+                </tbody>
+            </table></div>
+            <p class="ffn-muted ffn-small">ViT: mean over the 457 large neurons of crop 12. FFN: mean over its 300 seeds in crops 0&ndash;12 (only one lies in crop 12), so the two rows are not on identical sets.</p>
+        </div>
+        <ul class="res-bullets">
+            <li><b>Background works.</b> 41.1% of crop 12 is predicted background against 41.0% labelled; both precision and recall of background are 0.89.</li>
+            <li><b>Neurons are split into pieces.</b> Merging harder does not fix it: at precision 0.95 recall is about 35%, and even when precision falls to 0.11 recall reaches only 85%.</li>
+            <li><b>Speed on one crop:</b> network 32&nbsp;s, watershed 267&nbsp;s, merging 12&nbsp;s.</li>
+            <li><b>The test crops have not been run.</b> They are segmented once, and this model would fail the rule below. An error breakdown on crop 12 is running to decide between retraining and fine-tuning a pretrained model.</li>
+        </ul>
+    </div>
+    <div class="ffn-viewer" id="vit-viewer" hidden>
+        <div class="ffn-side">
+            <label class="ffn-label" for="vit-scene">Neuron</label>
+            <select id="vit-scene"></select>
+            <div id="vit-layers" class="ffn-layers"></div>
+            <div class="ffn-btns"><button id="vit-view-all" type="button">Whole neuron</button><button id="vit-view-seed" type="button">Zoom to ViT segment</button></div>
+            <div id="vit-facts" class="ffn-kv"></div>
+            <p class="ffn-muted ffn-small">Drag to rotate, scroll or pinch to zoom, right-drag to pan. Surfaces are marching-cubes meshes of the actual masks. Untick a layer to see what is behind it.</p>
+        </div>
+        <div id="vit-stage" class="ffn-stage"><canvas id="vit-gl" class="ffn-gl"></canvas><div id="vit-loading" class="ffn-loading">Loading meshes&hellip;</div></div>
+    </div>
+    <p class="ffn-muted ffn-small" id="vit-viewer-note" hidden>Grey: the proofread neuron. Blue: the ViT segment that holds the seed, the one that is scored. Other colours: the largest other ViT segments that hold parts of the same neuron, i.e. the splits. The neurons are picked by their F1 rank among the 457, not by eye.</p>
 
     <h3 class="res-h3 res-h3-gap">Architecture</h3>
     <div class="ffn-flow-wrap">
@@ -344,9 +379,10 @@ title: "Faster FFN tracing for LICONN"
     <div class="res-two">
         <ol class="res-steps">
             <li><span><b>Tile.</b> 128&sup3; blocks every 96 voxels cover a crop; each voxel is taken from exactly one block.</span></li>
-            <li><span><b>Boundary map.</b> One minus the mean affinity of the six edges around each voxel.</span></li>
-            <li><span><b>Fragments.</b> A watershed grows small fragments from the centres of confident regions, so even a thin axon gets its own fragment.</span></li>
-            <li><span><b>Merge.</b> Repeatedly join the two touching fragments with the highest mean affinity across their contact, counting only confident voxels, until the best is below a threshold. The threshold is chosen on crop 12.</span></li>
+            <li><span><b>Background.</b> Voxels with neuron probability below 0.5 are background (label 0) and stay out of every segment.</span></li>
+            <li><span><b>Boundary map.</b> For each neuron voxel, one minus the lowest affinity among its edges to other neuron voxels. The lowest, not the mean, so a face where two neurons touch still counts as a boundary.</span></li>
+            <li><span><b>Fragments.</b> A watershed grows small fragments from the centres of confident regions, through neuron voxels only, so even a thin axon gets its own fragment.</span></li>
+            <li><span><b>Merge.</b> Repeatedly join the two touching fragments with the highest mean affinity across their contact, counting only edges between two neuron voxels, until the best is below a threshold. The threshold is chosen on crop 12.</span></li>
             <li><span><b>Score.</b> For each seed, take the segment that contains it and score it exactly as FFN's traces are scored.</span></li>
         </ol>
         <div class="ffn-box">
@@ -423,27 +459,30 @@ title: "Faster FFN tracing for LICONN"
         </ul>
     </div>
 
-    <h3 class="res-h3 res-h3-gap" id="vit-example">Example: from affinities to segments, one slice</h3>
+    <h3 class="res-h3 res-h3-gap" id="vit-example">Example: from the model's output to segments, one slice</h3>
     <p class="res-lead">A 64&times;256&times;256-voxel block of crop 12 (the tuning crop) run through the pipeline's own code. The panels show its middle slice, 4.6&times;4.6&nbsp;&micro;m.
-        The trained model is not ready yet, so the affinities here are made from the proofread labels plus smooth random noise, as a stand-in for its output.
-        They are not model predictions.</p>
+        These are the <b>trained model's real outputs</b> (step-66,000 checkpoint), predicted over the whole crop and stored rounded to 1/255.
+        Crop 12 was used to pick the checkpoint and the threshold, never for training.</p>
     <div class="ffn-affex">
         <figure><img src="{{ '/demos/liconn-ffn/data/affinity-example/image.png' | relative_url }}" alt="LICONN image slice" loading="lazy" width="512" height="512">
             <figcaption><b>1 Image.</b> The LICONN data the model sees.</figcaption></figure>
-        <figure><img src="{{ '/demos/liconn-ffn/data/affinity-example/boundary.png' | relative_url }}" alt="Boundary map" loading="lazy" width="512" height="512">
-            <figcaption><b>2 Boundary map.</b> One minus the mean affinity around each voxel, shown inverted: bright means inside a neuron, dark means a boundary.</figcaption></figure>
-        <figure><img src="{{ '/demos/liconn-ffn/data/affinity-example/markers.png' | relative_url }}" alt="Markers on the boundary map" loading="lazy" width="512" height="512">
-            <figcaption><b>3 Markers.</b> The centres of confident regions (red), found as peaks of the distance to the nearest boundary. Thin neurites get one too. The peaks are found in 3D, so most fragments' markers lie in other slices.</figcaption></figure>
+        <figure><img src="{{ '/demos/liconn-ffn/data/affinity-example/neuron.png' | relative_url }}" alt="Predicted neuron probability" loading="lazy" width="512" height="512">
+            <figcaption><b>2 Neuron probability.</b> The model's 7th output: white means neuron, black means the space between neurons (label 0). Below 0.5 a voxel is background and is never segmented.</figcaption></figure>
+        <figure><img src="{{ '/demos/liconn-ffn/data/affinity-example/markers.png' | relative_url }}" alt="Boundary map with markers" loading="lazy" width="512" height="512">
+            <figcaption><b>3 Boundary map and markers.</b> For each neuron voxel, the lowest of its edges to other neuron voxels, shown so that bright means confidently inside a neuron. Background is black. Red: the centres of confident regions, found in 3D, so many lie in other slices.</figcaption></figure>
         <figure><img src="{{ '/demos/liconn-ffn/data/affinity-example/fragments.png' | relative_url }}" alt="Watershed fragments" loading="lazy" width="512" height="512">
-            <figcaption><b>4 Fragments.</b> A watershed grows a fragment from each marker until fragments meet at boundaries. It is deliberately over-split: 3,277 fragments in this block.</figcaption></figure>
-        <figure><img id="affex-seg" src="{{ '/demos/liconn-ffn/data/affinity-example/segments_0.85.png' | relative_url }}" alt="Segments after merging" loading="lazy" width="512" height="512">
-            <figcaption><b>5 Merged segments.</b> Touching fragments are joined, highest mean affinity first, while it stays above the threshold.
-                <label class="ffn-label ffn-affex-label" for="affex-t">threshold <span id="affex-tv">0.85</span> &middot; <span id="affex-n">1,850</span> segments in the block</label>
-                <input id="affex-t" type="range" min="0" max="9" step="1" value="2" aria-label="merge threshold"></figcaption></figure>
+            <figcaption><b>4 Fragments.</b> A watershed grows a fragment from each marker, only through neuron voxels, until fragments meet. 2,113 fragments in this block.</figcaption></figure>
+        <figure><img id="affex-seg" src="{{ '/demos/liconn-ffn/data/affinity-example/segments_0.50.png' | relative_url }}" alt="Segments after merging" loading="lazy" width="512" height="512">
+            <figcaption><b>5 Merged segments.</b> Touching fragments are joined, highest mean edge prediction first, while it stays above the threshold. 0.50 is the threshold chosen on crop 12.
+                <label class="ffn-label ffn-affex-label" for="affex-t">threshold <span id="affex-tv">0.50</span> &middot; <span id="affex-n">711</span> segments in the block</label>
+                <input id="affex-t" type="range" min="0" max="9" step="1" value="6" aria-label="merge threshold"></figcaption></figure>
         <figure><img src="{{ '/demos/liconn-ffn/data/affinity-example/labels.png' | relative_url }}" alt="Proofread labels" loading="lazy" width="512" height="512">
-            <figcaption><b>6 Ground truth.</b> The authors' proofread labels; black means unlabelled. Colours are not matched to panel 5.</figcaption></figure>
+            <figcaption><b>6 Ground truth.</b> The authors' proofread labels; black is label 0, the space between neurons. Colours are not matched to panel 5.</figcaption></figure>
     </div>
-    <p class="ffn-muted ffn-small">Try the slider. At high thresholds neurons stay split into fragments. Around 0.85 the large dendrite becomes one segment. Lower down, it swallows its neighbours: these are false merges, the error the threshold must avoid. The threshold is chosen once, on crop 12, by mean F1. The block is processed in 3D, so a segment that looks broken in this slice can be connected above or below it. Every voxel ends up in some segment, including unlabelled space. Unlabelled affinities here are set to 0.3 (uncertain, leaning towards boundary), with noise of standard deviation 0.2.</p>
+    <p class="ffn-muted ffn-small">Background is close to the labels: in this block 34.6% of voxels are predicted background against 32.5% labelled (precision 0.84, recall 0.89).
+        The edges are the weak part. Inside the large neuron at the top, panel 3 has dark streaks where the model is unsure, and in panel 4 it breaks into many fragments.
+        Try the slider. At 0.95 the large neuron at the top is in many pieces. As the threshold falls they join up, but before the last pieces join, the segment also takes in areas that the labels give to other neurons (compare its upper-left part with panel 6). No threshold gives the whole neuron and nothing else.
+        No threshold reproduces panel 6, because the edge predictions themselves are wrong in places. The block is processed in 3D, so a segment that looks broken in this slice can be connected in another.</p>
 
     <h3 class="res-h3 res-h3-gap">How it will be judged</h3>
     <div class="res-two">

@@ -11,66 +11,66 @@
   256
  ],
  "slice_z": 250,
- "labelled_fraction_slice": 0.6917266845703125,
- "noise_sd": 0.2,
- "unlabelled_pair_affinity": 0.3,
- "noise_sigma_zyx": [
-  1,
-  2,
-  2
- ],
- "fragments": 3277,
+ "source": "step-66,000 checkpoint, run 2 (Slurm 7448381); whole-crop prediction rounded to 1/255",
+ "block_sha256_note": "affex_block_uint8.npy cut from aff_uint8.npy of breakdown job 7452001",
+ "fragments": 2113,
  "thresholds": [
   {
    "threshold": 0.95,
-   "segments": 3031,
-   "merges": 246
+   "segments": 1830,
+   "merges": 283
   },
   {
    "threshold": 0.9,
-   "segments": 2484,
-   "merges": 793
+   "segments": 1589,
+   "merges": 524
   },
   {
    "threshold": 0.85,
-   "segments": 1850,
-   "merges": 1427
+   "segments": 1436,
+   "merges": 677
   },
   {
    "threshold": 0.8,
-   "segments": 1553,
-   "merges": 1724
+   "segments": 1321,
+   "merges": 792
   },
   {
    "threshold": 0.7,
-   "segments": 1395,
-   "merges": 1882
+   "segments": 1149,
+   "merges": 964
   },
   {
    "threshold": 0.6,
-   "segments": 1232,
-   "merges": 2045
+   "segments": 969,
+   "merges": 1144
   },
   {
    "threshold": 0.5,
-   "segments": 954,
-   "merges": 2323
+   "segments": 711,
+   "merges": 1402
   },
   {
    "threshold": 0.4,
-   "segments": 862,
-   "merges": 2415
+   "segments": 482,
+   "merges": 1631
   },
   {
    "threshold": 0.3,
-   "segments": 825,
-   "merges": 2452
+   "segments": 296,
+   "merges": 1817
   },
   {
    "threshold": 0.2,
-   "segments": 796,
-   "merges": 2481
+   "segments": 198,
+   "merges": 1915
   }
  ],
- "markers_in_block": 3277
+ "markers_in_block": 2093,
+ "background_block": {
+  "label0_fraction": 0.32525086402893066,
+  "predicted_fraction": 0.34633874893188477,
+  "precision": 0.836471965029429,
+  "recall": 0.8907052553106177
+ }
 }
