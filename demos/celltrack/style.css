@@ -28,7 +28,7 @@ main { flex: 1; display: grid; grid-template-columns: 290px 1fr 360px; min-heigh
 #well-tier { margin: 4px 0 6px; }
 table.metrics { border-collapse: collapse; width: 100%; font-size: 11.5px; font-variant-numeric: tabular-nums; }
 table.metrics th { color: var(--muted); font-weight: normal; text-align: right; padding: 2px 4px; }
-table.metrics th:first-child, table.metrics td:first-child { text-align: left; }
+table.metrics th:first-child, table.metrics td:first-child { text-align: left; white-space: normal; width: 100%; }
 table.metrics td { text-align: right; padding: 2px 4px; border-top: 1px solid var(--border); white-space: nowrap; }
 table.metrics td.up { color: #ffd36a; } table.metrics td.down { color: #7cc0ff; }
 table.metrics td.na { color: var(--muted); }
