@@ -1,0 +1,358 @@
+{
+ "tag": "G5",
+ "name": "hoct",
+ "source": "well_G5",
+ "well": "G5",
+ "start": 144,
+ "stop": 240,
+ "crop": [
+  1216,
+  1216,
+  640
+ ],
+ "size": 640,
+ "n_frames": 96,
+ "frame_interval_min": 2.5,
+ "pixel_size_um": 0.5,
+ "n_tracks": 297,
+ "n_cells": 8408,
+ "n_lineages": 250,
+ "n_divisions": 22,
+ "n_deaths": 0,
+ "states": [
+  "stationary",
+  "slow",
+  "fast",
+  "dividing",
+  "dying"
+ ],
+ "state_colors": {
+  "stationary": [
+   76,
+   153,
+   255
+  ],
+  "slow": [
+   255,
+   216,
+   51
+  ],
+  "fast": [
+   255,
+   76,
+   51
+  ],
+  "dividing": [
+   51,
+   255,
+   102
+  ],
+  "dying": [
+   229,
+   51,
+   229
+  ]
+ },
+ "state_fraction": {
+  "stationary": 0.355,
+  "slow": 0.332,
+  "fast": 0.31,
+  "dividing": 0.003
+ },
+ "speed_thresholds_px_per_frame": {
+  "method": "terciles",
+  "n": 1643789,
+  "means_px": [
+   1.7330984044590803,
+   4.9574216750189155,
+   10.344848348643248
+  ],
+  "weights": [
+   0.3494544905068401,
+   0.4477607967098608,
+   0.2027847127832991
+  ],
+  "reason": "degenerate mixture",
+  "threshold_stationary_slow": 2.715321770600816,
+  "threshold_slow_fast": 5.707795756888413
+ },
+ "dwell_minutes": {
+  "count": {
+   "fast": 238349.0,
+   "slow": 325736.0,
+   "stationary": 262779.0
+  },
+  "mean": {
+   "fast": 5.16,
+   "slow": 4.1,
+   "stationary": 5.03
+  },
+  "50%": {
+   "fast": 2.5,
+   "slow": 2.5,
+   "stationary": 2.5
+  },
+  "75%": {
+   "fast": 5.0,
+   "slow": 5.0,
+   "stationary": 5.0
+  }
+ },
+ "event_rates": {
+  "cell_hours": 69756.70833333333,
+  "divisions": 4133,
+  "divisions_isolated_mother": 431,
+  "divisions_in_cluster_lowconf": 3702,
+  "deaths": 13,
+  "left": 2581,
+  "merged": 9573,
+  "lost": 16874,
+  "entered": 2404,
+  "appeared": 26794,
+  "divisions_per_cell_hour": 0.05924878192718622,
+  "divisions_isolated_mother_per_cell_hour": 0.0061786172297646404,
+  "divisions_in_cluster_lowconf_per_cell_hour": 0.053070164697421575,
+  "deaths_per_cell_hour": 0.00018636200461007036,
+  "left_per_cell_hour": 0.03700002568450705,
+  "merged_per_cell_hour": 0.1372341130870926,
+  "lost_per_cell_hour": 0.24189788198387135,
+  "entered_per_cell_hour": 0.034462635314046856,
+  "appeared_per_cell_hour": 0.38410642704017117,
+  "n_cells_first_frame": 1174,
+  "n_cells_last_frame": 5464,
+  "duration_hours": 23.958333333333332,
+  "population_doubling_time_hours": 10.799216831655174,
+  "division_doubling_time_hours": 11.698927100506276
+ },
+ "movie_state_fraction": {
+  "fast": 0.3339,
+  "stationary": 0.3336,
+  "slow": 0.33,
+  "dividing": 0.0025,
+  "dying": 0.0
+ },
+ "transitions": {
+  "lag1": {
+   "rows": [
+    "stationary",
+    "slow",
+    "fast",
+    "dividing",
+    "entered",
+    "appeared"
+   ],
+   "cols": [
+    "stationary",
+    "slow",
+    "fast",
+    "dividing",
+    "left",
+    "died",
+    "merged",
+    "lost"
+   ],
+   "probs": [
+    [
+     0.498,
+     0.31,
+     0.17,
+     0.003,
+     0.002,
+     0.0,
+     0.006,
+     0.012
+    ],
+    [
+     0.317,
+     0.387,
+     0.285,
+     0.002,
+     0.001,
+     0.0,
+     0.003,
+     0.005
+    ],
+    [
+     0.169,
+     0.287,
+     0.518,
+     0.002,
+     0.002,
+     0.0,
+     0.008,
+     0.013
+    ],
+    [
+     0.058,
+     0.16,
+     0.782,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.412,
+     0.198,
+     0.39,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.389,
+     0.192,
+     0.419,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "n": [
+    556959,
+    550846,
+    556746,
+    8266,
+    2404,
+    26794
+   ]
+  },
+  "lag4": {
+   "rows": [
+    "stationary",
+    "slow",
+    "fast",
+    "dividing"
+   ],
+   "cols": [
+    "stationary",
+    "slow",
+    "fast",
+    "dividing",
+    "left",
+    "died",
+    "merged",
+    "lost"
+   ],
+   "probs": [
+    [
+     0.435,
+     0.308,
+     0.215,
+     0.003,
+     0.004,
+     0.0,
+     0.013,
+     0.023
+    ],
+    [
+     0.322,
+     0.342,
+     0.301,
+     0.002,
+     0.003,
+     0.0,
+     0.011,
+     0.019
+    ],
+    [
+     0.219,
+     0.303,
+     0.412,
+     0.002,
+     0.006,
+     0.0,
+     0.021,
+     0.037
+    ],
+    [
+     0.299,
+     0.259,
+     0.385,
+     0.002,
+     0.003,
+     0.0,
+     0.022,
+     0.03
+    ]
+   ],
+   "n": [
+    557947,
+    549846,
+    554502,
+    8174
+   ]
+  },
+  "lag12": {
+   "rows": [
+    "stationary",
+    "slow",
+    "fast",
+    "dividing"
+   ],
+   "cols": [
+    "stationary",
+    "slow",
+    "fast",
+    "dividing",
+    "left",
+    "died",
+    "merged",
+    "lost"
+   ],
+   "probs": [
+    [
+     0.39,
+     0.294,
+     0.218,
+     0.002,
+     0.008,
+     0.0,
+     0.032,
+     0.055
+    ],
+    [
+     0.307,
+     0.314,
+     0.278,
+     0.002,
+     0.008,
+     0.0,
+     0.033,
+     0.057
+    ],
+    [
+     0.217,
+     0.275,
+     0.346,
+     0.002,
+     0.013,
+     0.0,
+     0.055,
+     0.091
+    ],
+    [
+     0.249,
+     0.249,
+     0.307,
+     0.003,
+     0.013,
+     0.0,
+     0.073,
+     0.106
+    ]
+   ],
+   "n": [
+    559994,
+    547293,
+    549934,
+    8117
+   ]
+  }
+ }
+}

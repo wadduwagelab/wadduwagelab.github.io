@@ -1,5 +1,245 @@
 [
  {
+  "tag": "A1",
+  "label": "A1 \u00b7 Rapamycin \u00b7 6\u201310 h",
+  "well": "A1"
+ },
+ {
+  "tag": "A2",
+  "label": "A2 \u00b7 2DG \u00b7 6\u201310 h",
+  "well": "A2"
+ },
+ {
+  "tag": "A3",
+  "label": "A3 \u00b7 TWS119 \u00b7 6\u201310 h",
+  "well": "A3"
+ },
+ {
+  "tag": "A4",
+  "label": "A4 \u00b7 Metformin \u00b7 6\u201310 h",
+  "well": "A4"
+ },
+ {
+  "tag": "A5",
+  "label": "A5 \u00b7 2HC \u00b7 6\u201310 h",
+  "well": "A5"
+ },
+ {
+  "tag": "A6",
+  "label": "A6 \u00b7 Tumor coculture \u00b7 6\u201310 h",
+  "well": "A6"
+ },
+ {
+  "tag": "B1",
+  "label": "B1 \u00b7 Rapamycin \u00b7 6\u201310 h",
+  "well": "B1"
+ },
+ {
+  "tag": "B2",
+  "label": "B2 \u00b7 2DG \u00b7 6\u201310 h",
+  "well": "B2"
+ },
+ {
+  "tag": "B3",
+  "label": "B3 \u00b7 TWS119 \u00b7 6\u201310 h",
+  "well": "B3"
+ },
+ {
+  "tag": "B4",
+  "label": "B4 \u00b7 Metformin \u00b7 6\u201310 h",
+  "well": "B4"
+ },
+ {
+  "tag": "B5",
+  "label": "B5 \u00b7 2HC \u00b7 6\u201310 h",
+  "well": "B5"
+ },
+ {
+  "tag": "B6",
+  "label": "B6 \u00b7 Tumor coculture \u00b7 6\u201310 h",
+  "well": "B6"
+ },
+ {
+  "tag": "C1",
+  "label": "C1 \u00b7 No coating 5k \u00b7 6\u201310 h",
+  "well": "C1"
+ },
+ {
+  "tag": "C2",
+  "label": "C2 \u00b7 Cell-Tak 5k \u00b7 6\u201310 h",
+  "well": "C2"
+ },
+ {
+  "tag": "C3",
+  "label": "C3 \u00b7 Collagen 5k \u00b7 6\u201310 h",
+  "well": "C3"
+ },
+ {
+  "tag": "C4",
+  "label": "C4 \u00b7 Retronectin 5k \u00b7 6\u201310 h",
+  "well": "C4"
+ },
+ {
+  "tag": "C5",
+  "label": "C5 \u00b7 PDL 5k \u00b7 6\u201310 h",
+  "well": "C5"
+ },
+ {
+  "tag": "C6",
+  "label": "C6 \u00b7 anti-CD3 5k \u00b7 6\u201310 h",
+  "well": "C6"
+ },
+ {
+  "tag": "D1",
+  "label": "D1 \u00b7 No coating 5k \u00b7 6\u201310 h",
+  "well": "D1"
+ },
+ {
+  "tag": "D2",
+  "label": "D2 \u00b7 Cell-Tak 5k \u00b7 6\u201310 h",
+  "well": "D2"
+ },
+ {
+  "tag": "D3",
+  "label": "D3 \u00b7 Collagen 5k \u00b7 6\u201310 h",
+  "well": "D3"
+ },
+ {
+  "tag": "D4",
+  "label": "D4 \u00b7 Retronectin 5k \u00b7 6\u201310 h",
+  "well": "D4"
+ },
+ {
+  "tag": "D5",
+  "label": "D5 \u00b7 PDL 5k \u00b7 6\u201310 h",
+  "well": "D5"
+ },
+ {
+  "tag": "D6",
+  "label": "D6 \u00b7 anti-CD3 5k \u00b7 6\u201310 h",
+  "well": "D6"
+ },
+ {
+  "tag": "E1",
+  "label": "E1 \u00b7 No coating 10k \u00b7 6\u201310 h",
+  "well": "E1"
+ },
+ {
+  "tag": "E2",
+  "label": "E2 \u00b7 Cell-Tak 10k \u00b7 6\u201310 h",
+  "well": "E2"
+ },
+ {
+  "tag": "E3",
+  "label": "E3 \u00b7 Collagen 10k \u00b7 6\u201310 h",
+  "well": "E3"
+ },
+ {
+  "tag": "E4",
+  "label": "E4 \u00b7 Retronectin 10k \u00b7 6\u201310 h",
+  "well": "E4"
+ },
+ {
+  "tag": "E5",
+  "label": "E5 \u00b7 PDL 10k \u00b7 6\u201310 h",
+  "well": "E5"
+ },
+ {
+  "tag": "E6",
+  "label": "E6 \u00b7 anti-CD3 10k \u00b7 6\u201310 h",
+  "well": "E6"
+ },
+ {
+  "tag": "F1",
+  "label": "F1 \u00b7 No coating 10k \u00b7 6\u201310 h",
+  "well": "F1"
+ },
+ {
+  "tag": "F2",
+  "label": "F2 \u00b7 Cell-Tak 10k \u00b7 6\u201310 h",
+  "well": "F2"
+ },
+ {
+  "tag": "F3",
+  "label": "F3 \u00b7 Collagen 10k \u00b7 6\u201310 h",
+  "well": "F3"
+ },
+ {
+  "tag": "F4",
+  "label": "F4 \u00b7 Retronectin 10k \u00b7 6\u201310 h",
+  "well": "F4"
+ },
+ {
+  "tag": "F5",
+  "label": "F5 \u00b7 PDL 10k \u00b7 6\u201310 h",
+  "well": "F5"
+ },
+ {
+  "tag": "F6",
+  "label": "F6 \u00b7 anti-CD3 10k \u00b7 6\u201310 h",
+  "well": "F6"
+ },
+ {
+  "tag": "G1",
+  "label": "G1 \u00b7 No coating 20k \u00b7 6\u201310 h",
+  "well": "G1"
+ },
+ {
+  "tag": "G2",
+  "label": "G2 \u00b7 Cell-Tak 20k \u00b7 6\u201310 h",
+  "well": "G2"
+ },
+ {
+  "tag": "G3",
+  "label": "G3 \u00b7 Collagen 20k \u00b7 6\u201310 h",
+  "well": "G3"
+ },
+ {
+  "tag": "G4",
+  "label": "G4 \u00b7 Retronectin 20k \u00b7 6\u201310 h",
+  "well": "G4"
+ },
+ {
+  "tag": "G5",
+  "label": "G5 \u00b7 PDL 20k \u00b7 6\u201310 h",
+  "well": "G5"
+ },
+ {
+  "tag": "G6",
+  "label": "G6 \u00b7 anti-CD3 20k \u00b7 6\u201310 h",
+  "well": "G6"
+ },
+ {
+  "tag": "H1",
+  "label": "H1 \u00b7 No coating 20k \u00b7 6\u201310 h",
+  "well": "H1"
+ },
+ {
+  "tag": "H2",
+  "label": "H2 \u00b7 Cell-Tak 20k \u00b7 6\u201310 h",
+  "well": "H2"
+ },
+ {
+  "tag": "H3",
+  "label": "H3 \u00b7 Collagen 20k \u00b7 6\u201310 h",
+  "well": "H3"
+ },
+ {
+  "tag": "H4",
+  "label": "H4 \u00b7 Retronectin 20k \u00b7 6\u201310 h",
+  "well": "H4"
+ },
+ {
+  "tag": "H5",
+  "label": "H5 \u00b7 PDL 20k \u00b7 6\u201310 h",
+  "well": "H5"
+ },
+ {
+  "tag": "H6",
+  "label": "H6 \u00b7 anti-CD3 20k \u00b7 6\u201310 h",
+  "well": "H6"
+ },
+ {
   "tag": "well_A1_f0-96",
   "label": "Well A1, 0-4 h (sparse)"
  },
