@@ -1,0 +1,114 @@
+---
+layout: default
+title: "FOCAL demo"
+sitemap: false
+noindex: true
+---
+<!-- Demo: FOCAL, agentic lens design with ray-trace verification. Unlisted page (not in the nav or sitemap); share by URL.
+     Page styles in demos/focal/style.css; video in demos/focal/media/. -->
+<link rel="stylesheet" href="{{ '/demos/focal/style.css' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}">
+
+<section class="res-head">
+    <p class="res-kicker">Demo &middot; preview for collaborators, October 2026 &middot; <a class="fc-home" href="{{ '/' | relative_url }}">&larr; wadduwagelab.com</a></p>
+    <h1>FOCAL</h1>
+    <p class="res-intro"><b>Fundamentals-informed Optical Construction with Agentic Loops.</b> Give it a lens specification
+        (focal length, aperture, field, image quality) and it runs the textbook design procedure on its own:
+        a starting form, numerical optimisation, a diagnosis, a structural change, and again. A ray tracer measures
+        every candidate; a design is accepted only when it meets every requirement of the task.</p>
+    <ul class="fc-stats">
+        <li><b>3</b><span>roles in the loop: an Architect proposes starting systems, an Appraiser chooses the next change, a Reviewer writes the report. Each can be a language model or a rule-based policy.</span></li>
+        <li><b>7</b><span>acceptance checks per design, all numerical: focal length, F-number, total track, RMS spot at three field points, distortion, and manufacturability.</span></li>
+        <li><b>6 / 7</b><span>benchmark tasks met by the rule-based designer alone on a laptop CPU, in seconds each, confirmed by an independent verifier.</span></li>
+        <li><b>0</b><span>ways for the language model to overrule physics: the verifier's verdict is final, and the model's reasoning is only advisory.</span></li>
+    </ul>
+    <div class="res-toc" role="navigation" aria-label="On this page">
+        <a href="#watch">Watch a design</a>
+        <a href="#loop">How it works</a>
+        <a href="#try">Try it</a>
+    </div>
+</section>
+
+<section id="watch" class="bg-subtle">
+    <div class="section-title">
+        <h2>Watch a design happen</h2>
+        <p>screen recording, time-lapse</p>
+    </div>
+    <figure class="fc-video">
+        <video controls autoplay muted loop playsinline preload="metadata"
+               poster="{{ '/demos/focal/media/focal-demo-poster.jpg' | relative_url }}">
+            <source src="{{ '/demos/focal/media/focal-demo.webm' | relative_url }}" type="video/webm">
+            <source src="{{ '/demos/focal/media/focal-demo.mp4' | relative_url }}" type="video/mp4">
+            Your browser does not play embedded video. <a href="{{ '/demos/focal/media/focal-demo.mp4' | relative_url }}">Download the recording</a>.
+        </video>
+        <figcaption>A 50 mm F/4, 40&deg; triplet designed in the FOCAL workbench with Gemini in the agent roles, played at
+            2.5&times; speed. Left: the task. Centre: the lens as it changes at every optimizer step, with the verifier's
+            checks above it. Right: the Architect's proposals and the Reviewer's report. In this run the second proposal
+            met every requirement after one optimisation pass, so the Appraiser was not needed; harder tasks go round the
+            diagnose-and-change loop several times.</figcaption>
+    </figure>
+    <p class="res-lead fc-after">Every frame in the centre panel is a real prescription: surfaces, glasses and the paraxial ray bundles
+        for three field angles. The checklist above the lens turns green only when the exact polychromatic ray trace
+        says each requirement is met.</p>
+</section>
+
+<section id="loop">
+    <div class="section-title">
+        <h2>How it works</h2>
+        <p>the classical design loop, run by agents</p>
+    </div>
+    <div class="res-two">
+        <ol class="res-steps">
+            <li><span><b>Start.</b> The Architect reads the task and proposes two to four starting systems from textbook
+                predesign (an achromat solve, a Cooke-triplet power solve, or an explicit prescription), each with a
+                bending and a glass choice.</span></li>
+            <li><span><b>Optimise.</b> Damped least squares drives the aberration merit function down while holding
+                focal length, F-number and manufacturing limits. The lens on screen moves at every accepted step.</span></li>
+            <li><span><b>Verify.</b> An exact ray tracer evaluates the candidate: polychromatic spot size at three field
+                points, distortion at the specified angles, edge and centre thickness, vignetting.</span></li>
+            <li><span><b>Diagnose and change.</b> The Appraiser reads the aberration report and picks one structural
+                move from a fixed catalogue: bend an element, change a glass, split a lens, move the stop, open an air
+                gap, re-optimise. Then back to step 2, until the verifier accepts or the budget runs out.</span></li>
+        </ol>
+        <div class="fc-box">
+            <h3 class="res-h3">What is new in FOCAL</h3>
+            <ul class="res-bullets">
+                <li>A batched optimizer that keeps manufacturing constraints inside every step, so candidates stay buildable.</li>
+                <li>More starting forms (singlets, achromats, triplets, telephoto and Gauss types) and a trust-region refinement with an archive of promising branches.</li>
+                <li>An Explorer that reproduces published prescriptions and shows their checks and traced rays, so a known lens can be inspected the same way as a new one.</li>
+                <li>The live workbench: edit a task, press Start, follow the lens, replay any recorded run.</li>
+            </ul>
+            <p class="fc-muted">The design loop and acceptance rules follow Kingslake &amp; Johnson, <i>Lens Design Fundamentals</i>.
+                Results are reported as what the verifier measured, never as what a model claimed.</p>
+        </div>
+    </div>
+</section>
+
+<section id="try" class="bg-subtle">
+    <div class="section-title">
+        <h2>Try it</h2>
+        <p>code and a local run</p>
+    </div>
+    <div class="res-two">
+        <div>
+            <p class="res-lead">The code is in the lab's GitHub organisation on the <code>focal</code> branch. The repository is
+                private while the work is under review, so sign in to GitHub with an account that belongs to the lab.</p>
+            <p class="fc-btns">
+                <a class="res-route" href="https://github.com/wadduwagelab/lensharness/tree/focal" target="_blank" rel="noopener">GitHub: wadduwagelab/lensharness</a>
+                <a class="res-route" href="{{ '/' | relative_url }}#software">Lab software</a>
+            </p>
+            <p class="fc-muted fc-small">Python 3.12, CPU is enough. A language-model backend is optional: the rule-based policy
+                runs offline, and Gemini, Claude or a local llama.cpp server can take the agent roles.</p>
+        </div>
+        <div class="fc-box">
+            <h3 class="res-h3">Local run</h3>
+<pre class="fc-code"><code>git clone --branch focal https://github.com/wadduwagelab/lensharness.git focal
+cd focal &amp;&amp; make venv
+.venv/bin/focal experiments/task_cooke50.json --llm none --device cpu
+make gui   # then open http://127.0.0.1:8765/design</code></pre>
+            <p class="fc-muted fc-small">The first command installs the harness and the pinned ray-trace backend into <code>.venv</code>.
+                The second designs a Cooke triplet with the rule-based policy and writes the result under <code>runs/</code>.</p>
+        </div>
+    </div>
+    <p class="fc-muted fc-small fc-gap">FOCAL is developed in the Wadduwage Lab at Old Dominion University.
+        Questions: <a href="mailto:dwadduwa@odu.edu">dwadduwa@odu.edu</a>. <a href="{{ '/' | relative_url }}">Back to wadduwagelab.com</a>.</p>
+</section>
