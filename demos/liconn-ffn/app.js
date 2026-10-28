@@ -276,6 +276,52 @@ viewer({
   },
 });
 
+// ---------- hero: four crop-A FFN traces together, slowly turning ----------
+{
+  const canvas = document.getElementById('hero-gl'), stage = document.getElementById('hero-stage');
+  if (canvas) {
+    const HERO = [['notebook_fp32.bin', 0x2a3cff], ['bench13395_fp32.bin', 0xf26a00],
+                  ['bench56789_fp32.bin', 0x1a9e5c], ['bench99141_fp32.bin', 0xd1007a]];
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 200);
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true; controls.enableZoom = false;  // scroll moves the page, not the camera
+    canvas.style.touchAction = 'pan-y';  // a vertical swipe on a phone scrolls the page
+    controls.autoRotate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    controls.autoRotateSpeed = 1.2;
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x8088a0, 1.5));
+    const sun = new THREE.DirectionalLight(0xffffff, 1.5); camera.add(sun); sun.position.set(1, 1, 2); scene.add(camera);
+    const group = new THREE.Group(); scene.add(group);
+    const resize = () => {
+      const w = stage.clientWidth, h = stage.clientHeight;
+      if (!w || !h) return;
+      renderer.setSize(w, h, false); camera.aspect = w / h;
+      // on wide screens, draw the neurons right of the overlaid results
+      if (w > 760) camera.setViewOffset(w, h, -0.16 * w, 0, w, h); else camera.clearViewOffset();
+      camera.updateProjectionMatrix();
+    };
+    new ResizeObserver(resize).observe(stage);
+    let onScreen = false;
+    new IntersectionObserver(es => { onScreen = es[0].isIntersecting; }).observe(stage);
+    renderer.setAnimationLoop(() => { if (onScreen) { controls.update(); renderer.render(scene, camera); } });
+    const loading = document.getElementById('hero-loading');
+    (async () => {
+      const manifest = await (await fetch('data/manifest.json' + V)).json();
+      const geoms = await Promise.all(HERO.map(([f]) => loadMesh(f, manifest.scale_um)));
+      geoms.forEach((g, i) => group.add(new THREE.Mesh(g,
+        new THREE.MeshStandardMaterial({ color: HERO[i][1], roughness: 0.5, metalness: 0.05 }))));
+      const box = new THREE.Box3().setFromObject(group);
+      const c = box.getCenter(new THREE.Vector3()), r = box.getSize(new THREE.Vector3()).length() / 2;
+      controls.target.copy(c);
+      camera.position.copy(c).add(new THREE.Vector3(1.0, 0.35, 0.6).normalize().multiplyScalar(r * 2.2));
+      camera.near = r / 100; camera.far = r * 30; camera.updateProjectionMatrix();
+      resize(); loading.hidden = true;
+    })().catch(e => { console.error(e); loading.textContent = 'Could not load the 3D view.'; });
+  }
+}
+
 // ---------- the slice example's block in 3D: every object, ViT segments or proofread labels (data/block3d) ----------
 {
   const canvas = document.getElementById('b3-gl'), stage = document.getElementById('b3-stage');

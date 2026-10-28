@@ -18,6 +18,19 @@ title: "Faster FFN tracing for LICONN"
         and traces every neuron with a flood-filling network (FFN). Tracing is the expensive step: one network
         evaluation costs 81.6&nbsp;GFLOP, and a single dendrite can take thousands of them. We are looking for a
         faster <em>method</em> that finds the same neurons on any hardware, not just more GPUs.</p>
+    <figure class="hero3d" aria-label="3D view of neurons traced by FFN">
+        <div id="hero-stage" class="hero-stage"><canvas id="hero-gl" class="ffn-gl"></canvas><div id="hero-loading" class="ffn-loading">Loading 3D view&hellip;</div></div>
+        <div class="hero-over">
+            <p class="hero-kick">Four neurons traced by FFN in one LICONN crop</p>
+            <ul class="hero-nums">
+                <li><b>3.2&times;</b> faster per step</li>
+                <li><b>624/624</b> traces bitwise identical (fast tracer)</li>
+                <li><b>3D ViT</b> trained from scratch</li>
+                <li><b>69</b> problems caught by AI review</li>
+            </ul>
+        </div>
+        <figcaption class="ffn-muted ffn-small">Float32 FFN traces from the authors' checkpoint: their notebook example (blue) and three benchmark neurons, in a 9&times;9&times;12&nbsp;&micro;m crop of the public LICONN volume. Surfaces are meshes of the actual trace masks. Drag to rotate.</figcaption>
+    </figure>
     <ul class="ffn-stats">
         <li><b>19.7&nbsp;ms</b><span>per tracing step: the authors' model in float32 on a V100 (426&nbsp;ms on a laptop CPU)</span></li>
         <li><b>10</b><span>speed-up ideas tested end to end against the authors' proofread segmentation</span></li>
