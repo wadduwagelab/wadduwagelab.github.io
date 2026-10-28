@@ -29,7 +29,7 @@ title: "Faster FFN tracing for LICONN"
             <h2 class="glance-h">In one minute</h2>
             <ul class="glance-list">
                 <li>Reproduced the authors' published FFN tracing bitwise, then tested speed-up ideas end to end against their proofread segmentation, under accuracy rules fixed in advance.</li>
-                <li>Diagnosed why the fastest idea failed (traces are knife-edge at merge points) and fixed it: <b>3.2&times; faster per step</b>, passing the owner's 2% rule on 300 fresh seeds (relaxed from 1% after that result).</li>
+                <li>Found where the fastest idea failed (traces are knife-edge at merge points; float16 changed move decisions) and fixed it: <b>3.2&times; faster per step</b>, passing the owner's 2% rule on 300 fresh seeds (relaxed from 1% after that result).</li>
                 <li>Built an exact fast tracer: <b>1.12&times; in float32</b>, output bitwise identical on 624 traces.</li>
                 <li>Designed and trained a <b>3D vision transformer</b> from scratch to segment every neuron at once (F1 0.53 against a 0.92 ceiling on the tuning crop); stopped by the owner and documented.</li>
                 <li>Tested a <b>pretrained</b> electron-microscopy model zero-shot: F1 0.55, on par with the trained ViT, and showed where it fails.</li>
@@ -48,6 +48,7 @@ title: "Faster FFN tracing for LICONN"
                 <li><a href="#workflow">Finding where AI agents are confidently wrong, and catching it</a></li>
                 <li><a href="#workflow">Reproducible records: every number tied to hashed code and outputs</a></li>
             </ul>
+            <p class="glance-repo"><a href="https://github.com/dushanw/liconn_v2" target="_blank" rel="noopener">Code, results records and tests on GitHub: dushanw/liconn_v2</a></p>
             <p class="ffn-muted ffn-small">October 18&ndash;28, 2026. Each section below opens on click; the links open the matching section.</p>
             <div class="acc-controls"><button type="button" id="acc-open">Expand all</button><button type="button" id="acc-close">Collapse all</button></div>
         </div>
@@ -881,7 +882,7 @@ title: "Faster FFN tracing for LICONN"
     </ol>
 
     <p class="ffn-muted ffn-small ffn-gap">Data: LICONN public release (Tavakoli et al., <i>Nature</i> 642, 398&ndash;410, 2025, <a href="https://doi.org/10.1038/s41586-025-08985-1" target="_blank" rel="noopener">doi:10.1038/s41586-025-08985-1</a>), CC BY 4.0;
-        model checkpoint axde_59110972 from the same release. Tracing code: <a href="https://github.com/google/ffn" target="_blank" rel="noopener">google/ffn</a>.
+        model checkpoint axde_59110972 from the same release. Tracing code: <a href="https://github.com/google/ffn" target="_blank" rel="noopener">google/ffn</a>. This project's code: <a href="https://github.com/dushanw/liconn_v2" target="_blank" rel="noopener">dushanw/liconn_v2</a> (MIT).
         Workflow: Claude Code implements; Cursor-hosted models (Gemini, Grok) provide independent method checks; Codex reviews evidence.</p>
 </div>
 </details>
