@@ -33,6 +33,7 @@ title: "Faster FFN tracing for LICONN"
         <a href="#confirm">Fresh-seed check</a>
         <a href="#time">Fast tracer</a>
         <a href="#vit">ViT model</a>
+        <a href="#segneuron">SegNeuron</a>
         <a href="#next">Next</a>
         <a href="#workflow">How the research is run</a>
     </div>
@@ -233,7 +234,7 @@ title: "Faster FFN tracing for LICONN"
 <section id="vit">
     <div class="section-title">
         <h2>A different approach: a single-pass ViT</h2>
-        <p>first result on the tuning crop, October 26: well short of FFN</p>
+        <p>stopped by the owner on October 26 after the tuning crop: well short of FFN</p>
     </div>
     <p class="res-lead">FFN finds one neuron at a time, one small window after another. Even with the fast tracer, a neuron takes about 2.5&nbsp;s and hundreds of steps.
         The owner asked for a different kind of model: a vision transformer (ViT) that looks at a whole 128&sup3;-voxel block <b>once</b>
@@ -259,7 +260,8 @@ title: "Faster FFN tracing for LICONN"
             <li><b>Background works.</b> 41.1% of crop 12 is predicted background against 41.0% labelled; both precision and recall of background are 0.89.</li>
             <li><b>Neurons are split into pieces.</b> Merging harder does not fix it: at precision 0.95 recall is about 35%, and even when precision falls to 0.11 recall reaches only 85%.</li>
             <li><b>Speed on one crop:</b> network 32&nbsp;s, watershed 267&nbsp;s, merging 12&nbsp;s.</li>
-            <li><b>The test crops have not been run.</b> They are segmented once, and this model would fail the rule below. An error breakdown on crop 12 is running to decide between retraining and fine-tuning a pretrained model.</li>
+            <li><b>Where recall goes.</b> On average 50% of a neuron is in the seed's segment, 40% in other segments and 9% is called background; neurons break into a median of 5 pieces.</li>
+            <li><b>Stopped before the test crops.</b> The owner stopped the pilot here, so the 28 test crops were never segmented and can still be used once by a later model. The full record, including how to resume, is kept for a later revisit. The next step was a pretrained model (<a href="#segneuron">below</a>).</li>
         </ul>
     </div>
     <div class="ffn-viewer" id="vit-viewer">
@@ -396,7 +398,7 @@ title: "Faster FFN tracing for LICONN"
                     <tr><th>ceiling (see note)</th><td>88.7%</td><td></td></tr>
                 </tbody>
             </table></div>
-            <p class="ffn-muted ffn-small">Neurons leave and re-enter a 500&sup3; crop, so a segment grown from a seed can reach only its connected piece: 88.7% of a neuron on average. FFN can sometimes bridge such gaps; it exceeded this ceiling on 10 of 37 seeds checked. The comparison therefore has a built-in edge for FFN. With perfect affinities the whole post-processing took about 80&nbsp;s of CPU time per crop.</p>
+            <p class="ffn-muted ffn-small">In the labels, a neuron within a 500&sup3; crop is often in several separate pieces, and a segment grown from a seed can reach only its own piece: 88.7% of a neuron on average. The final design, with background, reaches that ceiling with the true labels as output (recall 88.7%, precision 99.7%). FFN went beyond it on 10 of 37 seeds checked, by filling across unlabelled space; why the pieces are separate (the neuron leaving the crop, or thin necks the labels leave out) has not been determined. With perfect affinities the whole post-processing took about 80&nbsp;s of CPU time per crop.</p>
         </div>
     </div>
 
@@ -521,14 +523,46 @@ title: "Faster FFN tracing for LICONN"
     </div>
 </section>
 
-<section id="next" class="bg-subtle">
+<section id="segneuron" class="bg-subtle">
+    <div class="section-title">
+        <h2>A pretrained model: SegNeuron, zero-shot</h2>
+        <p>crop 12 only, October 27: on par with our ViT before any LICONN training</p>
+    </div>
+    <p class="res-lead">SegNeuron (Zhang et al., MICCAI 2024) is a generalist neuron-segmentation network trained on 16 electron-microscopy datasets.
+        It predicts the same nearest-neighbour affinities as our ViT plus a neuron probability, but it has <b>never seen light microscopy</b>.
+        Before deciding whether to fine-tune it on LICONN, the owner asked for a zero-shot test on crop 12: the authors' code and weights unchanged,
+        at the native 18&nbsp;nm pixels and with the image upsampled 2&times; in x-y (closer to its training scale), and post-processed both with our pipeline and with the authors' own (FRMC).</p>
+
+    <div class="res-two">
+        <div class="ffn-box">
+            <div class="ffn-mini-wrap"><table class="ffn-table ffn-mini">
+                <thead><tr><th>mean over 457 neurons, crop 12</th><th>native</th><th>upsampled 2&times;</th></tr></thead>
+                <tbody>
+                    <tr><th>SegNeuron + our pipeline</th><td>0.50</td><td>0.46</td></tr>
+                    <tr><th>SegNeuron + FRMC, background removed</th><td>0.53</td><td>0.43</td></tr>
+                    <tr><th>SegNeuron + FRMC as released</th><td><b>0.55</b></td><td>0.44</td></tr>
+                </tbody>
+            </table></div>
+            <p class="ffn-muted ffn-small">F1. For comparison, on the same neurons: our ViT, trained on crops 0&ndash;11, 0.53; the same pipeline with the true labels as output, 0.92. Crop 12 also chose each pipeline's merge setting, so every number here is optimistic. FRMC as released labels every voxel, and precision ignores unlabelled voxels, so it pays nothing for absorbing background; the masked row is the comparable one. Inference took 3.6&nbsp;min (native) and 16.5&nbsp;min (upsampled) on one V100.</p>
+        </div>
+        <ul class="res-bullets">
+            <li><b>Neuron versus background carries over.</b> At native resolution its neuron probability separates labelled from unlabelled voxels with AUC 0.92.</li>
+            <li><b>Neuron versus neuron is weak.</b> 86&ndash;87% of voxel pairs that straddle two touching neurons still get affinity &ge;&nbsp;0.5, and the AUC of same-neuron against different-neuron pairs is only 0.67&ndash;0.69: a merge risk. As with the ViT, most lost recall is in other segments (37%, against 8% in background); what causes that loss was not isolated.</li>
+            <li><b>Very sensitive to the merge setting.</b> Our pipeline needs a threshold of 0.8 (F1 0.03 at the ViT's 0.5), and FRMC ranges from F1 0.02 to 0.55 over seven settings.</li>
+            <li><b>Upsampling did not help.</b> It lowered the F1 and the AUCs, and inference was 4.6&times; slower.</li>
+            <li><b>The test crops were not read.</b> This was a zero-shot look, not a judged result.</li>
+        </ul>
+    </div>
+</section>
+
+<section id="next">
     <div class="section-title">
         <h2>Next</h2>
         <p>in order</p>
     </div>
     <ol class="res-start">
-        <li class="res-start-card"><h3>Finish the ViT pilot</h3>
-            <p>Training ends in about a day and a half. Then crop 12 is inspected, the 28 test crops are segmented once, and the result is judged by the rule above.</p></li>
+        <li class="res-start-card"><h3>Decide on fine-tuning SegNeuron</h3>
+            <p>The owner decides whether to fine-tune SegNeuron on crops 0&ndash;11 at native resolution. Its background features carry over; the boundaries between touching neurons are what fine-tuning would have to fix, and the ViT, trained on the same crops, did not fix them either.</p></li>
         <li class="res-start-card"><h3>Deploy the fast tracer</h3>
             <p>Copy the image to the GPU once per crop instead of once per trace, and run several traces per GPU. A probe kept every trace identical and raised throughput by up to 1.7&times;, though part of that gain overlapped evaluation work.</p></li>
         <li class="res-start-card"><h3>Understand the dendrite merges</h3>
@@ -848,6 +882,8 @@ title: "Faster FFN tracing for LICONN"
         <li><span>Oct 23</span>Explore a proofreading assistant: draft a correction catalogue, assessed first by models from three families.</li>
         <li><span>Oct 24</span>Try a single-pass ViT that segments every neuron in a block, trained on the proofread labels, within 2&ndash;4 V100-days.</li>
         <li><span>Oct 24</span>Judge it against the ground truth next to FFN, with a tiered rule (competitive, promising) fixed before training.</li>
+        <li><span>Oct 26</span>Stop the ViT pilot after crop 12, before the test crops; document it so it can be revisited.</li>
+        <li><span>Oct 26</span>Try the pretrained SegNeuron zero-shot on crop 12: both post-processing pipelines, native and upsampled 2&times;; decide fine-tuning afterwards.</li>
     </ol>
 
     <p class="ffn-muted ffn-small ffn-gap">Data: LICONN public release (Tavakoli et al., <i>Nature</i> 642, 398&ndash;410, 2025, <a href="https://doi.org/10.1038/s41586-025-08985-1" target="_blank" rel="noopener">doi:10.1038/s41586-025-08985-1</a>), CC BY 4.0;
