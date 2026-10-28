@@ -86,7 +86,7 @@ drawProfile('profile', 'profile-legend', [
 
 // ---------- review outcomes, in the order they happened (from the project's check records) ----------
 {
-  const SEQ = 'BACAACAACAAAACACACAAAAAACAAAABAAACBFACCAAC';  // F = tests failed  // C = checked, A = needs attention, B = blocked
+  const SEQ = 'BACAACAACAAAACACACAAAAAACAAAABAAACBFACCAACABAAAAAAAAAC';  // F = tests failed  // C = checked, A = needs attention, B = blocked
   const el = document.getElementById('checks');
   for (const c of SEQ) { const i = document.createElement('i'); i.className = 'c-' + c; el.append(i); }
 }

@@ -24,27 +24,43 @@ title: "Faster FFN tracing for LICONN"
         <li><b>3.2&times;</b><span>per step: float16 with a float32 output head, plus the fast tracer (5.96 vs 19.27&nbsp;ms on a V100). Passes the owner's 2% rule on 300 fresh seeds; the rule was relaxed from 1% after that result</span></li>
         <li><b>1.12&times;</b><span>in float32 with output bitwise identical: the fast tracer (624 traces checked, in both number formats)</span></li>
     </ul>
-    <div class="res-toc" role="navigation" aria-label="On this page">
-        <a href="#how">How FFN works</a>
-        <a href="#judged">How results are judged</a>
-        <a href="#tried">What was tried</a>
-        <a href="#knife-edge">Key finding (3D)</a>
-        <a href="#fix">The fix</a>
-        <a href="#confirm">Fresh-seed check</a>
-        <a href="#time">Fast tracer</a>
-        <a href="#vit">ViT model</a>
-        <a href="#segneuron">SegNeuron</a>
-        <a href="#next">Next</a>
-        <a href="#workflow">How the research is run</a>
+    <div class="glance" aria-label="Overview for reviewers">
+        <div class="glance-col">
+            <h2 class="glance-h">In one minute</h2>
+            <ul class="glance-list">
+                <li>Reproduced the authors' published FFN tracing bitwise, then tested speed-up ideas end to end against their proofread segmentation, under accuracy rules fixed in advance.</li>
+                <li>Diagnosed why the fastest idea failed (traces are knife-edge at merge points) and fixed it: <b>3.2&times; faster per step</b>, passing the owner's 2% rule on 300 fresh seeds (relaxed from 1% after that result).</li>
+                <li>Built an exact fast tracer: <b>1.12&times; in float32</b>, output bitwise identical on 624 traces.</li>
+                <li>Designed and trained a <b>3D vision transformer</b> from scratch to segment every neuron at once (F1 0.53 against a 0.92 ceiling on the tuning crop); stopped by the owner and documented.</li>
+                <li>Tested a <b>pretrained</b> electron-microscopy model zero-shot: F1 0.55, on par with the trained ViT, and showed where it fails.</li>
+                <li>All of it run with <b>Claude Code</b> under a review workflow in which other AI models checked methods and evidence: <b>69 problems caught</b> before any result was reported, 35 of them in the written reports.</li>
+            </ul>
+        </div>
+        <div class="glance-col">
+            <h2 class="glance-h">Capabilities shown</h2>
+            <ul class="glance-caps">
+                <li><a href="#judged">Exact reproduction of a <i>Nature</i> pipeline</a></li>
+                <li><a href="#judged">Evaluation rules fixed before results; held-out seeds</a></li>
+                <li><a href="#time">GPU profiling and exact optimisation</a></li>
+                <li><a href="#fix">Mixed precision and failure diagnosis</a></li>
+                <li><a href="#vit">Designing and training a 3D ViT (JAX/Flax, V100 cluster, Slurm)</a></li>
+                <li><a href="#segneuron">Transfer of a pretrained model; threshold-free diagnostics</a></li>
+                <li><a href="#workflow">Finding where AI agents are confidently wrong, and catching it</a></li>
+                <li><a href="#workflow">Reproducible records: every number tied to hashed code and outputs</a></li>
+            </ul>
+            <p class="ffn-muted ffn-small">October 18&ndash;28, 2026. Each section below opens on click; the links open the matching section.</p>
+            <div class="acc-controls"><button type="button" id="acc-open">Expand all</button><button type="button" id="acc-close">Collapse all</button></div>
+        </div>
     </div>
 </section>
 
-<section id="how" class="bg-subtle">
-    <div class="section-title">
-        <h2>How FFN tracing works</h2>
-        <p>and why it is slow</p>
-    </div>
-    <div class="res-two">
+<section class="acc-part" id="part1">
+<p class="acc-kicker">Part 1</p>
+<h2 class="acc-part-title">Make the published method faster</h2>
+<details class="acc" id="how">
+<summary><span class="acc-head"><span class="acc-title">How FFN tracing works</span><span class="acc-sub">and why it is slow</span></span><span class="acc-line">FFN traces one neuron in hundreds to thousands of sequential network steps; cost = steps &times; cost per step.</span><span class="acc-tags"><span class="acc-tag">Background</span></span></summary>
+<div class="acc-body">
+        <div class="res-two">
         <ol class="res-steps">
             <li><span><b>Seed.</b> Start from one point inside a neuron.</span></li>
             <li><span><b>Look.</b> The network sees a 33&times;33&times;33-voxel window of the image plus its current guess of the object, and refines the guess.</span></li>
@@ -58,14 +74,12 @@ title: "Faster FFN tracing for LICONN"
             <p class="ffn-muted">Each step depends on the ones before it, so the trace is a closed loop. A tiny change early can steer it somewhere else later. That turned out to be the central finding.</p>
         </div>
     </div>
-</section>
-
-<section id="judged">
-    <div class="section-title">
-        <h2>How results are judged</h2>
-        <p>fixed before any idea was tried</p>
-    </div>
-    <div class="res-two">
+</div>
+</details>
+<details class="acc" id="judged">
+<summary><span class="acc-head"><span class="acc-title">How results are judged</span><span class="acc-sub">fixed before any idea was tried</span></span><span class="acc-line">The reference reproduced bitwise; accuracy measured against the authors' proofread segmentation, with tolerance rules set by the owner.</span><span class="acc-tags"><span class="acc-tag">Evaluation design</span><span class="acc-tag">Reproduction</span></span></summary>
+<div class="acc-body">
+        <div class="res-two">
         <ul class="res-bullets">
             <li><b>Reference:</b> the authors' released model and settings (google/ffn), reproduced bitwise on CPU and confirmed on GPU.</li>
             <li><b>Ground truth:</b> the authors' proofread segmentation of the same tissue (500&sup3;-voxel crop, 18&times;18&times;24&nbsp;nm voxels).</li>
@@ -85,26 +99,23 @@ title: "Faster FFN tracing for LICONN"
             <p class="ffn-muted">How the rule changed: every seed within 1% &rarr; at most 3 of 300 (1%), after tiny numerical changes turned out to flip rare merges either way &rarr; <b>2%, set by the owner after the fresh-seed result</b> (below). A pass under 2% is therefore a pass under a rule relaxed after seeing the data. Every number on this page comes from runs whose code and outputs are hash-pinned and re-checked by tests.</p>
         </div>
     </div>
-</section>
-
-<section id="tried" class="bg-subtle">
-    <div class="section-title">
-        <h2>What was tried</h2>
-        <p>speed-up vs the float32 reference</p>
-    </div>
-    <div id="ideas" class="ffn-ideas"></div>
+</div>
+</details>
+<details class="acc" id="tried">
+<summary><span class="acc-head"><span class="acc-title">What was tried</span><span class="acc-sub">speed-up vs the float32 reference</span></span><span class="acc-line">Speed-up ideas measured end to end against the float32 reference: 4 pass, the rest fail the accuracy rule.</span><span class="acc-tags"><span class="acc-tag">GPU benchmarking</span><span class="acc-tag">10 ideas</span></span></summary>
+<div class="acc-body">
+        <div id="ideas" class="ffn-ideas"></div>
     <div class="ffn-legend">
         <span><i class="ffn-sw v-ok"></i>passes (identical output, or the owner&rsquo;s 2% rule)</span>
         <span><i class="ffn-sw v-warn"></i>passed the 12-seed benchmark, failed on more seeds</span>
         <span><i class="ffn-sw v-bad"></i>fails</span>
     </div>
-</section>
-
-<section id="knife-edge">
-    <div class="section-title">
-        <h2>Key finding: traces are knife-edge at merge points</h2>
-    </div>
-    <p class="res-lead">float16 changes only <b>0.006%</b> of the network's per-voxel decisions. On the benchmark that was harmless.
+</div>
+</details>
+<details class="acc" id="knife-edge">
+<summary><span class="acc-head"><span class="acc-title">Key finding: traces are knife-edge at merge points</span></span><span class="acc-line">float16 changes 0.006% of per-voxel decisions, yet on held-out data it pushed traces across thin boundaries into neighbouring neurons (3D view).</span><span class="acc-tags"><span class="acc-tag">Diagnosis</span><span class="acc-tag">3D viewer</span></span></summary>
+<div class="acc-body">
+        <p class="res-lead">float16 changes only <b>0.006%</b> of the network's per-voxel decisions. On the benchmark that was harmless.
         On held-out data it pushed two dendrite traces across a thin boundary into a large neighbouring neuron, which
         the trace then followed for thousands of extra steps.</p>
     <div class="ffn-viewer">
@@ -119,14 +130,12 @@ title: "Faster FFN tracing for LICONN"
         <div id="stage" class="ffn-stage"><canvas id="gl" class="ffn-gl"></canvas><div id="loading" class="ffn-loading">Loading meshes&hellip;</div></div>
     </div>
     <p class="ffn-muted ffn-small">Use the <b>Example</b> menu: the first group shows merge flips, including the reverse case (dendrite 1525), where float16 <i>avoids</i> a false merge that float32 makes. The second group shows tracing working as intended on axons and dendrites from both crops, including the authors' own notebook example. Tiny numerical changes can flip a merge either way, so a variant can look better on one crop and fail on another.</p>
-</section>
-
-<section id="fix" class="bg-subtle">
-    <div class="section-title">
-        <h2>Finding the fix</h2>
-        <p>300 seeds, then a diagnosis</p>
-    </div>
-    <p class="res-lead">On the 300-seed rule, float16 failed: not on merges (3, at the limit) but because <b>10 traces stopped early</b>.
+</div>
+</details>
+<details class="acc" id="fix">
+<summary><span class="acc-head"><span class="acc-title">Finding the fix</span><span class="acc-sub">300 seeds, then a diagnosis</span></span><span class="acc-line">Logging and replaying every move decision showed where float16 changes them; computing only the output head in float32 passed the rule.</span><span class="acc-tags"><span class="acc-tag">Diagnosis</span><span class="acc-tag">Mixed precision</span></span></summary>
+<div class="acc-body">
+        <p class="res-lead">On the 300-seed rule, float16 failed: not on merges (3, at the limit) but because <b>10 traces stopped early</b>.
         To see why, every move decision of 20 traces was logged in both precisions and replayed on identical inputs.</p>
     <div class="res-two">
         <ol class="res-steps">
@@ -152,14 +161,12 @@ title: "Faster FFN tracing for LICONN"
             <p class="ffn-muted ffn-small">Recall and precision are against the authors' proofread segmentation, averaged over the 300 seeds; changes from the original are in points. New merges and early stops are counted against the original. Speed: one V100, separate jobs, so about 2.2&times;. Caveat: the fix was chosen on 20 of these 300 seeds, including all 10 of float16's early stops. On 300 fresh seeds (below) it failed the 1% rule and passes the 2% rule. ERL is an adapted single-trace measure of how far a trace runs without an error.</p>
         </div>
     </div>
-</section>
-
-<section id="confirm">
-    <div class="section-title">
-        <h2>Confirmation on fresh seeds</h2>
-        <p>300 new seeds, 28 crops</p>
-    </div>
-    <p class="res-lead">Because the fix was chosen on the first 300 seeds, it was re-tested on <b>300 seeds never used for any choice</b>,
+</div>
+</details>
+<details class="acc" id="confirm">
+<summary><span class="acc-head"><span class="acc-title">Confirmation on fresh seeds</span><span class="acc-sub">300 new seeds, 28 crops</span></span><span class="acc-line">The fix re-tested on 300 seeds never used for any choice.</span><span class="acc-tags"><span class="acc-tag">Held-out test</span></span></summary>
+<div class="acc-body">
+        <p class="res-lead">Because the fix was chosen on the first 300 seeds, it was re-tested on <b>300 seeds never used for any choice</b>,
         from 28 further crops in the same pre-registered order. It failed the 1% rule, on <b>5 new merges</b> (limit 3), all in dendrites.
         The owner then set the tolerance to 2% (at most 6 of 300), under which it passes.</p>
     <div class="res-two">
@@ -187,14 +194,12 @@ title: "Faster FFN tracing for LICONN"
             <li><b>ERL</b> for the fresh seeds is withheld: their skeletons failed the sanity check fixed in advance (91% within 3 box diagonals, 95% required).</li>
         </ul>
     </div>
-</section>
-
-<section id="time" class="bg-subtle">
-    <div class="section-title">
-        <h2>Where a step's time goes, and the fast tracer</h2>
-        <p>same output, less overhead</p>
-    </div>
-    <p class="res-lead">Profiling one float16 step (10.2&nbsp;ms on a V100) showed that only about 40% was the network itself.
+</div>
+</details>
+<details class="acc" id="time">
+<summary><span class="acc-head"><span class="acc-title">Where a step's time goes, and the fast tracer</span><span class="acc-sub">same output, less overhead</span></span><span class="acc-line">Profiling showed only ~40% of a step was the network; an exact fast tracer removes overhead with bitwise-identical output.</span><span class="acc-tags"><span class="acc-tag">Profiling</span><span class="acc-tag">Exact optimisation</span></span></summary>
+<div class="acc-body">
+        <p class="res-lead">Profiling one float16 step (10.2&nbsp;ms on a V100) showed that only about 40% was the network itself.
         The rest was bookkeeping around it: assembling the input, updating the canvas, handing work between threads, and copying.</p>
     <div id="profile" class="ffn-stack"></div>
     <div id="profile-legend" class="ffn-legend"></div>
@@ -229,14 +234,17 @@ title: "Faster FFN tracing for LICONN"
             <li><b>What is left.</b> The network is now about 4.6 of the 5.96&nbsp;ms. Going much further needs a faster network, or a different method (below).</li>
         </ul>
     </div>
+</div>
+</details>
 </section>
 
-<section id="vit">
-    <div class="section-title">
-        <h2>A different approach: a single-pass ViT</h2>
-        <p>stopped by the owner on October 26 after the tuning crop: well short of FFN</p>
-    </div>
-    <p class="res-lead">FFN finds one neuron at a time, one small window after another. Even with the fast tracer, a neuron takes about 2.5&nbsp;s and hundreds of steps.
+<section class="acc-part" id="part2">
+<p class="acc-kicker">Part 2</p>
+<h2 class="acc-part-title">New models that segment every neuron at once</h2>
+<details class="acc" id="vit">
+<summary><span class="acc-head"><span class="acc-title">A different approach: a single-pass ViT</span><span class="acc-sub">stopped by the owner on October 26 after the tuning crop: well short of FFN</span></span><span class="acc-line">Designed and trained a 3D vision transformer (JAX, 16.8 M parameters, V100) to segment every neuron in one pass: F1 0.53 on the tuning crop vs 0.92 ceiling; stopped and documented.</span><span class="acc-tags"><span class="acc-tag">Model training</span><span class="acc-tag">JAX / Flax</span><span class="acc-tag">Slurm GPU cluster</span><span class="acc-tag">3D viewer</span></span></summary>
+<div class="acc-body">
+        <p class="res-lead">FFN finds one neuron at a time, one small window after another. Even with the fast tracer, a neuron takes about 2.5&nbsp;s and hundreds of steps.
         The owner asked for a different kind of model: a vision transformer (ViT) that looks at a whole 128&sup3;-voxel block <b>once</b>
         and predicts, for every voxel, whether it belongs with its neighbours. That segments <b>all neurons in the block</b> in one pass.
         A timing probe of a simpler version took 42&nbsp;ms per block on a V100.</p>
@@ -521,14 +529,12 @@ title: "Faster FFN tracing for LICONN"
             <li><b>Checked by two other models before training.</b> Gemini found five design flaws, all fixed. They included a boundary map that looked only one way, so one face of every neurite looked like a boundary. Grok asked for crop 12 to be inspected first and the speed headline to be fixed in advance.</li>
         </ul>
     </div>
-</section>
-
-<section id="segneuron" class="bg-subtle">
-    <div class="section-title">
-        <h2>A pretrained model: SegNeuron, zero-shot</h2>
-        <p>crop 12 only, October 27: on par with our ViT before any LICONN training</p>
-    </div>
-    <p class="res-lead">SegNeuron (Zhang et al., MICCAI 2024) is a generalist neuron-segmentation network trained on 16 electron-microscopy datasets.
+</div>
+</details>
+<details class="acc" id="segneuron">
+<summary><span class="acc-head"><span class="acc-title">A pretrained model: SegNeuron, zero-shot</span><span class="acc-sub">crop 12 only, October 27: on par with our ViT before any LICONN training</span></span><span class="acc-line">A pretrained electron-microscopy model, never trained on this data, is on par with the trained ViT (F1 0.55); weak between touching neurons.</span><span class="acc-tags"><span class="acc-tag">Pretrained model</span><span class="acc-tag">Zero-shot transfer</span><span class="acc-tag">Threshold-free diagnostics</span></span></summary>
+<div class="acc-body">
+        <p class="res-lead">SegNeuron (Zhang et al., MICCAI 2024) is a generalist neuron-segmentation network trained on 16 electron-microscopy datasets.
         It predicts the same nearest-neighbour affinities as our ViT plus a neuron probability, but it has <b>never seen light microscopy</b>.
         Before deciding whether to fine-tune it on LICONN, the owner asked for a zero-shot test on crop 12: the authors' code and weights unchanged,
         at the native 18&nbsp;nm pixels and with the image upsampled 2&times; in x-y (closer to its training scale), and post-processed both with our pipeline and with the authors' own (FRMC).</p>
@@ -553,40 +559,28 @@ title: "Faster FFN tracing for LICONN"
             <li><b>The test crops were not read.</b> This was a zero-shot look, not a judged result.</li>
         </ul>
     </div>
+</div>
+</details>
 </section>
 
-<section id="next">
-    <div class="section-title">
-        <h2>Next</h2>
-        <p>in order</p>
-    </div>
-    <ol class="res-start">
-        <li class="res-start-card"><h3>Decide on fine-tuning SegNeuron</h3>
-            <p>The owner decides whether to fine-tune SegNeuron on crops 0&ndash;11 at native resolution. Its background features carry over; the boundaries between touching neurons are what fine-tuning would have to fix, and the ViT, trained on the same crops, did not fix them either.</p></li>
-        <li class="res-start-card"><h3>Deploy the fast tracer</h3>
-            <p>Copy the image to the GPU once per crop instead of once per trace, and run several traces per GPU. A probe kept every trace identical and raised throughput by up to 1.7&times;, though part of that gain overlapped evaluation work.</p></li>
-        <li class="res-start-card"><h3>Understand the dendrite merges</h3>
-            <p>The float32-head network's remaining errors are rare dendrite merges. Diagnosing them, as was done for the early stops, could show whether a small change removes them at the same speed.</p></li>
-    </ol>
-</section>
-
-<section id="workflow">
-    <div class="section-title">
-        <h2>How the research is run</h2>
-        <p>faster, without lowering the bar</p>
-    </div>
-    <p class="res-lead">Everything above took <b>seven days</b> (October 18&ndash;24, 2026): reading the paper, reproducing the authors' result,
+<section class="acc-part" id="part3">
+<p class="acc-kicker">Part 3</p>
+<h2 class="acc-part-title">How the research is run with AI agents</h2>
+<details class="acc" id="workflow">
+<summary><span class="acc-head"><span class="acc-title">How the research is run</span><span class="acc-sub">faster, without lowering the bar</span></span><span class="acc-line">Claude Code implements; a second model checks each method, a third reviews the evidence; 69 problems caught before results were reported.</span><span class="acc-tags"><span class="acc-tag">Claude Code</span><span class="acc-tag">AI evaluation</span><span class="acc-tag">Reproducibility</span></span></summary>
+<div class="acc-body">
+        <p class="res-lead">Everything on this page took <b>eleven days</b> (October 18&ndash;28, 2026): reading the paper, reproducing the authors' result,
         setting up a GPU cluster, testing ten ideas, a held-out check, a 300-seed rule, a diagnosis that led to the fix, a fresh-seed confirmation,
-        an exact fast tracer, and the design and start of a ViT model. AI agents did the engineering.
+        an exact fast tracer, the design, training and evaluation of a ViT model, and a zero-shot test of a pretrained model. AI agents did the engineering.
         A structured workflow kept the science honest. Below are numbers and real examples from this project's own logs.</p>
 
     <ul class="ffn-stats ffn-stats-6">
-        <li><b>30</b><span>task contracts: goal, allowed files, tests and limits frozen before work starts</span></li>
-        <li><b>29</b><span>independent method checks by a second AI model</span></li>
-        <li><b>42</b><span>evidence reviews by a third model, on outputs run in a disposable copy</span></li>
-        <li><b>55</b><span>problems caught and fixed before results were reported (9 high severity)</span></li>
-        <li><b>223</b><span>automated tests, many re-checking hashes of the code and outputs behind each number</span></li>
-        <li><b>20</b><span>research decisions made by the human owner, written down before results were seen</span></li>
+        <li><b>37</b><span>task contracts: goal, allowed files, tests and limits frozen before work starts</span></li>
+        <li><b>35</b><span>independent method checks by a second AI model</span></li>
+        <li><b>54</b><span>evidence reviews by a third model, on outputs run in a disposable copy</span></li>
+        <li><b>69</b><span>problems caught before results were reported (11 high severity)</span></li>
+        <li><b>257</b><span>automated tests, many re-checking hashes of the code and outputs behind each number</span></li>
+        <li><b>22</b><span>research decisions made by the human owner, each recorded in the decision log</span></li>
     </ul>
 
     <h3 class="res-h3 res-h3-gap">The workflow, for every milestone</h3>
@@ -766,15 +760,15 @@ title: "Faster FFN tracing for LICONN"
         </ol>
     </div>
 
-    <h3 class="res-h3 res-h3-gap">42 reviews: most first attempts did not pass</h3>
-    <div class="ffn-checks" id="checks" aria-label="42 review outcomes"></div>
+    <h3 class="res-h3 res-h3-gap">54 reviews: most first attempts did not pass</h3>
+    <div class="ffn-checks" id="checks" aria-label="54 review outcomes"></div>
     <div class="ffn-legend">
-        <span><i class="ffn-sw" style="background:var(--accent)"></i>checked (11)</span>
-        <span><i class="ffn-sw" style="background:#ffd84d"></i>needs attention, repaired or escalated (27)</span>
-        <span><i class="ffn-sw v-bad"></i>blocked (3)</span>
+        <span><i class="ffn-sw" style="background:var(--accent)"></i>checked (12)</span>
+        <span><i class="ffn-sw" style="background:#ffd84d"></i>needs attention, repaired or escalated (37)</span>
+        <span><i class="ffn-sw v-bad"></i>blocked (4)</span>
         <span><i class="ffn-sw" style="background:#000"></i>tests failed (1)</span>
     </div>
-    <p class="ffn-muted ffn-small">That is the point: problems are found by the process, not by a reader of the paper later. Of the 55 problems found, 32 were in code and 23 were claims in the write-ups that went beyond the evidence.</p>
+    <p class="ffn-muted ffn-small">That is the point: problems are found by the process, not by a reader of the paper later. Of the 69 problems found, 35 were in the written reports and 34 in code, tests or records.</p>
 
     <h3 class="res-h3 res-h3-gap">Caught before it became a result: real examples</h3>
     <div class="ffn-cases">
@@ -889,6 +883,46 @@ title: "Faster FFN tracing for LICONN"
     <p class="ffn-muted ffn-small ffn-gap">Data: LICONN public release (Tavakoli et al., <i>Nature</i> 642, 398&ndash;410, 2025, <a href="https://doi.org/10.1038/s41586-025-08985-1" target="_blank" rel="noopener">doi:10.1038/s41586-025-08985-1</a>), CC BY 4.0;
         model checkpoint axde_59110972 from the same release. Tracing code: <a href="https://github.com/google/ffn" target="_blank" rel="noopener">google/ffn</a>.
         Workflow: Claude Code implements; Cursor-hosted models (Gemini, Grok) provide independent method checks; Codex reviews evidence.</p>
+</div>
+</details>
 </section>
 
+<section class="acc-part" id="part4">
+<p class="acc-kicker">Next</p>
+<h2 class="acc-part-title">What comes next</h2>
+<details class="acc" id="next">
+<summary><span class="acc-head"><span class="acc-title">Next</span><span class="acc-sub">in order</span></span><span class="acc-line">Open decisions for the owner.</span></summary>
+<div class="acc-body">
+        <ol class="res-start">
+        <li class="res-start-card"><h3>Decide on fine-tuning SegNeuron</h3>
+            <p>The owner decides whether to fine-tune SegNeuron on crops 0&ndash;11 at native resolution. Its background features carry over; the boundaries between touching neurons are what fine-tuning would have to fix, and the ViT, trained on the same crops, did not fix them either.</p></li>
+        <li class="res-start-card"><h3>Deploy the fast tracer</h3>
+            <p>Copy the image to the GPU once per crop instead of once per trace, and run several traces per GPU. A probe kept every trace identical and raised throughput by up to 1.7&times;, though part of that gain overlapped evaluation work.</p></li>
+        <li class="res-start-card"><h3>Understand the dendrite merges</h3>
+            <p>The float32-head network's remaining errors are rare dendrite merges. Diagnosing them, as was done for the early stops, could show whether a small change removes them at the same speed.</p></li>
+    </ol>
+</div>
+</details>
+</section>
+
+
+<script>
+(() => {
+  const all = () => document.querySelectorAll('details.acc');
+  const openFor = hash => {
+    const t = hash && document.getElementById(decodeURIComponent(hash.slice(1)));
+    if (!t) return;
+    for (let e = t; e; e = e.parentElement) if (e.tagName === 'DETAILS') e.open = true;
+    t.scrollIntoView();
+  };
+  document.getElementById('acc-open').onclick = () => all().forEach(d => { d.open = true; });
+  document.getElementById('acc-close').onclick = () => all().forEach(d => { d.open = false; });
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]');
+    if (a && a.getAttribute('href').length > 1) { e.preventDefault(); history.replaceState(null, '', a.getAttribute('href')); openFor(a.getAttribute('href')); }
+  });
+  window.addEventListener('hashchange', () => openFor(location.hash));
+  if (location.hash) openFor(location.hash);
+})();
+</script>
 <script src="{{ '/demos/liconn-ffn/app.js' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}" type="module"></script>
