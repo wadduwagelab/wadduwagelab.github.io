@@ -23,7 +23,7 @@ title: "Faster FFN tracing for LICONN"
         <div class="hero-over">
             <p class="hero-kick">Four neurons traced by FFN in one LICONN crop</p>
             <ul class="hero-nums">
-                <li><b>3.2&times;</b> faster per step</li>
+                <li><b>3&ndash;3.2&times;</b> faster per step</li>
                 <li><b>624/624</b> traces bitwise identical (fast tracer)</li>
                 <li><b>3D ViT</b> trained from scratch</li>
                 <li><b>69</b> problems caught by AI review</li>
@@ -34,15 +34,15 @@ title: "Faster FFN tracing for LICONN"
     <ul class="ffn-stats">
         <li><b>19.7&nbsp;ms</b><span>per tracing step: the authors' model in float32 on a V100 (426&nbsp;ms on a laptop CPU)</span></li>
         <li><b>10</b><span>speed-up ideas tested end to end against the authors' proofread segmentation</span></li>
-        <li><b>3.2&times;</b><span>per step: float16 with a float32 output head, plus the fast tracer (5.96 vs 19.27&nbsp;ms on a V100). Passes the owner's 2% rule on 300 fresh seeds; the rule was relaxed from 1% after that result</span></li>
+        <li><b>3.2&times;</b><span>per step: float16 with a float32 output head, plus the fast tracer (5.96 vs 19.27&nbsp;ms on a V100, benchmark seeds; 3.0&times; on 300 fresh seeds). Passes the owner's 2% rule on the fresh seeds; the rule was relaxed from 1% after that result</span></li>
         <li><b>1.12&times;</b><span>in float32 with output bitwise identical: the fast tracer (624 traces checked, in both number formats)</span></li>
     </ul>
     <div class="glance" aria-label="Overview for reviewers">
         <div class="glance-col">
             <h2 class="glance-h">In one minute</h2>
             <ul class="glance-list">
-                <li>Reproduced the authors' published FFN tracing bitwise, then tested speed-up ideas end to end against their proofread segmentation, under accuracy rules fixed in advance.</li>
-                <li>Found where the fastest idea failed (traces are knife-edge at merge points; float16 changed move decisions) and fixed it: <b>3.2&times; faster per step</b>, passing the owner's 2% rule on 300 fresh seeds (relaxed from 1% after that result).</li>
+                <li>Reproduced the authors' FFN example bitwise, then tested speed-up ideas end to end against their proofread segmentation, under accuracy rules fixed in advance.</li>
+                <li>Found where the fastest idea failed (traces are knife-edge at merge points; float16 changed move decisions) and fixed it: <b>3.2&times; faster per step</b> on the benchmark seeds (3.0&times; on 300 fresh seeds), passing the owner's 2% rule on the fresh seeds (relaxed from 1% after that result; all 5 new merges are in dendrites).</li>
                 <li>Built an exact fast tracer: <b>1.12&times; in float32</b>, output bitwise identical on 624 traces.</li>
                 <li>Designed and trained a <b>3D vision transformer</b> from scratch to segment every neuron at once (F1 0.53 against a 0.92 ceiling on the tuning crop); stopped by the owner and documented.</li>
                 <li>Tested a <b>pretrained</b> electron-microscopy model zero-shot: F1 0.55, on par with the trained ViT, and showed where it fails.</li>
