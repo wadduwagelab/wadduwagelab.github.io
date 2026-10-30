@@ -512,12 +512,12 @@ title: "Faster FFN tracing for LICONN"
 
     <h3 class="res-h3 res-h3-gap" id="vit-block3d">The same block in 3D</h3>
     <p class="res-lead">The whole 64&times;256&times;256-voxel block of the example above (4.6&times;4.6&times;1.5&nbsp;&micro;m), with every object as a surface.
-        Switch between the ViT's segments at threshold 0.50 (panel 5) and the proofread labels (panel 6); colours match the panels.
+        Switch between the ViT's segments at threshold 0.50 (panel 5) and the proofread labels (panel 6); colours match the panels. The fine-tuned SegNeuron's segments (see <a href="#segneuron-ft">below</a>) can be shown too; each labelled neuron's largest SegNeuron segment takes that neuron's colour, and a segment holding several neurons is marked in the list.
         Tick neurons on or off in the list, or use <b>All</b> and <b>None</b>. The image slice of panel 1 can be shown in place.</p>
     <div class="ffn-viewer">
         <div class="ffn-side">
             <label class="ffn-label" for="b3-set">Show</label>
-            <select id="b3-set"><option value="vit">ViT segments, threshold 0.50</option><option value="labels">Proofread labels (ground truth)</option></select>
+            <select id="b3-set"><option value="vit">ViT segments, threshold 0.50</option><option value="labels">Proofread labels (ground truth)</option><option value="segneuron">SegNeuron fine-tuned, threshold 0.6 (colours matched to the labels)</option></select>
             <label class="ffn-b3-check"><input type="checkbox" id="b3-slice"> image slice (panel 1)</label>
             <div class="ffn-btns"><button id="b3-all" type="button">All</button><button id="b3-none" type="button">None</button><button id="b3-top" type="button">Largest 10</button></div>
             <p class="ffn-small" id="b3-count"></p>
@@ -583,21 +583,28 @@ title: "Faster FFN tracing for LICONN"
         <p class="res-lead">The owner chose to fine-tune SegNeuron on LICONN crops 0&ndash;11 at native resolution: the authors' training code unchanged, one 64,000-step run (19&nbsp;h on one V100).
         Then FFN (float16 with a float32 output head, fast tracer) and the fine-tuned SegNeuron were run in one GPU job on the same 457 neurons of crop 12, from the same seed points.</p>
 
-    <h3 class="res-h3">The block in 3D: SegNeuron's segments against the labels</h3>
-    <p class="res-lead">The same 64&times;256&times;256-voxel block as the ViT's 3D view, cut from SegNeuron's segmentation of the whole crop at threshold 0.6.
-        Colours line up between the sets: each labelled neuron's largest SegNeuron segment takes that neuron's colour from the labels set.
-        Switch between <b>SegNeuron</b> and <b>Proofread labels</b>: a neuron that keeps its colour is found; one split into differently coloured pieces is split; one colour spread over several neurons is a merge (marked &ldquo;<b>n neurons</b>&rdquo; in the list).</p>
-    <div class="ffn-viewer">
-        <div class="ffn-side">
-            <label class="ffn-label" for="sn3-set">Show</label>
-            <select id="sn3-set"><option value="segneuron">SegNeuron fine-tuned, threshold 0.6</option><option value="labels">Proofread labels (ground truth)</option><option value="vit">ViT segments, threshold 0.50 (own colours)</option></select>
-            <label class="ffn-b3-check"><input type="checkbox" id="sn3-slice"> image slice</label>
-            <div class="ffn-btns"><button id="sn3-all" type="button">All</button><button id="sn3-none" type="button">None</button><button id="sn3-top" type="button">Largest 10</button></div>
-            <p class="ffn-small" id="sn3-count"></p>
-            <div id="sn3-list" class="ffn-layers ffn-b3-list"></div>
-            <p class="ffn-muted ffn-small">Drag to rotate, scroll or pinch to zoom, right-drag to pan. Click a surface to find it in the list. Objects under 100 voxels are left out; larger ones are meshed at half resolution. The block is part of the crop that chose the threshold.</p>
+    <h3 class="res-h3">Ten neurons, whole, from every method</h3>
+    <p class="res-lead">Ten of the 457 scored neurons of crop 12, chosen at random (fixed seed), each shown four ways from the same seed point:
+        the proofread label, FFN's trace, the ViT's segment and the fine-tuned SegNeuron's segment. The four views turn together.
+        In each method's view, the solid colour (<span class="nv-key nv-hit"></span>&nbsp;FFN, <span class="nv-key nv-vit"></span>&nbsp;ViT, <span class="nv-key nv-sn"></span>&nbsp;SegNeuron) is the part of the neuron it found, <span class="nv-key nv-miss"></span>&nbsp;the part it missed,
+        <span class="nv-key nv-other"></span>&nbsp;voxels of <b>other</b> labelled neurons it took in (a merge), and <span class="nv-key nv-unl"></span>&nbsp;unlabelled voxels it took in (not counted by precision).</p>
+    <div class="nv-wrap">
+        <div class="nv-pick" id="nv-pick" role="tablist" aria-label="Neuron"></div>
+        <div id="nv-stage" class="nv-stage">
+            <canvas id="nv-gl" class="ffn-gl"></canvas>
+            <div class="nv-pane-label" data-pane="gt"></div><div class="nv-pane-label" data-pane="ffn"></div>
+            <div class="nv-pane-label" data-pane="vit"></div><div class="nv-pane-label" data-pane="segneuron"></div>
+            <div id="nv-loading" class="ffn-loading">Loading meshes&hellip;</div>
         </div>
-        <div id="sn3-stage" class="ffn-stage"><canvas id="sn3-gl" class="ffn-gl"></canvas><div id="sn3-loading" class="ffn-loading">Loading meshes&hellip;</div></div>
+        <div class="nv-bar">
+            <label class="ffn-b3-check"><input type="checkbox" id="nv-miss" checked> show missed part</label>
+            <label class="ffn-b3-check"><input type="checkbox" id="nv-extra" checked> show merged and unlabelled parts</label>
+            <button type="button" id="nv-reset">Reset view</button>
+        </div>
+        <p class="ffn-muted ffn-small" id="nv-note">Drag to rotate, scroll or pinch to zoom, right-drag to pan. The buttons give each neuron's F1 for FFN, the ViT and SegNeuron (SN).
+            Mean F1 on these ten: FFN 0.94, SegNeuron 0.85, ViT 0.66 (all 457: 0.89, 0.82, 0.53), so the draw happens to be a little easier than average.
+            Every shape is recomputed from the recorded runs and checked against them: FFN's traces match step for step, and the ViT's and SegNeuron's segmentations give the recorded F1 for all 457 neurons.
+            Crop 12 chose the ViT's and SegNeuron's thresholds and SegNeuron's checkpoint, so it favours them. Large merged segments are meshed at lower resolution.</p>
     </div>
 
     <h3 class="res-h3 res-h3-gap">Neuron by neuron: FFN against SegNeuron</h3>

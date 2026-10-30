@@ -251,3 +251,21 @@ details.acc[open] > summary { border-bottom: 2px solid #000; }
 .h2h-sn, .h2h-fig circle.h2h-sn { fill: #ffd84d; background: #ffd84d; }
 .h2h-key { display: inline-block; width: 0.75em; height: 0.75em; border: 1px solid #000; border-radius: 50%; vertical-align: -0.05em; }
 #h2h-info { display: block; margin-top: 0.3rem; color: #000; min-height: 1.4em; }
+
+/* ten neurons, four methods */
+.nv-wrap { border: 2px solid #000; box-shadow: 5px 5px 0 var(--accent); background: #fff; margin: 0.5rem 0 1.1rem; padding: 0.6rem; }
+.nv-pick { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.35rem; margin-bottom: 0.5rem; }
+.nv-pick button { display: flex; flex-direction: column; align-items: flex-start; gap: 0.05rem; padding: 0.3rem 0.4rem; border: 2px solid #000; background: #fff; font-size: 0.72rem; line-height: 1.25; cursor: pointer; text-align: left; }
+.nv-pick button b { font-family: 'Silkscreen', monospace; font-weight: 400; font-size: 0.9rem; }
+.nv-pick button[aria-selected="true"] { background: var(--accent); color: #fff; }
+.nv-stage { position: relative; width: 100%; height: 360px; border: 2px solid #000; }
+.nv-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.nv-pane-label { position: absolute; pointer-events: none; padding: 0.3rem 0.45rem; font-size: 0.75rem; line-height: 1.3; display: flex; flex-direction: column; box-sizing: border-box; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; background: rgba(255, 255, 255, 0.82); }
+.nv-pane-label b { font-family: 'Silkscreen', monospace; font-weight: 400; font-size: 0.85rem; color: var(--accent); }
+.nv-pane-label span { color: #333; }
+.nv-bar { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; align-items: center; margin: 0.5rem 0 0.3rem; }
+.nv-bar button { border: 2px solid #000; background: #fff; padding: 0.15rem 0.6rem; cursor: pointer; }
+.nv-key { display: inline-block; width: 0.8em; height: 0.8em; border: 1px solid #000; vertical-align: -0.05em; }
+.nv-hit { background: #2d4bff; } .nv-miss { background: #e3e5e8; } .nv-other { background: #e0312b; } .nv-unl { background: #f2a33a; }
+@media (max-width: 760px) { .nv-pick { grid-template-columns: repeat(5, 1fr); } .nv-pane-label { font-size: 0.66rem; padding: 0.2rem 0.3rem; } .nv-pane-label b { font-size: 0.72rem; } .nv-wrap { padding: 0.4rem; } }
+.nv-vit { background: #8a4fd8; } .nv-sn { background: #14a37f; }

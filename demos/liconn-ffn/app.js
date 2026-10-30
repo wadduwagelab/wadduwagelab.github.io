@@ -323,7 +323,7 @@ viewer({
 }
 
 // ---------- the slice example's block in 3D: every object, ViT or SegNeuron segments or proofread labels (data/block3d) ----------
-// One viewer per id prefix: b3 (ViT section) and sn3 (SegNeuron section); the first set in its <select> is shown first.
+// One viewer per id prefix (b3); the first set in its <select> is shown first.
 const SET_NAMES = { vit: ['ViT', 'segment', 'segments'], segneuron: ['SegNeuron', 'segment', 'segments'], labels: ['labels', 'neuron', 'labelled neurons'] };
 function blockViewer(p) {
   const $ = id => document.getElementById(`${p}-${id}`);
@@ -438,7 +438,6 @@ function blockViewer(p) {
   }
 }
 blockViewer('b3');
-blockViewer('sn3');
 
 // ---------- FFN against SegNeuron: per-neuron F1 scatter (data/headtohead.json) ----------
 {
@@ -477,5 +476,125 @@ blockViewer('sn3');
         c.addEventListener('click', () => pick(c, r));
       }
     }).catch(e => { console.error(e); info.textContent = 'Could not load the per-neuron data.'; });
+  }
+}
+
+// ---------- ten neurons, whole: labels, FFN, ViT and SegNeuron side by side (data/neurons3d) ----------
+{
+  const canvas = document.getElementById('nv-gl'), stage = document.getElementById('nv-stage');
+  if (canvas) {
+    const PANES = [['gt', 'Proofread label'], ['ffn', 'FFN'], ['vit', 'ViT'], ['segneuron', 'SegNeuron']];
+    const HIT = { gt: 0x444b55, ffn: 0x2d4bff, vit: 0x8a4fd8, segneuron: 0x14a37f };
+    const KIND = {
+      miss: { color: 0x9aa0a6, opacity: 0.18 }, other: { color: 0xe0312b, opacity: 1 }, unlabelled: { color: 0xf2a33a, opacity: 1 },
+    };
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setScissorTest(true);
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 200);
+    camera.up.set(0, 0, 1);
+    const controls = new OrbitControls(camera, canvas); controls.enableDamping = true;
+    const scenes = {}, groups = {};
+    for (const [p] of PANES) {
+      const sc = new THREE.Scene(); sc.background = new THREE.Color(0xffffff);
+      sc.add(new THREE.HemisphereLight(0xffffff, 0x8088a0, 1.4));
+      const sun = new THREE.DirectionalLight(0xffffff, 1.6); sc.add(sun); sc.userData.sun = sun;
+      const g = new THREE.Group(); sc.add(g);
+      scenes[p] = sc; groups[p] = g;
+    }
+    const labels = Object.fromEntries([...stage.querySelectorAll('.nv-pane-label')].map(e => [e.dataset.pane, e]));
+    const cols = () => (stage.clientWidth < 640 ? 2 : 4);
+    const resize = () => {
+      const w = stage.clientWidth, c = cols(), pw = w / c, h = pw * (c === 4 ? 1.15 : 1.6) * (4 / c);
+      stage.style.height = `${Math.round(h)}px`;
+      renderer.setSize(w, h, false);
+      PANES.forEach(([p], i) => {
+        const l = labels[p], x = (i % c) * pw, y = Math.floor(i / c) * (h / (4 / c));
+        Object.assign(l.style, { left: `${x}px`, top: `${y}px`, width: `${pw}px` });
+      });
+    };
+    new ResizeObserver(resize).observe(stage);
+    let onScreen = false;
+    new IntersectionObserver(es => { onScreen = es[0].isIntersecting; }).observe(stage);
+    renderer.setAnimationLoop(() => {
+      if (!onScreen) return;
+      controls.update();
+      const w = stage.clientWidth, h = stage.clientHeight, c = cols(), pw = w / c, ph = h / (4 / c);
+      camera.aspect = pw / ph; camera.updateProjectionMatrix();
+      PANES.forEach(([p], i) => {
+        const x = (i % c) * pw, y = h - (Math.floor(i / c) + 1) * ph;  // WebGL y runs upwards
+        renderer.setViewport(x, y, pw, ph); renderer.setScissor(x, y, pw, ph);
+        scenes[p].userData.sun.position.copy(camera.position);
+        renderer.render(scenes[p], camera);
+      });
+    });
+
+    const loading = document.getElementById('nv-loading'), pick = document.getElementById('nv-pick');
+    const showMiss = document.getElementById('nv-miss'), showExtra = document.getElementById('nv-extra');
+    const applyToggles = () => {
+      for (const g of Object.values(groups)) for (const m of g.children) {
+        const k = m.userData.kind;
+        m.visible = k === 'miss' ? showMiss.checked : (k === 'other' || k === 'unlabelled') ? showExtra.checked : true;
+      }
+    };
+    showMiss.onchange = applyToggles; showExtra.onchange = applyToggles;
+    let meta, current;
+    const fmt = x => x.toFixed(2);
+    const merged = (t, sep) => t.merged_neurons ? `${sep}merged with ${t.merged_neurons} other neuron${t.merged_neurons > 1 ? 's' : ''}` : '';
+    const frame = n => {
+      const c = new THREE.Vector3(...n.centre_um_xyz);
+      controls.target.copy(c);
+      const w = stage.clientWidth, c4 = cols(), aspect = (w / c4) / (stage.clientHeight / (4 / c4));
+      const half = Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * Math.min(aspect, 1));  // the narrower half-angle
+      camera.position.copy(c).add(new THREE.Vector3(0.7, -1.0, 0.8).normalize().multiplyScalar(n.extent_um * 0.6 / Math.tan(half)));
+      controls.update();
+    };
+    async function show(n) {
+      loading.hidden = false;
+      const buf = await (await fetch(`data/neurons3d/neuron_${n.id}.bin${V}`)).arrayBuffer();
+      const [nv, nf] = new Uint32Array(buf, 0, 2);
+      const q = new Uint16Array(buf, 8, nv * 3);
+      const idx = new Uint32Array(buf.slice(8 + nv * 6, 8 + nv * 6 + nf * 12));
+      for (const g of Object.values(groups)) { g.children.forEach(m => m.geometry.dispose()); g.clear(); }
+      for (const part of n.parts) {
+        const pos = new Float32Array(part.nv * 3);
+        for (let i = 0; i < pos.length; i++) pos[i] = q[part.v0 * 3 + i] / 65535 * meta.scale_um;
+        const f = new Uint32Array(part.nf * 3);
+        for (let i = 0; i < f.length; i++) f[i] = idx[part.f0 * 3 + i] - part.v0;
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        geo.setIndex(new THREE.BufferAttribute(f, 1));
+        geo.computeVertexNormals();
+        const k = KIND[part.kind];
+        const mat = new THREE.MeshStandardMaterial({ color: k ? k.color : HIT[part.pane], roughness: 0.6, metalness: 0.05,
+          transparent: !!k && k.opacity < 1, opacity: k ? k.opacity : 1, depthWrite: !k || k.opacity === 1 });
+        const m = new THREE.Mesh(geo, mat); m.userData.kind = part.kind;
+        if (part.kind === 'miss') m.renderOrder = 1;
+        groups[part.pane].add(m);
+      }
+      applyToggles();
+      const s = n.stats;
+      labels.gt.innerHTML = `<b>Proofread label</b><span>neuron ${n.id} &middot; ${n.voxels.toLocaleString('en-US')} voxels</span>`;
+      labels.ffn.innerHTML = `<b>FFN</b><span>F1 ${fmt(s.ffn.f1)} &middot; recall ${fmt(s.ffn.recall)} &middot; precision ${fmt(s.ffn.precision)}</span><span>${s.ffn.steps.toLocaleString('en-US')} steps${merged(s.ffn, ' &middot; ')}</span>`;
+      labels.vit.innerHTML = `<b>ViT</b><span>F1 ${fmt(s.vit.f1)} &middot; recall ${fmt(s.vit.recall)} &middot; precision ${fmt(s.vit.precision)}</span><span>${s.vit.voxels ? merged(s.vit, '') : 'seed in predicted background'}</span>`;
+      labels.segneuron.innerHTML = `<b>SegNeuron</b><span>F1 ${fmt(s.segneuron.f1)} &middot; recall ${fmt(s.segneuron.recall)} &middot; precision ${fmt(s.segneuron.precision)}</span><span>${s.segneuron.voxels ? merged(s.segneuron, '') : 'seed in predicted background'}</span>`;
+      pick.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected', b.dataset.id === String(n.id)));
+      if (current !== n) frame(n);
+      current = n; loading.hidden = true;
+    }
+    const fail = e => { console.error(e); loading.hidden = false; loading.textContent = 'Could not load the 3D view. Please reload the page.'; };
+    document.getElementById('nv-reset').onclick = () => current && frame(current);
+    (async () => {
+      meta = await (await fetch('data/neurons3d/neurons3d.json' + V)).json();
+      meta.neurons.forEach((n, i) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.dataset.id = n.id; b.setAttribute('role', 'tab');
+        b.innerHTML = `<b>${i + 1}</b><span>FFN ${fmt(n.stats.ffn.f1)}</span><span>ViT ${fmt(n.stats.vit.f1)}</span><span>SN ${fmt(n.stats.segneuron.f1)}</span>`;
+        b.onclick = () => show(n).catch(fail);
+        pick.append(b);
+      });
+      resize();
+      await show(meta.neurons[0]);
+    })().catch(fail);
   }
 }
