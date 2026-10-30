@@ -322,9 +322,12 @@ viewer({
   }
 }
 
-// ---------- the slice example's block in 3D: every object, ViT segments or proofread labels (data/block3d) ----------
-{
-  const canvas = document.getElementById('b3-gl'), stage = document.getElementById('b3-stage');
+// ---------- the slice example's block in 3D: every object, ViT or SegNeuron segments or proofread labels (data/block3d) ----------
+// One viewer per id prefix: b3 (ViT section) and sn3 (SegNeuron section); the first set in its <select> is shown first.
+const SET_NAMES = { vit: ['ViT', 'segment', 'segments'], segneuron: ['SegNeuron', 'segment', 'segments'], labels: ['labels', 'neuron', 'labelled neurons'] };
+function blockViewer(p) {
+  const $ = id => document.getElementById(`${p}-${id}`);
+  const canvas = $('gl'), stage = $('stage');
   if (canvas) {
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -343,8 +346,8 @@ viewer({
     let onScreen = false;
     new IntersectionObserver(es => { onScreen = es[0].isIntersecting; }).observe(stage);
     renderer.setAnimationLoop(() => { if (onScreen) { controls.update(); renderer.render(scene, camera); } });
-    const loading = document.getElementById('b3-loading'), list = document.getElementById('b3-list');
-    const count = document.getElementById('b3-count');
+    const loading = $('loading'), list = $('list');
+    const count = $('count');
     let meta, sets = {}, current = [];
 
     async function loadSet(name) {  // one mesh per object, cut from the set's concatenated buffer
@@ -377,14 +380,15 @@ viewer({
     const plane = new THREE.Mesh(new THREE.PlaneGeometry(256 * sx, 256 * sy),
       new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide }));
     plane.position.set(127.5 * sx, 127.5 * sy, 32 * sz); plane.visible = false; scene.add(plane);
-    document.getElementById('b3-slice').onchange = e => { plane.visible = e.target.checked; };
+    $('slice').onchange = e => { plane.visible = e.target.checked; };
 
-    const total = name => name === 'vit'
-      ? `of ${meta.vit.segments_total} segments in the block; ${meta.vit.segments_total - meta.vit.objects.length} under 100 voxels left out`
-      : `of ${meta.labels.neurons_total} labelled neurons in the block; ${meta.labels.neurons_total - meta.labels.objects.length} under 100 voxels left out`;
+    const total = name => {
+      const n = meta[name].segments_total ?? meta[name].neurons_total;
+      return `of ${n} ${SET_NAMES[name][2]} in the block; ${n - meta[name].objects.length} under 100 voxels left out`;
+    };
     const updateCount = () => {
       const n = current.filter(m => m.visible).length;
-      count.textContent = `${n} shown (${total(document.getElementById('b3-set').value)})`;
+      count.textContent = `${n} shown (${total($('set').value)})`;
     };
     async function show(name) {
       loading.hidden = false;
@@ -393,7 +397,7 @@ viewer({
       for (const m of objs) {
         group.add(m);
         const o = m.userData, lab = document.createElement('label');
-        lab.innerHTML = `<input type="checkbox"${m.visible ? ' checked' : ''}><i class="ffn-sw" style="background:${o.colour}"></i>${name === 'vit' ? 'segment' : 'neuron'} ${o.id} &middot; ${o.voxels.toLocaleString('en-US')} voxels`;
+        lab.innerHTML = `<input type="checkbox"${m.visible ? ' checked' : ''}><i class="ffn-sw" style="background:${o.colour}"></i>${SET_NAMES[name][1]} ${o.id} &middot; ${o.voxels.toLocaleString('en-US')} voxels${o.neurons > 1 ? ` &middot; <b>${o.neurons} neurons</b>` : ''}`;
         const box = lab.querySelector('input');
         box.onchange = () => { m.visible = box.checked; updateCount(); };
         m.userData.row = lab; m.userData.box = box;
@@ -402,10 +406,10 @@ viewer({
       current = objs; updateCount(); loading.hidden = true;
     }
     const setAll = pred => { current.forEach((m, i) => { m.visible = pred(i); m.userData.box.checked = m.visible; }); updateCount(); };
-    document.getElementById('b3-all').onclick = () => setAll(() => true);
-    document.getElementById('b3-none').onclick = () => setAll(() => false);
-    document.getElementById('b3-top').onclick = () => setAll(i => i < 10);  // the list is sorted by size
-    document.getElementById('b3-set').onchange = e => show(e.target.value).catch(fail);
+    $('all').onclick = () => setAll(() => true);
+    $('none').onclick = () => setAll(() => false);
+    $('top').onclick = () => setAll(i => i < 10);  // the list is sorted by size
+    $('set').onchange = e => show(e.target.value).catch(fail);
 
     // click a surface: highlight its row in the list
     const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
@@ -425,11 +429,53 @@ viewer({
     (async () => {
       meta = await (await fetch('data/block3d/block3d.json' + V)).json();
       resize();
-      await show('vit');
+      await show($('set').value);
       const c = new THREE.Vector3(128 * sx, 128 * sy, 32 * sz);
       controls.target.copy(c);
       camera.position.copy(c).add(new THREE.Vector3(0.6, -1.0, 1.1).normalize().multiplyScalar(10));
       controls.update();
     })().catch(fail);
+  }
+}
+blockViewer('b3');
+blockViewer('sn3');
+
+// ---------- FFN against SegNeuron: per-neuron F1 scatter (data/headtohead.json) ----------
+{
+  const svg = document.getElementById('h2h-scatter'), info = document.getElementById('h2h-info');
+  if (svg) {
+    const NS = 'http://www.w3.org/2000/svg', L = 40, T = 10, W = 290;  // plot box in viewBox units
+    const el = (tag, attrs, text) => {
+      const e = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+      if (text != null) e.textContent = text;
+      svg.append(e); return e;
+    };
+    const X = f => L + f * W, Y = f => T + (1 - f) * W;
+    for (const t of [0, 0.25, 0.5, 0.75, 1]) {
+      el('line', { class: 'grid', x1: X(t), x2: X(t), y1: Y(0), y2: Y(1) });
+      el('line', { class: 'grid', x1: X(0), x2: X(1), y1: Y(t), y2: Y(t) });
+      el('text', { x: X(t), y: Y(0) + 14, 'text-anchor': 'middle' }, t);
+      el('text', { x: X(0) - 5, y: Y(t) + 4, 'text-anchor': 'end' }, t);
+    }
+    el('line', { class: 'diag', x1: X(0), y1: Y(0), x2: X(1), y2: Y(1) });
+    el('line', { class: 'ax', x1: X(0), y1: Y(0), x2: X(1), y2: Y(0) });
+    el('line', { class: 'ax', x1: X(0), y1: Y(0), x2: X(0), y2: Y(1) });
+    el('text', { x: X(0.5), y: 338, 'text-anchor': 'middle' }, 'FFN F1');
+    el('text', { x: 10, y: Y(0.5), 'text-anchor': 'middle', transform: `rotate(-90 10 ${Y(0.5)})` }, 'SegNeuron F1');
+    let on = null;
+    const pick = (c, r) => {
+      if (on) on.classList.remove('on');
+      on = c; c.classList.add('on');
+      const [id, f, s, vox, mf, ms] = r;
+      info.textContent = `Neuron ${id} (${vox.toLocaleString('en-US')} voxels): FFN F1 ${f.toFixed(3)}, ${mf} merge${mf === 1 ? '' : 's'}; SegNeuron F1 ${s.toFixed(3)}, ${ms} merge${ms === 1 ? '' : 's'}.`;
+    };
+    fetch('data/headtohead.json' + V).then(r => r.json()).then(d => {
+      for (const r of d.rows) {
+        const c = el('circle', { cx: X(r[1]), cy: Y(r[2]), r: 3.2, class: r[1] > r[2] ? 'h2h-ffn' : 'h2h-sn', 'fill-opacity': 0.75 });
+        c.addEventListener('mouseenter', () => pick(c, r));
+        c.addEventListener('click', () => pick(c, r));
+      }
+    }).catch(e => { console.error(e); info.textContent = 'Could not load the per-neuron data.'; });
   }
 }

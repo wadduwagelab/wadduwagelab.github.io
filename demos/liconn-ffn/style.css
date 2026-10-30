@@ -237,3 +237,17 @@ details.acc[open] > summary { border-bottom: 2px solid #000; }
   .hero-nums { grid-template-columns: 1fr 1fr; }
   .hero-nums li { width: auto; }
 }
+
+/* FFN against SegNeuron, per-neuron F1 scatter */
+.h2h-fig { margin: 0; }
+.h2h-fig svg { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto 0.5rem; }
+.h2h-fig .ax { stroke: #000; stroke-width: 1.5; }
+.h2h-fig .grid { stroke: #ddd; stroke-width: 1; }
+.h2h-fig .diag { stroke: #000; stroke-width: 1; stroke-dasharray: 4 3; }
+.h2h-fig text { font-size: 11px; fill: #333; }
+.h2h-fig circle { stroke: #000; stroke-width: 0.5; cursor: pointer; }
+.h2h-fig circle.on { stroke-width: 2.5; }
+.h2h-ffn, .h2h-fig circle.h2h-ffn { fill: var(--accent); background: var(--accent); }
+.h2h-sn, .h2h-fig circle.h2h-sn { fill: #ffd84d; background: #ffd84d; }
+.h2h-key { display: inline-block; width: 0.75em; height: 0.75em; border: 1px solid #000; border-radius: 50%; vertical-align: -0.05em; }
+#h2h-info { display: block; margin-top: 0.3rem; color: #000; min-height: 1.4em; }

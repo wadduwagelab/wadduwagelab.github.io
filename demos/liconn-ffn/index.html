@@ -46,6 +46,7 @@ title: "Faster FFN tracing for LICONN"
                 <li>Built an exact fast tracer: <b>1.12&times; in float32</b>, output bitwise identical on 624 traces.</li>
                 <li>Designed and trained a <b>3D vision transformer</b> from scratch to segment every neuron at once (F1 0.53 against a 0.92 ceiling on the tuning crop); stopped by the owner and documented.</li>
                 <li>Tested a <b>pretrained</b> electron-microscopy model zero-shot: F1 0.55, on par with the trained ViT, and showed where it fails.</li>
+                <li><a href="#segneuron-ft">Fine-tuned it</a> on LICONN: F1 <b>0.50 &rarr; 0.82</b>. Head to head on the same 457 neurons, FFN is more accurate (0.89) and SegNeuron <b>2.2&times; faster</b>; see its segments in 3D.</li>
                 <li>All of it run with <b>Claude Code</b> under a review workflow in which other AI models checked methods and evidence: <b>69 problems caught</b> before any result was reported, 35 of them in the written reports.</li>
             </ul>
         </div>
@@ -58,11 +59,12 @@ title: "Faster FFN tracing for LICONN"
                 <li><a href="#fix">Mixed precision and failure diagnosis</a></li>
                 <li><a href="#vit">Designing and training a 3D ViT (JAX/Flax, V100 cluster, Slurm)</a></li>
                 <li><a href="#segneuron">Transfer of a pretrained model; threshold-free diagnostics</a></li>
+                <li><a href="#segneuron-ft">Fine-tuning, and a paired speed-accuracy comparison</a></li>
                 <li><a href="#workflow">Finding where AI agents are confidently wrong, and catching it</a></li>
                 <li><a href="#workflow">Reproducible records: every number tied to hashed code and outputs</a></li>
             </ul>
             <p class="glance-repo"><a href="https://github.com/dushanw/liconn_v2" target="_blank" rel="noopener">Code, results records and tests on GitHub: dushanw/liconn_v2</a></p>
-            <p class="ffn-muted ffn-small">October 18&ndash;28, 2026. Each section below opens on click; the links open the matching section.</p>
+            <p class="ffn-muted ffn-small">October 18&ndash;29, 2026. Each section below opens on click; the links open the matching section.</p>
             <div class="acc-controls"><button type="button" id="acc-open">Expand all</button><button type="button" id="acc-close">Collapse all</button></div>
         </div>
     </div>
@@ -575,6 +577,66 @@ title: "Faster FFN tracing for LICONN"
     </div>
 </div>
 </details>
+<details class="acc" id="segneuron-ft">
+<summary><span class="acc-head"><span class="acc-title">SegNeuron fine-tuned, then head to head with FFN</span><span class="acc-sub">crop 12, October 28&ndash;29: F1 0.50 &rarr; 0.82; FFN 0.89 but 2.2&times; slower for the same 457 neurons</span></span><span class="acc-line">Fine-tuning on crops 0&ndash;11 taught SegNeuron most of the boundary between touching neurons. Against FFN on the same neurons and GPU, FFN is more accurate and SegNeuron is faster.</span><span class="acc-tags"><span class="acc-tag">Fine-tuning</span><span class="acc-tag">Paired comparison</span><span class="acc-tag">Speed vs accuracy</span><span class="acc-tag">3D viewer</span></span></summary>
+<div class="acc-body">
+        <p class="res-lead">The owner chose to fine-tune SegNeuron on LICONN crops 0&ndash;11 at native resolution: the authors' training code unchanged, one 64,000-step run (19&nbsp;h on one V100).
+        Then FFN (float16 with a float32 output head, fast tracer) and the fine-tuned SegNeuron were run in one GPU job on the same 457 neurons of crop 12, from the same seed points.</p>
+
+    <h3 class="res-h3">The block in 3D: SegNeuron's segments against the labels</h3>
+    <p class="res-lead">The same 64&times;256&times;256-voxel block as the ViT's 3D view, cut from SegNeuron's segmentation of the whole crop at threshold 0.6.
+        Colours line up between the sets: each labelled neuron's largest SegNeuron segment takes that neuron's colour from the labels set.
+        Switch between <b>SegNeuron</b> and <b>Proofread labels</b>: a neuron that keeps its colour is found; one split into differently coloured pieces is split; one colour spread over several neurons is a merge (marked &ldquo;<b>n neurons</b>&rdquo; in the list).</p>
+    <div class="ffn-viewer">
+        <div class="ffn-side">
+            <label class="ffn-label" for="sn3-set">Show</label>
+            <select id="sn3-set"><option value="segneuron">SegNeuron fine-tuned, threshold 0.6</option><option value="labels">Proofread labels (ground truth)</option><option value="vit">ViT segments, threshold 0.50 (own colours)</option></select>
+            <label class="ffn-b3-check"><input type="checkbox" id="sn3-slice"> image slice</label>
+            <div class="ffn-btns"><button id="sn3-all" type="button">All</button><button id="sn3-none" type="button">None</button><button id="sn3-top" type="button">Largest 10</button></div>
+            <p class="ffn-small" id="sn3-count"></p>
+            <div id="sn3-list" class="ffn-layers ffn-b3-list"></div>
+            <p class="ffn-muted ffn-small">Drag to rotate, scroll or pinch to zoom, right-drag to pan. Click a surface to find it in the list. Objects under 100 voxels are left out; larger ones are meshed at half resolution. The block is part of the crop that chose the threshold.</p>
+        </div>
+        <div id="sn3-stage" class="ffn-stage"><canvas id="sn3-gl" class="ffn-gl"></canvas><div id="sn3-loading" class="ffn-loading">Loading meshes&hellip;</div></div>
+    </div>
+
+    <h3 class="res-h3 res-h3-gap">Neuron by neuron: FFN against SegNeuron</h3>
+    <div class="res-two">
+        <figure class="ffn-box h2h-fig">
+            <svg id="h2h-scatter" viewBox="0 0 340 340" role="img" aria-label="Per-neuron F1, FFN against SegNeuron"></svg>
+            <figcaption class="ffn-muted ffn-small">Each dot is one of the 457 neurons: F1 of FFN's trace (x) against F1 of SegNeuron's segment holding the same seed (y). <span class="h2h-key h2h-ffn"></span> FFN higher (340), <span class="h2h-key h2h-sn"></span> SegNeuron higher (117). Hover or tap a dot for its numbers. <span id="h2h-info"></span></figcaption>
+        </figure>
+        <div>
+            <div class="ffn-mini-wrap"><table class="ffn-table ffn-mini">
+                <thead><tr><th>mean over 457 neurons, crop 12</th><th>F1</th><th>recall / precision</th></tr></thead>
+                <tbody>
+                    <tr><th>SegNeuron zero-shot + our pipeline</th><td>0.50</td><td></td></tr>
+                    <tr><th>ViT trained on crops 0&ndash;11</th><td>0.53</td><td></td></tr>
+                    <tr><th>SegNeuron fine-tuned + our pipeline</th><td><b>0.82</b></td><td>0.80 / 0.93</td></tr>
+                    <tr><th>FFN, float16 + float32 head, fast tracer</th><td><b>0.89</b></td><td>0.86 / 0.97</td></tr>
+                    <tr><th>pipeline with the true labels as output</th><td>0.92</td><td></td></tr>
+                </tbody>
+            </table></div>
+            <div class="ffn-mini-wrap"><table class="ffn-table ffn-mini">
+                <thead><tr><th>one V100, one job</th><th>FFN</th><th>SegNeuron</th></tr></thead>
+                <tbody>
+                    <tr><th>time</th><td>1,154&nbsp;s for the 457 neurons (+79&nbsp;s setup)</td><td><b>534&nbsp;s for the whole crop</b></td></tr>
+                    <tr><th>of which GPU network</th><td>911&nbsp;s</td><td>214&nbsp;s</td></tr>
+                    <tr><th>of which CPU</th><td>&mdash;</td><td>283&nbsp;s (watershed 272&nbsp;s)</td></tr>
+                    <tr><th>merges &ge; 1,000 voxels</th><td>93 (65 neurons)</td><td>249 (80 neurons)</td></tr>
+                </tbody>
+            </table></div>
+        </div>
+    </div>
+    <ul class="res-bullets">
+        <li><b>Fine-tuning fixed much of the weakness found zero-shot.</b> Same-neuron against different-neuron pairs: AUC 0.67&ndash;0.69 &rarr; 0.85. Recall lost to other segments: 37% &rarr; 15%. 419 of the 457 neurons improved.</li>
+        <li><b>FFN is still more accurate, by 0.07 mean F1.</b> The two are close on most neurons (median difference +0.015); the gap comes from a minority where SegNeuron merges or splits badly (FFN ahead by 0.31 at the 90th percentile).</li>
+        <li><b>SegNeuron is 2.2&times; faster for these 457 neurons</b>, and its output covers the whole crop. FFN's total matches one SegNeuron crop at about 180&ndash;210 neurons (about 107 on GPU time alone); fewer, targeted neurons are cheaper with FFN.</li>
+        <li><b>Over half of SegNeuron's time is single-core CPU watershed.</b> Moving it to the GPU is estimated (not measured) to bring SegNeuron to about 4&ndash;4.5&times; FFN's speed; then the network itself becomes the limit.</li>
+        <li><b>Not a test result.</b> Crop 12 chose SegNeuron's checkpoint and threshold, and FFN's network may have been trained on this volume; FFN's independent traces also overlap on 2.8% of their voxels. The test crops 13&ndash;40 were not read. Both runs reproduced their recorded results exactly.</li>
+    </ul>
+</div>
+</details>
 </section>
 
 <section class="acc-part" id="part3">
@@ -583,10 +645,10 @@ title: "Faster FFN tracing for LICONN"
 <details class="acc" id="workflow">
 <summary><span class="acc-head"><span class="acc-title">How the research is run</span><span class="acc-sub">faster, without lowering the bar</span></span><span class="acc-line">Claude Code implements; a second model checks each method, a third reviews the evidence; 69 problems caught before results were reported.</span><span class="acc-tags"><span class="acc-tag">Claude Code</span><span class="acc-tag">AI evaluation</span><span class="acc-tag">Reproducibility</span></span></summary>
 <div class="acc-body">
-        <p class="res-lead">Everything on this page took <b>eleven days</b> (October 18&ndash;28, 2026): reading the paper, reproducing the authors' result,
+        <p class="res-lead">The work up to the zero-shot SegNeuron test took <b>eleven days</b> (October 18&ndash;28, 2026): reading the paper, reproducing the authors' result,
         setting up a GPU cluster, testing ten ideas, a held-out check, a 300-seed rule, a diagnosis that led to the fix, a fresh-seed confirmation,
         an exact fast tracer, the design, training and evaluation of a ViT model, and a zero-shot test of a pretrained model. AI agents did the engineering.
-        A structured workflow kept the science honest. Below are numbers and real examples from this project's own logs.</p>
+        A structured workflow kept the science honest. Below are numbers and real examples from this project's own logs, counted up to October 28 (before the fine-tuning and the comparison with FFN).</p>
 
     <ul class="ffn-stats ffn-stats-6">
         <li><b>37</b><span>task contracts: goal, allowed files, tests and limits frozen before work starts</span></li>
@@ -892,6 +954,8 @@ title: "Faster FFN tracing for LICONN"
         <li><span>Oct 24</span>Judge it against the ground truth next to FFN, with a tiered rule (competitive, promising) fixed before training.</li>
         <li><span>Oct 26</span>Stop the ViT pilot after crop 12, before the test crops; document it so it can be revisited.</li>
         <li><span>Oct 26</span>Try the pretrained SegNeuron zero-shot on crop 12: both post-processing pipelines, native and upsampled 2&times;; decide fine-tuning afterwards.</li>
+        <li><span>Oct 28</span>Fine-tune SegNeuron on crops 0&ndash;11 at native resolution, one run of about 20 V100-hours; crop 12 for validation, test crops unread.</li>
+        <li><span>Oct 29</span>Compare it with FFN one on one on crop 12: the fast float16 + float32-head tracer only, same neurons, seeds and GPU.</li>
     </ol>
 
     <p class="ffn-muted ffn-small ffn-gap">Data: LICONN public release (Tavakoli et al., <i>Nature</i> 642, 398&ndash;410, 2025, <a href="https://doi.org/10.1038/s41586-025-08985-1" target="_blank" rel="noopener">doi:10.1038/s41586-025-08985-1</a>), CC BY 4.0;
@@ -908,8 +972,10 @@ title: "Faster FFN tracing for LICONN"
 <summary><span class="acc-head"><span class="acc-title">Next</span><span class="acc-sub">in order</span></span><span class="acc-line">Open decisions for the owner.</span></summary>
 <div class="acc-body">
         <ol class="res-start">
-        <li class="res-start-card"><h3>Decide on fine-tuning SegNeuron</h3>
-            <p>The owner decides whether to fine-tune SegNeuron on crops 0&ndash;11 at native resolution. Its background features carry over; the boundaries between touching neurons are what fine-tuning would have to fix, and the ViT, trained on the same crops, did not fix them either.</p></li>
+        <li class="res-start-card"><h3>SegNeuron's post-processing on the GPU</h3>
+            <p>Over half of SegNeuron's time is a single-core CPU watershed. Moving it to the GPU is estimated to bring SegNeuron to about 4&ndash;4.5&times; FFN's speed on crop 12; it must keep crop 12's F1 unchanged, and then be timed.</p></li>
+        <li class="res-start-card"><h3>The fair accuracy comparison</h3>
+            <p>Crop 12 tuned SegNeuron, so its F1 there is optimistic. The owner decides when to spend the unread test crops on FFN against SegNeuron.</p></li>
         <li class="res-start-card"><h3>Deploy the fast tracer</h3>
             <p>Copy the image to the GPU once per crop instead of once per trace, and run several traces per GPU. A probe kept every trace identical and raised throughput by up to 1.7&times;, though part of that gain overlapped evaluation work.</p></li>
         <li class="res-start-card"><h3>Understand the dendrite merges</h3>
