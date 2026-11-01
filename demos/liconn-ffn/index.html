@@ -372,7 +372,7 @@ title: "Faster FFN tracing for LICONN"
         <h3 class="res-h3">Second round (approved November 1): the student learns from its own traces</h3>
         <ul class="res-bullets">
             <li><b>What was done.</b> The first-round student traced the training crops 0&ndash;10 on its own (5,346 neurons). At a sample of its steps, FFN was shown exactly the same box and mask and gave its answer: 324,000 new training examples, from the situations the student actually gets into. The student then trained for 150,000 more steps on old and new examples together (1.7&nbsp;h, one B200) and traced crop 11 again. About 5 B200-hours in all.</li>
-            <li><b>Why the first round stopped early.</b> On FFN's own boxes, the student copies nearly every move FFN makes: it misses 459 of 209,082. But moves into territory the mask has not yet reached are different. After the first step the student misses 116 of FFN's 286 such moves, and makes 47 that FFN does not. So the early stops were not only drift from FFN's path. The counts are small.</li>
+            <li><b>What the first-round student gets wrong on FFN&rsquo;s own boxes.</b> On FFN's own boxes, the student copies nearly every move FFN makes: it misses 459 of 209,082. But moves into territory the mask has not yet reached are different. After the first step the student misses 116 of FFN's 286 such moves, and makes 47 that FFN does not. These errors happen even without drift from FFN's path; whether they caused the early stops was not tested. The counts are small.</li>
         </ul>
         <div class="ffn-mini-wrap ffn-gap"><table class="ffn-table ffn-mini">
             <thead><tr><th>crop 11 (512 neurons)</th><th>FFN</th><th>first round</th><th>second round</th></tr></thead>
