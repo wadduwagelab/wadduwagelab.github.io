@@ -44,7 +44,7 @@ title: "Faster FFN tracing for LICONN"
                 <li>Reproduced the authors' FFN example bitwise, then tested speed-up ideas end to end against their proofread segmentation, under accuracy rules fixed in advance.</li>
                 <li>Found where the fastest idea failed (traces are knife-edge at merge points; float16 changed move decisions) and fixed it: <b>3.2&times; faster per step</b> on the benchmark seeds (3.0&times; on 300 fresh seeds), passing the owner's 2% rule on the fresh seeds (relaxed from 1% after that result; all 5 new merges are in dendrites).</li>
                 <li>Built an exact fast tracer: <b>1.12&times; in float32</b>, output bitwise identical on 624 traces.</li>
-                <li><a href="#student">A smaller FFN</a> that reads the image once per crop and learns the rest from FFN: <b>4.5&times; less compute per step</b>; first round F1 0.83 vs FFN's 0.90 on a held-back crop, second round running.</li>
+                <li><a href="#student">A smaller FFN</a> that reads the image once per crop and learns the rest from FFN: <b>4.5&times; less compute per step</b>; after a second training round F1 0.876 vs FFN's 0.898 on a held-back crop, inside the 0.05 limit; it now overruns into neighbouring neurons more often. Test on crop 12 next.</li>
                 <li>Designed and trained a <b>3D vision transformer</b> from scratch to segment every neuron at once (F1 0.53 against a 0.92 ceiling on the tuning crop); stopped by the owner and documented.</li>
                 <li>Tested a <b>pretrained</b> electron-microscopy model zero-shot: F1 0.55, on par with the trained ViT, and showed where it fails.</li>
                 <li><a href="#segneuron-ft">Fine-tuned it</a> on LICONN: F1 <b>0.50 &rarr; 0.82</b>. Head to head on the same 457 neurons, FFN is more accurate (0.89) and SegNeuron <b>2.2&times; faster</b>; see its segments in 3D.</li>
@@ -255,7 +255,7 @@ title: "Faster FFN tracing for LICONN"
 </div>
 </details>
 <details class="acc" id="student">
-<summary><span class="acc-head"><span class="acc-title">A smaller network that reads the image once</span><span class="acc-sub">in progress: first training round 0.07 F1 short of FFN; second round running</span></span><span class="acc-line">FFN re-reads the same image at every step. A student network reads it once per crop and learns from FFN to do the rest: 4.5&times; less compute per step, F1 0.83 vs FFN's 0.90 so far.</span><span class="acc-tags"><span class="acc-tag">Distillation</span><span class="acc-tag">PyTorch port of a JAX model</span><span class="acc-tag">B200 GPUs</span><span class="acc-tag">Architecture</span></span></summary>
+<summary><span class="acc-head"><span class="acc-title">A smaller network that reads the image once</span><span class="acc-sub">in progress: second training round 0.02 F1 short of FFN, inside the limit; crop-12 test next</span></span><span class="acc-line">FFN re-reads the same image at every step. A student network reads it once per crop and learns from FFN to do the rest: 4.5&times; less compute per step, F1 0.876 vs FFN's 0.898 so far.</span><span class="acc-tags"><span class="acc-tag">Distillation</span><span class="acc-tag">PyTorch port of a JAX model</span><span class="acc-tag">B200 GPUs</span><span class="acc-tag">Architecture</span></span></summary>
 <div class="acc-body">
     <p class="res-lead"><b>The idea.</b> At every step FFN runs its whole network (20 blocks, 81.6&nbsp;GFLOP) on a 33&sup3;-voxel box.
         Neighbouring boxes overlap heavily, so most of that work re-reads image voxels already read at earlier steps.
@@ -363,20 +363,34 @@ title: "Faster FFN tracing for LICONN"
     </div>
 
     <ul class="res-bullets ffn-gap">
-        <li><b>What went wrong.</b> On boxes FFN chose, the student gives the same answer as FFN for 98% of voxels. When it traces on its own, it stops too early on about a third of neurons: it misses parts of neurons (recall 0.75 vs 0.87) rather than adding wrong ones. 85% of the F1 gap comes from neurons where it took fewer than 80% of FFN's steps.</li>
+        <li><b>What went wrong in the first round.</b> On boxes FFN chose, the student gives the same answer as FFN for 98% of voxels. When it traces on its own, it stops too early on about a third of neurons: it misses parts of neurons (recall 0.75 vs 0.87) rather than adding wrong ones. 85% of the F1 gap comes from neurons where it took fewer than 80% of FFN's steps.</li>
         <li><b>Why, most likely.</b> It was trained only on boxes FFN visited, with FFN's own mask as input. Tracing alone, it moves slightly differently and feeds its own slightly different mask back in: situations it never saw in training. Small differences then add up over hundreds of steps. Training longer on the same data is unlikely to help: the error on held-back examples changed little after the first quarter of the run.</li>
         <li><b>The pass mark.</b> Fixed before training: the student may go on to the test on crop 12 only if it is within 0.05 F1 of FFN on crop 11. At 0.067 it is not.</li>
     </ul>
 
     <div class="ffn-box ffn-gap">
-        <h3 class="res-h3">Second round (running, approved November 1)</h3>
+        <h3 class="res-h3">Second round (approved November 1): the student learns from its own traces</h3>
         <ul class="res-bullets">
-            <li>The student traces the training crops 0&ndash;10 on its own, making its own moves.</li>
-            <li>At a sample of its steps, FFN is shown exactly the same box and mask and gives its answer. These answers are the new training examples: they cover the situations the student actually gets into.</li>
-            <li>The student continues training on the old and new examples together, then traces crop 11 again.</li>
-            <li>The same run records, at each step, whether FFN would have moved where the student stopped, and by how much the student fell short. This tells whether the early stops are a small offset that a threshold change could fix.</li>
+            <li><b>What was done.</b> The first-round student traced the training crops 0&ndash;10 on its own (5,346 neurons). At a sample of its steps, FFN was shown exactly the same box and mask and gave its answer: 324,000 new training examples, from the situations the student actually gets into. The student then trained for 150,000 more steps on old and new examples together (1.7&nbsp;h, one B200) and traced crop 11 again. About 5 B200-hours in all.</li>
+            <li><b>Why the first round stopped early.</b> On FFN's own boxes, the student copies nearly every move FFN makes: it misses 459 of 209,082. But moves into territory the mask has not yet reached are different. After the first step the student misses 116 of FFN's 286 such moves, and makes 47 that FFN does not. So the early stops were not only drift from FFN's path. The counts are small.</li>
         </ul>
-        <p class="ffn-muted ffn-small">About 5 B200-hours. If the student is still more than 0.05 below FFN, the owner decides the next step; nothing is changed automatically.</p>
+        <div class="ffn-mini-wrap ffn-gap"><table class="ffn-table ffn-mini">
+            <thead><tr><th>crop 11 (512 neurons)</th><th>FFN</th><th>first round</th><th>second round</th></tr></thead>
+            <tbody>
+                <tr><th>mean F1</th><td>0.898</td><td>0.831</td><td><b>0.876</b></td></tr>
+                <tr><th>gap to FFN (limit 0.05)</th><td></td><td>0.067</td><td><b>0.021</b></td></tr>
+                <tr><th>recall</th><td>0.868</td><td>0.753</td><td>0.856</td></tr>
+                <tr><th>precision</th><td>0.972</td><td>0.984</td><td>0.952</td></tr>
+                <tr><th>neurons where the student is better / worse</th><td></td><td>110 / 402</td><td>227 / 285</td></tr>
+                <tr><th>steps</th><td>158,257</td><td>116,153</td><td>184,606</td></tr>
+                <tr><th>merges into another neuron (&ge;&nbsp;1,000 voxels)</th><td>112</td><td>59</td><td>339</td></tr>
+            </tbody>
+        </table></div>
+        <ul class="res-bullets ffn-gap">
+            <li><b>Result.</b> The student now traces about as far as FFN (recall 0.86 vs 0.87) and is 0.021 F1 short, inside the 0.05 limit. It may go on to the test on crop 12.</li>
+            <li><b>New problem: it now runs on too far.</b> Precision fell from 0.98 to 0.95. The student takes 17% more steps than FFN and runs into neighbouring neurons three times as often. Stopping early still causes about two-thirds of the remaining gap; running on causes about a third.</li>
+            <li><b>Limits.</b> Crop 11 chose the first-round version, the second-round checkpoint, and the decision to run a second round, so 0.876 is a tuning number. Crop 12 is the first unseen test. Merges matter more when a whole crop is segmented than in a per-neuron score, and will be measured there. The speed pass mark is measured on crop 12 too.</li>
+        </ul>
     </div>
 </div>
 </details>
@@ -1111,7 +1125,7 @@ title: "Faster FFN tracing for LICONN"
 <div class="acc-body">
         <ol class="res-start">
         <li class="res-start-card"><h3>Finish the smaller-FFN pilot</h3>
-            <p>Second training round, then crop 11 again. If it comes within 0.05 F1 of FFN, test it on crop 12 against the pass mark (F1 &ge; 0.86, at least 2&times; faster than FFN on the same GPU).</p></li>
+            <p>The second-round student is within 0.05 F1 of FFN on crop 11. Next, test it on crop 12 against the pass mark (F1 &ge; 0.86, at least 2&times; faster than FFN on the same GPU), with merges counted over the whole crop. Waiting for the owner's go-ahead.</p></li>
         <li class="res-start-card"><h3>SegNeuron's post-processing on the GPU</h3>
             <p>Over half of SegNeuron's time is a single-core CPU watershed. Moving it to the GPU is estimated to bring SegNeuron to about 4&ndash;4.5&times; FFN's speed on crop 12; it must keep crop 12's F1 unchanged, and then be timed.</p></li>
         <li class="res-start-card"><h3>The fair accuracy comparison</h3>
