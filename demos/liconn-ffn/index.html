@@ -255,7 +255,7 @@ title: "Faster FFN tracing for LICONN"
 </div>
 </details>
 <details class="acc" id="student">
-<summary><span class="acc-head"><span class="acc-title">A smaller network that reads the image once</span><span class="acc-sub">in progress: first training round 0.07 F1 short of FFN; second round running</span></span><span class="acc-line">FFN re-reads the same image at every step. A student network reads it once per crop and learns from FFN to do the rest: 4.5&times; less compute per step, F1 0.83 vs FFN's 0.90 so far.</span><span class="acc-tags"><span class="acc-tag">Distillation</span><span class="acc-tag">PyTorch port of a JAX model</span><span class="acc-tag">B200 GPUs</span></span></summary>
+<summary><span class="acc-head"><span class="acc-title">A smaller network that reads the image once</span><span class="acc-sub">in progress: first training round 0.07 F1 short of FFN; second round running</span></span><span class="acc-line">FFN re-reads the same image at every step. A student network reads it once per crop and learns from FFN to do the rest: 4.5&times; less compute per step, F1 0.83 vs FFN's 0.90 so far.</span><span class="acc-tags"><span class="acc-tag">Distillation</span><span class="acc-tag">PyTorch port of a JAX model</span><span class="acc-tag">B200 GPUs</span><span class="acc-tag">Architecture</span></span></summary>
 <div class="acc-body">
     <p class="res-lead"><b>The idea.</b> At every step FFN runs its whole network (20 blocks, 81.6&nbsp;GFLOP) on a 33&sup3;-voxel box.
         Neighbouring boxes overlap heavily, so most of that work re-reads image voxels already read at earlier steps.
@@ -264,6 +264,75 @@ title: "Faster FFN tracing for LICONN"
         <li><b>Image part, run once per crop.</b> FFN's first 16 blocks, applied to the image only, with FFN's own weights, unchanged. Its output for the whole crop is computed once and kept in GPU memory.</li>
         <li><b>Tracing part, run at every step.</b> A small network (4 blocks, 17.9&nbsp;GFLOP) that takes the stored image output for the box and the object traced so far, and predicts the object in the box. Everything else (where to move next, when to stop) is FFN's own code, unchanged.</li>
     </ul>
+
+    <h3 class="res-h3 res-h3-gap" id="student-arch">Exact architecture: teacher and student</h3>
+    <p class="res-lead">Both networks use the same building blocks. All convolutions are 3&times;3&times;3 with zero padding (output the same size as the input) unless stated; 32 channels throughout.
+        <b>LayerNorm</b> normalises the 32 values of each voxel (with a learned scale and offset; &epsilon;&nbsp;=&nbsp;10<sup>&minus;6</sup>).
+        A <b>residual block</b> computes <code style="overflow-wrap:anywhere">x + Conv(ReLU(Conv(ReLU(LayerNorm(x)))))</code>: two convolutions, added back onto its input.</p>
+    <div class="res-two ffn-gap">
+        <div class="ffn-box">
+            <h3 class="res-h3">Teacher: the authors' FFN</h3>
+            <p class="ffn-muted ffn-small">google/ffn ResConvStack, depth 20, checkpoint axde_59110972. Ported to PyTorch; outputs match the authors' JAX model to 4&times;10<sup>&minus;5</sup>.</p>
+            <div class="ffn-mini-wrap"><table class="ffn-table ffn-mini">
+                <thead><tr><th>layer</th><th>channels</th><th>parameters</th></tr></thead>
+                <tbody>
+                    <tr><th>input: one 33&times;33&times;33 box</th><td>2: image, mask</td><td></td></tr>
+                    <tr><th>stem: Conv, LayerNorm, ReLU, Conv</th><td>2 &rarr; 32 &rarr; 32</td><td>29,504</td></tr>
+                    <tr><th>residual blocks 1&ndash;20</th><td>32</td><td>20 &times; 55,424</td></tr>
+                    <tr><th>head: LayerNorm, ReLU, 1&times;1&times;1 Conv</th><td>32 &rarr; 1</td><td>97</td></tr>
+                    <tr><th>output: one value per voxel</th><td>1</td><td></td></tr>
+                    <tr><th>total</th><td></td><td><b>1,138,081</b></td></tr>
+                </tbody>
+            </table></div>
+            <ul class="res-bullets">
+                <li><b>Runs:</b> the whole network at every step: 81.6&nbsp;GFLOP per box.</li>
+                <li><b>Image input:</b> raw intensity, (value &minus; 128) / 33.</li>
+                <li><b>Mask input:</b> the object traced so far, as log-odds: 2.94 at the seed (probability 0.95), 0 where nothing is known yet (0.5).</li>
+                <li><b>Output:</b> log-odds that each voxel belongs to the object. It is written into the object map; FFN moves 8 voxels towards each face of the box whose maximum is above 0.41 (probability 0.6).</li>
+            </ul>
+        </div>
+        <div class="ffn-box">
+            <h3 class="res-h3">Student: image encoder + tracing decoder</h3>
+            <p class="ffn-muted ffn-small">The teacher cut after block 16. The mask moves from the first layer to the cut.</p>
+            <p class="ffn-small"><b>Image encoder</b>: once per crop; frozen, with the teacher's weights.</p>
+            <div class="ffn-mini-wrap"><table class="ffn-table ffn-mini">
+                <thead><tr><th>layer</th><th>channels</th><th>parameters</th></tr></thead>
+                <tbody>
+                    <tr><th>input: the whole crop (500&sup3;)</th><td>1: image</td><td></td></tr>
+                    <tr><th>stem, image channel only</th><td>1 &rarr; 32 &rarr; 32</td><td>28,640</td></tr>
+                    <tr><th>teacher's blocks 1&ndash;16</th><td>32</td><td>16 &times; 55,424</td></tr>
+                    <tr><th>stored per voxel (float16)</th><td>32</td><td>8&nbsp;GB per crop</td></tr>
+                </tbody>
+            </table></div>
+            <p class="ffn-small ffn-gap"><b>Tracing decoder</b>: every step; trained.</p>
+            <div class="ffn-mini-wrap"><table class="ffn-table ffn-mini">
+                <thead><tr><th>layer</th><th>channels</th><th>parameters</th></tr></thead>
+                <tbody>
+                    <tr><th>input: box values + mask</th><td>32 + 1</td><td></td></tr>
+                    <tr><th>mask stem (new): Conv, ReLU, Conv</th><td>1 &rarr; 32 &rarr; 32</td><td>28,576</td></tr>
+                    <tr><th>add the two</th><td>32</td><td></td></tr>
+                    <tr><th>4 blocks, spacing 1, 2, 4, 1</th><td>32</td><td>4 &times; 55,424</td></tr>
+                    <tr><th>head</th><td>32 &rarr; 1</td><td>97</td></tr>
+                    <tr><th>total trained</th><td></td><td><b>250,369</b></td></tr>
+                </tbody>
+            </table></div>
+            <ul class="res-bullets">
+                <li><b>Runs:</b> the decoder at every step: 17.9&nbsp;GFLOP per box (4.5&times; less). The encoder adds about 0.8&nbsp;PFLOP once per crop as run here (128&sup3; tiles); for comparison, the teacher spent 11.2&nbsp;PFLOP tracing the 457 neurons of crop 12.</li>
+                <li><b>Inputs and output:</b> the same as the teacher's, so FFN's tracing code is unchanged.</li>
+                <li><b>Starting point:</b> the 4 blocks and the head start from the teacher's blocks 17&ndash;20 and head; the mask stem is new, and its second convolution starts at zero, so at the start the decoder ignores the mask.</li>
+                <li><b>Spacing (dilation):</b> a convolution with spacing <i>d</i> reads voxels <i>d</i> apart instead of neighbours. The plain version uses spacing 1 in all four blocks.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="ffn-mini-wrap ffn-gap"><table class="ffn-table ffn-mini">
+        <thead><tr><th>what each network can see</th><th>teacher</th><th>student, plain</th><th>student, dilated</th></tr></thead>
+        <tbody>
+            <tr><th>how far the mask's influence reaches (voxels)</th><td>42: the whole box</td><td>10</td><td>18</td></tr>
+            <tr><th>image around each voxel (voxels)</th><td>only inside the box; zeros outside</td><td colspan="2">34 into the real image, then up to 8 / 16 more inside the box</td></tr>
+        </tbody>
+    </table></div>
+    <p class="ffn-muted ffn-small">Each 3&times;3&times;3 convolution with spacing <i>d</i> extends the reach by <i>d</i> voxels: teacher 2 + 2&times;20 = 42; plain decoder 2 + 2&times;4 = 10; dilated decoder 2 + 2&times;(1+2+4+1) = 18. The box is 33 voxels wide, so in the teacher every voxel's answer can depend on the mask anywhere in the box; in the student it cannot. This is a likely reason the dilated version does better, and a limit on how closely either can copy the teacher. The image reach is wider in the student because the encoder runs over the whole crop, not box by box; near the box edge the two networks therefore see different image context.</p>
+
     <p class="res-lead ffn-gap">The tracing part has to be trained. It is trained to copy FFN (the &ldquo;teacher&rdquo;):
         FFN traces neurons; at a sample of its steps we save the box it looked at and the answer it gave; the small network learns to give the same answer.
         It is judged by tracing neurons itself and comparing them with the authors' proofread segmentation.</p>
