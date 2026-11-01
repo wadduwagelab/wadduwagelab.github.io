@@ -404,7 +404,7 @@ title: "Faster FFN tracing for LICONN"
         </table></div>
         <ul class="res-bullets ffn-gap">
             <li><b>Result.</b> The student now traces about as far as FFN (recall 0.86 vs 0.87) and is 0.021 F1 short, inside the 0.05 limit. It may go on to the test on crop 12.</li>
-            <li><b>New problem: it now runs on too far.</b> Precision fell from 0.98 to 0.95. The student takes 17% more steps than FFN and runs into neighbouring neurons three times as often. Stopping early still causes about two-thirds of the remaining gap; running on causes about a third.</li>
+            <li><b>New problem: it now runs on too far.</b> Precision fell from 0.98 to 0.95. The student takes 17% more steps than FFN and runs into neighbouring neurons three times as often. Neurons where it took far fewer steps than FFN hold about two-thirds of the remaining gap; neurons where it took far more hold about a third. This only shows where the gap sits, not what caused it.</li>
             <li><b>Limits.</b> Crop 11 chose the first-round version, the second-round checkpoint, and the decision to run a second round, so 0.876 is a tuning number. Crop 12 is the first unseen test. Merges matter more when a whole crop is segmented than in a per-neuron score, and will be measured there. The speed pass mark is measured on crop 12 too.</li>
         </ul>
     </div>
