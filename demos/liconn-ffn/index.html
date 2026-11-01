@@ -369,10 +369,26 @@ title: "Faster FFN tracing for LICONN"
     </ul>
 
     <div class="ffn-box ffn-gap">
+        <h3 class="res-h3">Where the first-round student goes wrong: moves into new territory</h3>
+        <p class="ffn-small">FFN moves its box towards a face when the face's highest value is above the threshold. We call a face a <b>frontier face</b> when the object traced so far has not reached it: the mask is below the threshold over the whole face. A move there extends the trace into new territory. The test: give the first-round student exactly FFN's own boxes and masks (all 41,290 saved steps from crop 11) and compare its moves with FFN's.</p>
+        <div class="ffn-mini-wrap ffn-gap"><table class="ffn-table ffn-mini">
+            <thead><tr><th>faces</th><th>FFN moves</th><th>both</th><th>student misses</th><th>student only</th></tr></thead>
+            <tbody>
+                <tr><th>first step, all</th><td>3,066</td><td>3,057</td><td>9</td><td>2</td></tr>
+                <tr><th>later steps, all</th><td>206,016</td><td>205,566</td><td>450</td><td>387</td></tr>
+                <tr><th>later steps, frontier</th><td>286</td><td>170</td><td><b>116</b></td><td><b>55</b></td></tr>
+            </tbody>
+        </table></div>
+        <ul class="res-bullets ffn-gap">
+            <li><b>What it shows.</b> On FFN's own boxes the student copies almost every move, except moves into new territory, where it misses 4 in 10 and adds some of its own. These are errors without any drift from FFN's path.</li>
+            <li><b>What it does not show.</b> Frontier moves are rare (286 of 209,082), so the counts are small. Whether these errors caused the early stops was not tested: that would need a step-by-step comparison of the two traces.</li>
+        </ul>
+    </div>
+
+    <div class="ffn-box ffn-gap">
         <h3 class="res-h3">Second round (approved November 1): the student learns from its own traces</h3>
         <ul class="res-bullets">
             <li><b>What was done.</b> The first-round student traced the training crops 0&ndash;10 on its own (5,346 neurons). At a sample of its steps, FFN was shown exactly the same box and mask and gave its answer: 324,000 new training examples, from the situations the student actually gets into. The student then trained for 150,000 more steps on old and new examples together (1.7&nbsp;h, one B200) and traced crop 11 again. About 5 B200-hours in all.</li>
-            <li><b>What the first-round student gets wrong on FFN&rsquo;s own boxes.</b> On FFN's own boxes, the student copies nearly every move FFN makes: it misses 459 of 209,082. But moves into territory the mask has not yet reached are different. After the first step the student misses 116 of FFN's 286 such moves, and makes 47 that FFN does not. These errors happen even without drift from FFN's path; whether they caused the early stops was not tested. The counts are small.</li>
         </ul>
         <div class="ffn-mini-wrap ffn-gap"><table class="ffn-table ffn-mini">
             <thead><tr><th>crop 11 (512 neurons)</th><th>FFN</th><th>first round</th><th>second round</th></tr></thead>
