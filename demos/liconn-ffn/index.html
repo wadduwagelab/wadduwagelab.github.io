@@ -44,7 +44,7 @@ title: "Faster FFN tracing for LICONN"
                 <li>Reproduced the authors' FFN example bitwise, then tested speed-up ideas end to end against their proofread segmentation, under accuracy rules fixed in advance.</li>
                 <li>Found where the fastest idea failed (traces are knife-edge at merge points; float16 changed move decisions) and fixed it: <b>3.2&times; faster per step</b> on the benchmark seeds (3.0&times; on 300 fresh seeds), passing the owner's 2% rule on the fresh seeds (relaxed from 1% after that result; all 5 new merges are in dendrites).</li>
                 <li>Built an exact fast tracer: <b>1.12&times; in float32</b>, output bitwise identical on 624 traces.</li>
-                <li><a href="#student">A smaller FFN</a> that reads the image once per crop and learns the rest from FFN: <b>4.5&times; less compute per step</b>; after a second training round F1 0.876 vs FFN's 0.898 on a held-back crop, inside the 0.05 limit; it now overruns into neighbouring neurons more often. Test on crop 12 next.</li>
+                <li><a href="#student">A smaller FFN</a> that reads the image once per crop and learns the rest from FFN: <b>4.5&times; less compute per step</b>; on crop 12 it passed the pass mark set in advance by small margins: <b>2.24&times; faster</b> than FFN on the same GPU (both float32), F1 0.866 vs FFN's 0.888 (mark 0.86), but with 7&times; as many merges, mostly from 16 runaway traces.</li>
                 <li>Designed and trained a <b>3D vision transformer</b> from scratch to segment every neuron at once (F1 0.53 against a 0.92 ceiling on the tuning crop); stopped by the owner and documented.</li>
                 <li>Tested a <b>pretrained</b> electron-microscopy model zero-shot: F1 0.55, on par with the trained ViT, and showed where it fails.</li>
                 <li><a href="#segneuron-ft">Fine-tuned it</a> on LICONN: F1 <b>0.50 &rarr; 0.82</b>. Head to head on the same 457 neurons, FFN is more accurate (0.89) and SegNeuron <b>2.2&times; faster</b>; see its segments in 3D.</li>
@@ -255,7 +255,7 @@ title: "Faster FFN tracing for LICONN"
 </div>
 </details>
 <details class="acc" id="student">
-<summary><span class="acc-head"><span class="acc-title">A smaller network that reads the image once</span><span class="acc-sub">in progress: second training round 0.02 F1 short of FFN, inside the limit; crop-12 test next</span></span><span class="acc-line">FFN re-reads the same image at every step. A student network reads it once per crop and learns from FFN to do the rest: 4.5&times; less compute per step, F1 0.876 vs FFN's 0.898 so far.</span><span class="acc-tags"><span class="acc-tag">Distillation</span><span class="acc-tag">PyTorch port of a JAX model</span><span class="acc-tag">B200 GPUs</span><span class="acc-tag">Architecture</span></span></summary>
+<summary><span class="acc-head"><span class="acc-title">A smaller network that reads the image once</span><span class="acc-sub">crop-12 test passed by small margins: 2.24&times; faster, F1 0.866; many more merges</span></span><span class="acc-line">FFN re-reads the same image at every step. A student network reads it once per crop and learns from FFN to do the rest: 4.5&times; less compute per step; on crop 12, 2.24&times; faster than FFN in float32 at F1 0.866 vs 0.888.</span><span class="acc-tags"><span class="acc-tag">Distillation</span><span class="acc-tag">PyTorch port of a JAX model</span><span class="acc-tag">B200 GPUs</span><span class="acc-tag">Architecture</span></span></summary>
 <div class="acc-body">
     <p class="res-lead"><b>The idea.</b> At every step FFN runs its whole network (20 blocks, 81.6&nbsp;GFLOP) on a 33&sup3;-voxel box.
         Neighbouring boxes overlap heavily, so most of that work re-reads image voxels already read at earlier steps.
@@ -405,7 +405,31 @@ title: "Faster FFN tracing for LICONN"
         <ul class="res-bullets ffn-gap">
             <li><b>Result.</b> The student now traces about as far as FFN (recall 0.86 vs 0.87) and is 0.021 F1 short, inside the 0.05 limit. It may go on to the test on crop 12.</li>
             <li><b>New problem: it now runs on too far.</b> Precision fell from 0.98 to 0.95. The student takes 17% more steps than FFN and runs into neighbouring neurons three times as often. Neurons where it took far fewer steps than FFN hold about two-thirds of the remaining gap; neurons where it took far more hold about a third. This only shows where the gap sits, not what caused it.</li>
-            <li><b>Limits.</b> Crop 11 chose the first-round version, the second-round checkpoint, and the decision to run a second round, so 0.876 is a tuning number. Crop 12 is the first unseen test. Merges matter more when a whole crop is segmented than in a per-neuron score, and will be measured there. The speed pass mark is measured on crop 12 too.</li>
+            <li><b>Limits.</b> Crop 11 chose the first-round version, the second-round checkpoint, and the decision to run a second round, so 0.876 is a tuning number. Crop 12 is the first crop the student was not tuned on. Merges matter more when a whole crop is segmented than in a per-neuron score. The speed pass mark is measured on crop 12 too.</li>
+        </ul>
+    </div>
+    <div class="ffn-box ffn-gap">
+        <h3 class="res-h3">Crop-12 test (November 1): passed, by small margins</h3>
+        <p class="ffn-small">The same 457 neurons and seeds as every earlier crop-12 comparison, one B200, FFN first. Both networks run in float32 with the same tracing code; only the network differs. Pass mark, fixed on October 31: mean F1 &ge; 0.86 and at least 2&times; faster than FFN.</p>
+        <div class="ffn-mini-wrap ffn-gap"><table class="ffn-table ffn-mini">
+            <thead><tr><th>crop 12 (457 neurons)</th><th>FFN</th><th>student</th></tr></thead>
+            <tbody>
+                <tr><th>mean F1 (pass mark 0.86)</th><td>0.888</td><td><b>0.866</b></td></tr>
+                <tr><th>recall / precision</th><td>0.860 / 0.965</td><td>0.850 / 0.942</td></tr>
+                <tr><th>neurons with F1 &ge; 0.9</th><td>320</td><td>296</td></tr>
+                <tr><th>merges into another neuron (&ge;&nbsp;1,000 voxels)</th><td>102</td><td>751</td></tr>
+                <tr><th>steps</th><td>137,696</td><td>191,794</td></tr>
+                <tr><th>ms per step</th><td>7.79</td><td>2.21</td></tr>
+                <tr><th>one-time cost per crop</th><td>0.06&nbsp;s</td><td>54&nbsp;s (encoder)</td></tr>
+                <tr><th>time for the crop</th><td>1,074&nbsp;s</td><td>479&nbsp;s</td></tr>
+                <tr><th>speed-up (pass mark 2&times;)</th><td></td><td><b>2.24&times;</b></td></tr>
+            </tbody>
+        </table></div>
+        <ul class="res-bullets ffn-gap">
+            <li><b>Speed.</b> Each student step is 3.5&times; cheaper, but the student takes 39% more steps and spends 54&nbsp;s once on the encoder. Together: 2.24&times;. The typical neuron takes 0.62&nbsp;s instead of 2.06&nbsp;s.</li>
+            <li><b>Runaway traces.</b> 16 student traces took at least 3 times FFN's steps and ran through neighbouring neurons. They hold 637 of the 751 merges and 137&nbsp;s of the student's 424&nbsp;s of tracing. On the other 441 neurons the student scores 0.887 against FFN's 0.899, with about as many merges as FFN.</li>
+            <li><b>Margins are thin.</b> 0.006 above the F1 mark and 12% above the speed mark, from one run on one GPU. The 16 runaway traces alone cost more F1 than the margin.</li>
+            <li><b>What it does not show.</b> Both networks ran in float32. Our fastest FFN (float16 with a float32 head and the fast tracer, 3.0&ndash;3.2&times; faster than float32 on a V100) was not part of this test, so the student is not shown to beat it. Crop 12 was used to tune earlier work in this project, and FFN's network may have been trained on it: this is a pilot result, not a test result.</li>
         </ul>
     </div>
 </div>
@@ -1124,6 +1148,7 @@ title: "Faster FFN tracing for LICONN"
         <li><span>Oct 31</span>Try a smaller FFN that reads the image once, trained to copy FFN, in PyTorch on MIT B200s (1&ndash;2 B200-days). Pass mark on crop 12: F1 &ge; 0.86 and at least 2&times; faster than FFN on the same GPU.</li>
         <li><span>Oct 31</span>Keep FFN's image blocks fixed; train two versions of the tracing part (dilated and plain); check early whether it still moves from the seed.</li>
         <li><span>Nov 1</span>The student is 0.067 F1 short of FFN on crop 11 (limit 0.05): train further on boxes the student itself visits, labelled by FFN.</li>
+        <li><span>Nov 1</span>The second-round student is within the limit on crop 11 (0.021): test it on crop 12 against the pass mark.</li>
     </ol>
 
     <p class="ffn-muted ffn-small ffn-gap">Data: LICONN public release (Tavakoli et al., <i>Nature</i> 642, 398&ndash;410, 2025, <a href="https://doi.org/10.1038/s41586-025-08985-1" target="_blank" rel="noopener">doi:10.1038/s41586-025-08985-1</a>), CC BY 4.0;
@@ -1140,8 +1165,8 @@ title: "Faster FFN tracing for LICONN"
 <summary><span class="acc-head"><span class="acc-title">Next</span><span class="acc-sub">in order</span></span><span class="acc-line">Open decisions for the owner.</span></summary>
 <div class="acc-body">
         <ol class="res-start">
-        <li class="res-start-card"><h3>Finish the smaller-FFN pilot</h3>
-            <p>The second-round student is within 0.05 F1 of FFN on crop 11. Next, test it on crop 12 against the pass mark (F1 &ge; 0.86, at least 2&times; faster than FFN on the same GPU), with merges counted over the whole crop. Waiting for the owner's go-ahead.</p></li>
+        <li class="res-start-card"><h3>Smaller FFN: owner decision after the crop-12 pass</h3>
+            <p>It passed by small margins and merges 7&times; as often, mostly in 16 runaway traces. Options: stop runaway traces (for example a step limit relative to the object), compare it in float16 with the fastest FFN on the same GPU, or test it once on the unread crops.</p></li>
         <li class="res-start-card"><h3>SegNeuron's post-processing on the GPU</h3>
             <p>Over half of SegNeuron's time is a single-core CPU watershed. Moving it to the GPU is estimated to bring SegNeuron to about 4&ndash;4.5&times; FFN's speed on crop 12; it must keep crop 12's F1 unchanged, and then be timed.</p></li>
         <li class="res-start-card"><h3>The fair accuracy comparison</h3>
