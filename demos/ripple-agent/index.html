@@ -1,0 +1,203 @@
+---
+layout: default
+title: "RIPPLE agent demo"
+sitemap: false
+noindex: true
+---
+<!-- Demo: a language-model annotator for RIPPLE. Unlisted page (not in the nav or sitemap); share by URL.
+     Built by ripple/llm_annotator/make_demo.py. Styles in demos/ripple-agent/style.css, viewer in app.js,
+     tracks and video frames in data/tracks.json. -->
+<link rel="stylesheet" href="{{ '/demos/ripple-agent/style.css' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}">
+
+<section class="res-head">
+    <p class="res-kicker">Demo &middot; preview for co-authors, November 2026 &middot; <a class="ra-home" href="{{ '/' | relative_url }}">&larr; wadduwagelab.com</a></p>
+    <h1>A language-model annotator for RIPPLE</h1>
+    <p class="res-intro"><b>Can a language model replace the person who corrects point tracks?</b> In RIPPLE a person
+        clicks a target once, watches the track, and clicks again wherever it has drifted. Here a language model makes
+        those corrections: it views zoomed crops of a suspect frame, picks the target among candidate positions, and
+        hands the frame to a person when it cannot tell. These are first results on one video, the Neural Activity
+        dataset of the RIPPLE paper.</p>
+    <ul class="ra-stats">
+        <li><b>92.0</b><span>average point precision of the language-model annotator on ten tracks. The rule-based controller scores 88.5 and optical flow alone 42.3.</span></li>
+        <li><b>15</b><span>human clicks for ten tracks: ten to start the tracks and five on frames the model deferred. The original annotator made 158.</span></li>
+        <li><b>129</b><span>positions the model placed itself, 0.71 px from the reference on average and never more than 2.2 px away.</span></li>
+        <li><b>5</b><span>frames deferred to a person, out of 4,000.</span></li>
+    </ul>
+    <div class="res-toc" role="navigation" aria-label="On this page">
+        <a href="#tracks">Tracks</a>
+        <a href="#results">Results</a>
+        <a href="#loop">How it works</a>
+        <a href="#limits">Limits</a>
+    </div>
+</section>
+
+<section id="tracks" class="bg-subtle">
+    <div class="section-title">
+        <h2>The tracks</h2>
+        <p>ten targets, 400 frames</p>
+    </div>
+    <div class="ra-grid">
+        <div class="ra-panel">
+            <canvas id="view" aria-label="Video with the tracks drawn on it"></canvas>
+            <div class="ra-bar"><button id="play" type="button">Play</button><input id="frame" type="range" min="0" value="0" aria-label="Frame"><span class="ra-num" id="num">loading&hellip;</span></div>
+            <div class="ra-bar">
+                <label>View <select id="focus"></select></label>
+                <label><input type="checkbox" id="trail" checked> Trails</label>
+                <label><input type="checkbox" id="links" checked> Error lines</label>
+                <label><input type="checkbox" id="anch" checked> Anchors</label>
+            </div>
+            <p class="ra-muted ra-small">Space plays and pauses; the arrow keys step one frame. A ring marks each
+                frame where the model placed an anchor: solid when the model chose the position, dashed when it
+                deferred and a person clicked.</p>
+        </div>
+        <div>
+            <div class="ra-panel">
+                <h3 class="res-h3">Methods</h3>
+                <div id="legend"></div>
+            </div>
+            <div class="ra-panel ra-gap">
+                <h3 class="res-h3">Distance from the reference track, px</h3>
+                <p class="ra-muted ra-small">Click a track name to follow it, or a chart to jump to that frame.</p>
+                <div id="charts"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="results">
+    <div class="section-title">
+        <h2>Results</h2>
+        <p>neural activity, ten tracks</p>
+    </div>
+    <p class="res-lead">Every method starts each track from the same single click. Average point precision (APP) is
+        the percentage of frames within 1, 2, 4, 8 and 16 px of the reference track, averaged over the five
+        distances. A human click is either a starting click or a frame that the method handed to a person.</p>
+    <div class="ra-tablewrap">
+    <table class="ra-table">
+        <thead><tr><th>Method</th><th>APP</th><th>Human clicks</th><th>Positions placed by the method</th><th>Frames deferred</th></tr></thead>
+        <tbody>
+            <tr><td>Optical flow alone, one click per track</td><td>42.3</td><td>10</td><td>0</td><td>0</td></tr>
+            <tr><td>Rule-based controller</td><td>88.5</td><td>31</td><td>105</td><td>21</td></tr>
+            <tr class="ra-hl"><td>Language-model annotator</td><td>92.0</td><td>15</td><td>129</td><td>5</td></tr>
+            <tr><td>A person answers every flagged frame</td><td>95.5</td><td>150</td><td>0</td><td>140</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <p class="ra-muted ra-small">The rule-based controller sees the same candidates and measurements as the language
+        model and picks by a fixed score. In the last row a simulated person clicks the reference position at every
+        flagged frame; it shows what the frame-flagging step allows, with no model involved.</p>
+
+    <div class="res-two ra-gap">
+        <div>
+            <h3 class="res-h3">How close are the placed positions?</h3>
+            <div class="ra-tablewrap">
+            <table class="ra-table">
+                <thead><tr><th>Distance from the reference</th><th>Language model</th><th>Rule-based</th></tr></thead>
+                <tbody>
+                    <tr><td>Positions placed</td><td>129</td><td>105</td></tr>
+                    <tr><td>Mean</td><td>0.71 px</td><td>1.04 px</td></tr>
+                    <tr><td>Largest</td><td>2.2 px</td><td>11.6 px</td></tr>
+                    <tr><td>Within 2 px</td><td>96%</td><td>90%</td></tr>
+                    <tr><td>More than 4 px away</td><td>0</td><td>4</td></tr>
+                </tbody>
+            </table>
+            </div>
+            <p class="ra-muted ra-small">The rule-based controller's four large errors all confirmed a tracker that had
+                already drifted. The language model made none, but three of its 85 corrections moved the position
+                0.7 to 1.3 px further from the reference.</p>
+        </div>
+        <div>
+            <h3 class="res-h3">Track by track</h3>
+            <div class="ra-tablewrap">
+            <table class="ra-table ra-compact">
+                <thead><tr><th>Track</th><th>Language model<br>APP (clicks)</th><th>Rule-based<br>APP (clicks)</th><th>Person at every flag<br>APP (clicks)</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td>83.2 (4)</td><td>71.4 (7)</td><td>89.5 (25)</td></tr>
+                    <tr><td>2</td><td>88.2 (1)</td><td>88.2 (1)</td><td>91.0 (29)</td></tr>
+                    <tr><td>3</td><td>92.1 (2)</td><td>86.0 (5)</td><td>100.0 (12)</td></tr>
+                    <tr><td>4</td><td>94.7 (1)</td><td>94.7 (2)</td><td>96.0 (13)</td></tr>
+                    <tr><td>5</td><td>92.0 (2)</td><td>85.5 (2)</td><td>94.0 (10)</td></tr>
+                    <tr><td>6</td><td>92.8 (1)</td><td>79.8 (2)</td><td>97.9 (7)</td></tr>
+                    <tr><td>7</td><td>94.3 (1)</td><td>94.5 (3)</td><td>97.5 (21)</td></tr>
+                    <tr><td>8</td><td>92.5 (1)</td><td>93.8 (4)</td><td>95.3 (11)</td></tr>
+                    <tr><td>9</td><td>96.8 (1)</td><td>97.3 (3)</td><td>97.5 (9)</td></tr>
+                    <tr><td>10</td><td>93.5 (1)</td><td>93.5 (2)</td><td>96.3 (13)</td></tr>
+                </tbody>
+            </table>
+            </div>
+            <p class="ra-muted ra-small">The language model leads on tracks 1, 3, 5 and 6. On the other six the two
+                methods differ by about a point or less. Track 1, the tip of a moving neurite, is the hardest for
+                every method.</p>
+        </div>
+    </div>
+</section>
+
+<section id="loop" class="bg-subtle">
+    <div class="section-title">
+        <h2>How it works</h2>
+        <p>the correction loop</p>
+    </div>
+    <div class="res-two">
+        <ol class="res-steps">
+            <li><span><b>Start.</b> One click on the target in the first frame. RIPPLE's own propagation code builds
+                the track from optical flow.</span></li>
+            <li><span><b>Flag.</b> A frame is reviewed when forward and backward motion estimates disagree, when the
+                patch under the track stops resembling the target, or when 60 frames have passed without a
+                check.</span></li>
+            <li><span><b>Propose.</b> For the flagged frame the system lists up to six candidate positions: the
+                tracker's current position, blob detections nearby, and the positions predicted from image
+                motion.</span></li>
+            <li><span><b>Decide.</b> The language model sees a trusted reference crop, the frames in between, and the
+                flagged frame with the candidates marked. It picks one candidate or abstains.</span></li>
+            <li><span><b>Defer.</b> An abstention, or a pick the model rates below 0.6 confidence, goes to a person
+                and counts as one human click. Each new position becomes an anchor and RIPPLE rebuilds the
+                track.</span></li>
+        </ol>
+        <div class="ra-box">
+            <h3 class="res-h3">One decision: track 1, frame 71</h3>
+            <div class="ra-crops">
+                <figure><img src="{{ '/demos/ripple-agent/media/example-reference.png' | relative_url }}" alt="Reference crop with the target ringed in red" loading="lazy"><figcaption>Reference, frame 61</figcaption></figure>
+                <figure><img src="{{ '/demos/ripple-agent/media/example-unmarked.png' | relative_url }}" alt="Flagged frame without markers" loading="lazy"><figcaption>Frame 71</figcaption></figure>
+                <figure><img src="{{ '/demos/ripple-agent/media/example-marked.png' | relative_url }}" alt="Flagged frame with candidate positions A to F" loading="lazy"><figcaption>Frame 71, candidates</figcaption></figure>
+            </div>
+            <p><b>The model chose B, confidence 0.85.</b> &ldquo;The terminal blob of the beaded process is centred on B;
+                A sits just below-left of it off the blob, and C and D are the preceding puncta.&rdquo;</p>
+            <p class="ra-muted ra-small">A is the tracker's position before the correction. Each crop is 65 px wide,
+                with contrast stretched to its centre so that a faint target stays visible beside a bright
+                neighbour.</p>
+        </div>
+    </div>
+</section>
+
+<section id="limits">
+    <div class="section-title">
+        <h2>What these numbers are not</h2>
+        <p>read before quoting</p>
+    </div>
+    <div class="res-two">
+        <ul class="res-bullets">
+            <li><b>Agreement, not accuracy.</b> The reference is the original annotator's finished RIPPLE track. We
+                have not yet scored against the exhaustive manual segmentations of this video.</li>
+            <li><b>One video, ten tracks, one run.</b> We have not repeated the run, so we cannot say how much of the
+                3.5-point lead over the rule-based controller is run-to-run variation. The other four datasets of the
+                RIPPLE paper are untested.</li>
+            <li><b>Settings tuned on the test tracks.</b> We chose the flagging thresholds and the 60-frame review
+                interval on these ten tracks. We did not tune the rule-based controller's weights, so it is a weak
+                version of that baseline.</li>
+        </ul>
+        <ul class="res-bullets">
+            <li><b>Agents, not API calls.</b> Claude Opus ran as one agent per track inside Claude Code. Each agent
+                remembered its earlier decisions on its track, and we recorded no cost per decision.</li>
+            <li><b>Reference files were off limits by instruction only.</b> The agents were told to read nothing but
+                each query's own crops; nothing prevented them from opening the reference tracks.</li>
+            <li><b>A perfect simulated person.</b> Deferred frames were answered with the exact reference position.
+                A real person clicks a pixel or two off and takes time.</li>
+        </ul>
+    </div>
+    <p class="ra-muted ra-small ra-gap">Code: branch <code>llm-annotator</code> of
+        <a href="https://github.com/wadduwagelab/ripple" target="_blank" rel="noopener">wadduwagelab/ripple</a>, not yet
+        pushed. RIPPLE is developed in the Wadduwage Lab at Old Dominion University. Questions:
+        <a href="mailto:dwadduwa@odu.edu">dwadduwa@odu.edu</a>. <a href="{{ '/' | relative_url }}">Back to wadduwagelab.com</a>.</p>
+</section>
+
+<script src="{{ '/demos/ripple-agent/app.js' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}" defer></script>

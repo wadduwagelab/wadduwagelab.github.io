@@ -1,0 +1,67 @@
+/* RIPPLE agent demo: page-only styles on top of /assets/css/main.css (Dither Lab theme) */
+:root { --line: #d9d9d9; --ink: #111; --muted: #555; }
+.ra-muted { color: var(--text-muted); }
+.ra-small { font-size: 0.85rem; line-height: 1.45; }
+.ra-gap { margin-top: 1.1rem; }
+.ra-home { color: var(--text-muted); text-decoration: none; text-transform: none; letter-spacing: 0; }
+.ra-home:hover { color: var(--accent); }
+
+/* headline tiles */
+.ra-stats { list-style: none; margin: 0 0 1.25rem; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.ra-stats li { background: #fff; border: 2px solid #000; box-shadow: 5px 5px 0 var(--accent); padding: 0.8rem 0.9rem; display: flex; flex-direction: column; gap: 0.3rem; }
+.ra-stats b { font-family: 'Silkscreen', monospace; font-weight: 400; font-size: 1.6rem; line-height: 1.1; color: var(--accent); }
+.ra-stats span { font-size: 0.88rem; line-height: 1.4; color: var(--text-muted); }
+
+/* viewer */
+.ra-grid { display: grid; grid-template-columns: minmax(0, 560px) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+.ra-grid > * { min-width: 0; }
+.ra-panel, .ra-box { background: #fff; border: 2px solid #000; box-shadow: 5px 5px 0 var(--accent); padding: 0.9rem 1rem; }
+.ra-panel p { margin: 0.6rem 0 0; }
+#view { display: block; width: 100%; height: auto; background: #000; image-rendering: pixelated; }
+.ra-bar { display: flex; flex-wrap: wrap; gap: 0.5rem 0.9rem; align-items: center; margin-top: 0.7rem; font-size: 0.9rem; }
+.ra-bar input[type=range] { flex: 1; min-width: 120px; accent-color: var(--accent); }
+.ra-bar label, #legend label { display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; }
+.ra-bar button, .ra-bar select { font: inherit; color: #000; background: #fff; border: 2px solid #000; padding: 0.2rem 0.7rem; cursor: pointer; border-radius: 0; }
+.ra-bar button:hover { background: var(--accent); color: #fff; }
+.ra-num { font-variant-numeric: tabular-nums; color: var(--text-muted); min-width: 7.5em; text-align: right; }
+#legend label { display: flex; padding: 0.15rem 0; font-size: 0.93rem; }
+.sw { width: 14px; height: 14px; display: inline-block; border: 2.5px solid; flex: none; background: #222; }
+.sw.c { border-radius: 50%; }
+.sw.x { border: none; font-weight: 700; line-height: 14px; text-align: center; }
+.tr { margin-top: 0.8rem; font-size: 0.9rem; }
+.tr b { cursor: pointer; text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 2px; }
+.tr span { color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.chart { width: 100%; height: 70px; display: block; cursor: pointer; }
+#charts { max-height: 560px; overflow-y: auto; padding-right: 0.3rem; }
+
+/* tables */
+.ra-tablewrap { overflow-x: auto; }
+.ra-table { border-collapse: collapse; width: 100%; background: #fff; border: 2px solid #000; font-size: 0.93rem; }
+.ra-table th, .ra-table td { padding: 0.45rem 0.7rem; text-align: right; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.ra-table th:first-child, .ra-table td:first-child { text-align: left; }
+.ra-table thead th { font-family: 'Silkscreen', monospace; font-weight: 400; font-size: 0.7rem; line-height: 1.35; border-bottom: 2px solid #000; vertical-align: bottom; }
+.ra-table tbody tr:last-child td { border-bottom: none; }
+.ra-table .ra-hl td { background: var(--bg-subtle); font-weight: 600; }
+.ra-compact th, .ra-compact td { padding: 0.3rem 0.6rem; }
+.res-two > * { min-width: 0; }
+
+/* example decision */
+.ra-box p { margin: 0.7rem 0 0; font-size: 0.95rem; line-height: 1.5; }
+.ra-crops { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+.ra-crops figure { margin: 0; }
+.ra-crops img { display: block; width: 100%; height: auto; border: 2px solid #000; image-rendering: pixelated; }
+.ra-crops figcaption { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem; }
+#limits code { font-family: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace; font-size: 0.9em; background: var(--bg-subtle); padding: 0 0.25em; }
+
+@media (max-width: 960px) {
+  .ra-grid { grid-template-columns: 1fr; }
+  #charts { max-height: none; }
+}
+@media (max-width: 860px) {
+  .ra-stats { grid-template-columns: 1fr 1fr; }
+  .res-two { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .ra-stats { grid-template-columns: 1fr; }
+  .ra-stats b { font-size: 1.3rem; }
+}
