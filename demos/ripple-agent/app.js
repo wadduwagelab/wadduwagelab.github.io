@@ -5,10 +5,11 @@ const base = document.currentScript ? document.currentScript.src.replace(/app\.j
 const D = await fetch(base + "data/tracks.json").then(r => r.json());
 const METHODS = [
  {k:"human", name:"Reference: the original annotator's RIPPLE track", color:"#f5f5f5", shape:"c"},
- {k:"llm",   name:"Language-model annotator", color:"#ffb000", shape:"s"},
+ {k:"llm",   name:"Claude Opus", color:"#ffb000", shape:"s"},
+ {k:"haiku", name:"Claude Haiku", color:"#a3e635", shape:"s"},
  {k:"rule",  name:"Rule-based controller", color:"#22d3ee", shape:"s"},
  {k:"flow",  name:"Optical flow alone, one click", color:"#f472b6", shape:"x"}];
-const on = {human:true, llm:true, rule:false, flow:true};
+const on = {human:true, llm:true, haiku:false, rule:false, flow:true};
 const S = D.scale, T = D.frames.length, cv = document.getElementById("view"), cx = cv.getContext("2d");
 let focus = "Track1", V = {x0:D.x0, y0:D.y0, w:D.w, h:D.h, s:S};
 function setView(){
@@ -95,7 +96,7 @@ for (const m of METHODS){ const l = document.createElement("label");
 const C = document.getElementById("charts");
 for (const tr of D.tracks){ const d = document.createElement("div"); d.className = "tr";
   const sel = tr.anchors.filter(a=>a.by=="llm").length, def = tr.anchors.filter(a=>a.by=="human").length;
-  d.innerHTML = `<b style="cursor:pointer" title="Follow this track">${tr.id}</b> <span>· ${sel} placed by the model, ${def} deferred</span><canvas class="chart" id="c_${tr.id}"></canvas>`;
+  d.innerHTML = `<b style="cursor:pointer" title="Follow this track">${tr.id}</b> <span>· Opus placed ${sel}, deferred ${def}</span><canvas class="chart" id="c_${tr.id}"></canvas>`;
   C.appendChild(d);
   d.querySelector('b').onclick = () => { focus = tr.id; F.value = tr.id; draw(); };
   d.querySelector("canvas").onclick = e => { const r = e.target.getBoundingClientRect(); setT(Math.round((e.clientX-r.left-4)/(r.width-8)*(T-1))); }; }
