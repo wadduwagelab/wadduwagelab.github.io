@@ -16,7 +16,8 @@ noindex: true
         clicks a target once, watches the track, and clicks again wherever it has drifted. Here a language model makes
         those corrections: it views zoomed crops of a suspect frame, picks the target among candidate positions, and
         hands the frame to a person when it cannot tell. These are first results on one video, the Neural Activity
-        dataset of the RIPPLE paper, with two Claude models: Opus and the much smaller Haiku.</p>
+        dataset of the RIPPLE paper, with two Claude models, Opus and the much smaller Haiku, and two open-weight
+        models run on a laptop.</p>
     <ul class="ra-stats">
         <li><b>92.0</b><span>average point precision of Claude Opus on ten tracks. Claude Haiku scores 92.1, the rule-based controller 88.5 and optical flow alone 42.3.</span></li>
         <li><b>15</b><span>human clicks for ten tracks with Opus: ten to start the tracks and five on frames it deferred. Haiku needed 19. The original annotator made 158.</span></li>
@@ -80,14 +81,23 @@ noindex: true
             <tr><td>Rule-based controller</td><td>88.5</td><td>31</td><td>105</td><td>21</td></tr>
             <tr class="ra-hl"><td>Language-model annotator, Claude Opus</td><td>92.0</td><td>15</td><td>129</td><td>5</td></tr>
             <tr class="ra-hl"><td>Language-model annotator, Claude Haiku</td><td>92.1</td><td>19</td><td>120</td><td>9</td></tr>
+            <tr><td>Language-model annotator, Qwen3-VL 8B (open weights, local)</td><td>60.4</td><td>18</td><td>114</td><td>8</td></tr>
+            <tr><td>Language-model annotator, Qwen2.5-VL 7B (open weights, local)</td><td>56.4</td><td>12</td><td>122</td><td>2</td></tr>
             <tr><td>A person answers every flagged frame</td><td>95.5</td><td>150</td><td>0</td><td>140</td></tr>
         </tbody>
     </table>
     </div>
-    <p class="res-lead ra-gap"><b>Model size made no difference here.</b> Haiku is the smallest current Claude model,
+    <p class="res-lead ra-gap"><b>Between the two Claude models, size made no difference.</b> Haiku is the smallest current Claude model,
         yet it matched Opus on six tracks exactly and stayed within 1.6 points on the other four. The two models saw 112
         identical queries and gave the same answer on 110. Haiku deferred more often: nine frames against five, four of
         them picks it rated below 0.6 confidence.</p>
+    <p class="res-lead ra-gap"><b>Two small open-weight models failed.</b> Qwen3-VL 8B and Qwen2.5-VL 7B ran on a
+        laptop through Ollama with the same crops, candidates and instructions. Both answered with about 0.9
+        confidence and were often wrong: 66 of the 114 positions Qwen3-VL placed, and 53 of the 122 Qwen2.5-VL placed,
+        were more than 4 px from the reference. Qwen3-VL confirmed the tracker's own position on 78 of its 114
+        placements, so drift went uncorrected and grew. Qwen2.5-VL picked the candidate with the highest appearance
+        score on 101 of 122. Neither deferred when it should have. Both score below the rule-based controller, which
+        uses no model at all.</p>
     <p class="ra-muted ra-small">The rule-based controller sees the same candidates and measurements as the language
         models and picks by a fixed score. In the last row a simulated person clicks the reference position at every
         flagged frame; it shows what the frame-flagging step allows, with no model involved.</p>
@@ -193,6 +203,10 @@ noindex: true
         <ul class="res-bullets">
             <li><b>Agents, not API calls.</b> Claude Opus and Claude Haiku each ran as one agent per track inside Claude Code. Each agent
                 remembered its earlier decisions on its track, and we recorded no cost per decision.</li>
+            <li><b>The local models are small, and one reply format was reinterpreted.</b> Qwen3-VL often wrote
+                &ldquo;abstain&rdquo; while naming a candidate at high confidence (79 of 118 replies). We counted
+                those as selections; read literally, it defers about two thirds of its decisions. A 32B model did
+                not fit in the laptop's memory, so larger open-weight models are untested.</li>
             <li><b>Reference files were off limits by instruction only.</b> The agents were told to read nothing but
                 each query's own crops; nothing prevented them from opening the reference tracks.</li>
             <li><b>A perfect simulated person.</b> Deferred frames were answered with the exact reference position.
