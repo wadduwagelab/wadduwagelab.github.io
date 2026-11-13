@@ -4,13 +4,13 @@
 const base = document.currentScript ? document.currentScript.src.replace(/app\.js.*$/, "") : "";
 const D = await fetch(base + "data/tracks.json").then(r => r.json());
 const METHODS = [
- {k:"human", name:"Reference: the original annotator's RIPPLE track", color:"#f5f5f5", shape:"c"},
+ {k:"human", name:"Reference: the annotator's manual track", color:"#f5f5f5", shape:"c"},
  {k:"llm",   name:"Claude Opus", color:"#ffb000", shape:"s"},
  {k:"haiku", name:"Claude Haiku", color:"#a3e635", shape:"s"},
- {k:"qwen", name:"Qwen3-VL 8B (local)", color:"#c084fc", shape:"s"},
  {k:"rule",  name:"Rule-based controller", color:"#22d3ee", shape:"s"},
- {k:"flow",  name:"Optical flow alone, one click", color:"#f472b6", shape:"x"}];
-const on = {human:true, llm:true, haiku:false, qwen:false, rule:false, flow:true};
+ {k:"flow",  name:"Optical flow alone, one click", color:"#f472b6", shape:"x"},
+ {k:"ripple", name:"The annotator's track made with RIPPLE", color:"#60a5fa", shape:"c"}];
+const on = {human:true, llm:true, haiku:false, rule:false, flow:true, ripple:false};
 const S = D.scale, T = D.frames.length, cv = document.getElementById("view"), cx = cv.getContext("2d");
 let focus = "Track1", V = {x0:D.x0, y0:D.y0, w:D.w, h:D.h, s:S};
 function setView(){

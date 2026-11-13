@@ -44,7 +44,7 @@
 .ra-cta p { margin: 0; }
 .ra-button { display: inline-block; flex: none; border: 2px solid #000; background: var(--accent); color: #fff; padding: 0.45rem 1rem; text-decoration: none; font-family: 'Silkscreen', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.3px; }
 .ra-button:hover { background: #000; color: #fff; }
-#cells .ra-table td:not(:first-child) { white-space: nowrap; }
+#cells .ra-table td:not(:first-child), #results .ra-table td:not(:first-child) { white-space: nowrap; }
 
 /* tables */
 .ra-tablewrap { overflow-x: auto; }

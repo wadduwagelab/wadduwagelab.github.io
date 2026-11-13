@@ -15,20 +15,22 @@ noindex: true
     <p class="res-intro"><b>Can a language model replace the person who corrects point tracks?</b> In RIPPLE a person
         clicks a target once, watches the track, and clicks again wherever it has drifted. Here a language model makes
         those corrections: it views zoomed crops of a suspect frame, picks the target among candidate positions, and
-        hands the frame to a person when it cannot tell. These are first results on one video, the Neural Activity
-        dataset of the RIPPLE paper, with two Claude models, Opus and the much smaller Haiku, and two open-weight
-        models run on a laptop.</p>
+        hands the frame to a person when it cannot tell. We tested two Claude models, Opus and the much smaller Haiku,
+        on the five videos of the RIPPLE paper, and scored them against tracks that an annotator made by hand,
+        without RIPPLE.</p>
     <ul class="ra-stats">
-        <li><b>92.0</b><span>average point precision of Claude Opus on ten tracks. Claude Haiku scores 92.1, the rule-based controller 88.5 and optical flow alone 42.3.</span></li>
-        <li><b>15</b><span>human clicks for ten tracks with Opus: ten to start the tracks and five on frames it deferred. Haiku needed 19. The original annotator made 158.</span></li>
-        <li><b>129</b><span>positions Opus placed itself, 0.71 px from the reference on average and never more than 2.2 px away.</span></li>
-        <li><b>110 / 112</b><span>identical queries on which Opus and Haiku gave the same answer.</span></li>
+        <li><b>92.0</b><span>average point precision of Claude Opus on the Neural Activity video. The rule-based controller scores 89.6, Claude Haiku 88.7 and optical flow alone 41.9.</span></li>
+        <li><b>15</b><span>human clicks for the ten tracks with Opus: ten to start them and five on frames it deferred. The annotator using RIPPLE made 158 and scored 97.7.</span></li>
+        <li><b>91.9</b><span>mean over five repeated runs on that video, with a standard deviation of 0.1. A run costs $1.91, about 1.5 cents per decision.</span></li>
+        <li><b>2 of 5</b><span>videos on which the loop works well enough to compare annotators. The other three fail for reasons given under Results.</span></li>
     </ul>
     <p class="res-intro ra-update"><b>Update, 13 November 2026.</b> A second experiment asks whether the model's
         tracks can train a tracker. CoTracker3, fine-tuned on tracks that Claude Opus made on cell videos with no
         human clicks, rose from 42.2 to 49.4 on held-out videos. The numbers are under
         <a href="#cells">Cell tracking</a>, and the tracks are in the
-        <a href="{{ '/demos/ripple-agent/cells/' | relative_url }}">cell-tracking viewer</a>.</p>
+        <a href="{{ '/demos/ripple-agent/cells/' | relative_url }}">cell-tracking viewer</a>. The sections above it
+        now use manual tracks as the reference; an earlier version of this page scored against the annotator's
+        RIPPLE tracks.</p>
     <div class="res-toc" role="navigation" aria-label="On this page">
         <a href="#tracks">Tracks</a>
         <a href="#results">Results</a>
@@ -41,7 +43,7 @@ noindex: true
 <section id="tracks" class="bg-subtle">
     <div class="section-title">
         <h2>The tracks</h2>
-        <p>ten targets, 400 frames</p>
+        <p>neural activity &middot; ten targets, 400 frames</p>
     </div>
     <div class="ra-grid">
         <div class="ra-panel">
@@ -53,9 +55,9 @@ noindex: true
                 <label><input type="checkbox" id="links" checked> Error lines</label>
                 <label><input type="checkbox" id="anch" checked> Anchors</label>
             </div>
-            <p class="ra-muted ra-small">Space plays and pauses; the arrow keys step one frame. A ring marks each
-                frame where Claude Opus placed an anchor: solid when it chose the position, dashed when it
-                deferred and a person clicked.</p>
+            <p class="ra-muted ra-small">Space plays and pauses; the arrow keys step one frame. The reference is the
+                track an annotator made by hand. A ring marks each frame where Claude Opus placed an anchor: solid
+                when it chose the position, dashed when it deferred and the simulated person clicked.</p>
         </div>
         <div>
             <div class="ra-panel">
@@ -63,7 +65,7 @@ noindex: true
                 <div id="legend"></div>
             </div>
             <div class="ra-panel ra-gap">
-                <h3 class="res-h3">Distance from the reference track, px</h3>
+                <h3 class="res-h3">Distance from the manual track, px</h3>
                 <p class="ra-muted ra-small">Click a track name to follow it, or a chart to jump to that frame.</p>
                 <div id="charts"></div>
             </div>
@@ -74,83 +76,141 @@ noindex: true
 <section id="results">
     <div class="section-title">
         <h2>Results</h2>
-        <p>neural activity, ten tracks</p>
+        <p>five videos, 32 tracks</p>
     </div>
-    <p class="res-lead">Every method starts each track from the same single click. Average point precision (APP) is
-        the percentage of frames within 1, 2, 4, 8 and 16 px of the reference track, averaged over the five
-        distances. A human click is either a starting click or a frame that the method handed to a person.</p>
-    <div class="ra-tablewrap">
-    <table class="ra-table">
-        <thead><tr><th>Method</th><th>APP</th><th>Human clicks</th><th>Positions placed by the method</th><th>Frames deferred</th></tr></thead>
-        <tbody>
-            <tr><td>Optical flow alone, one click per track</td><td>42.3</td><td>10</td><td>0</td><td>0</td></tr>
-            <tr><td>Rule-based controller</td><td>88.5</td><td>31</td><td>105</td><td>21</td></tr>
-            <tr class="ra-hl"><td>Language-model annotator, Claude Opus</td><td>92.0</td><td>15</td><td>129</td><td>5</td></tr>
-            <tr class="ra-hl"><td>Language-model annotator, Claude Haiku</td><td>92.1</td><td>19</td><td>120</td><td>9</td></tr>
-            <tr><td>Language-model annotator, Qwen3-VL 8B (open weights, local)</td><td>60.4</td><td>18</td><td>114</td><td>8</td></tr>
-            <tr><td>Language-model annotator, Qwen2.5-VL 7B (open weights, local)</td><td>56.4</td><td>12</td><td>122</td><td>2</td></tr>
-            <tr><td>A person answers every flagged frame</td><td>95.5</td><td>150</td><td>0</td><td>140</td></tr>
-        </tbody>
-    </table>
+    <p class="res-lead">Every method starts each track at the manual position in its first frame. A frame that a
+        method defers is answered by a simulated person, who clicks the manual position. Average point precision
+        (APP) is the percentage of frames within 1, 2, 4, 8 and 16 px of the manual track, averaged over the five
+        distances, in the video's own pixels. A human click is a starting click or a deferred frame. The last row of
+        each table is the track the original annotator made with RIPPLE, scored the same way.</p>
+    <div class="res-two">
+        <div>
+            <h3 class="res-h3">Neural Activity: 10 tracks, 400 frames</h3>
+            <div class="ra-tablewrap">
+            <table class="ra-table ra-compact">
+                <thead><tr><th>Method</th><th>APP</th><th>Human clicks</th><th>Placed</th><th>Deferred</th><th>Cost</th></tr></thead>
+                <tbody>
+                    <tr><td>Optical flow alone</td><td>41.9</td><td>10</td><td>0</td><td>0</td><td></td></tr>
+                    <tr><td>Rule-based controller</td><td>89.6</td><td>32</td><td>106</td><td>22</td><td></td></tr>
+                    <tr><td>Claude Haiku</td><td>88.7</td><td>20</td><td>120</td><td>10</td><td>$0.06</td></tr>
+                    <tr class="ra-hl"><td>Claude Opus</td><td>92.0</td><td>15</td><td>125</td><td>5</td><td>$1.93</td></tr>
+                    <tr><td>A person at every flagged frame</td><td>95.0</td><td>136</td><td>0</td><td>126</td><td></td></tr>
+                    <tr><td>The annotator with RIPPLE</td><td>97.7</td><td>158</td><td></td><td></td><td></td></tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+        <div>
+            <h3 class="res-h3">Pinned Down: 3 tracks, 400 frames</h3>
+            <div class="ra-tablewrap">
+            <table class="ra-table ra-compact">
+                <thead><tr><th>Method</th><th>APP</th><th>Human clicks</th><th>Placed</th><th>Deferred</th><th>Cost</th></tr></thead>
+                <tbody>
+                    <tr><td>Optical flow alone</td><td>34.3</td><td>3</td><td>0</td><td>0</td><td></td></tr>
+                    <tr><td>Rule-based controller</td><td>83.5</td><td>21</td><td>75</td><td>18</td><td></td></tr>
+                    <tr><td>Claude Haiku</td><td>85.3</td><td>8</td><td>78</td><td>5</td><td>$0.04</td></tr>
+                    <tr class="ra-hl"><td>Claude Opus</td><td>92.1</td><td>8</td><td>86</td><td>5</td><td>$1.31</td></tr>
+                    <tr><td>A person at every flagged frame</td><td>95.2</td><td>121</td><td>0</td><td>118</td><td></td></tr>
+                    <tr><td>The annotator with RIPPLE</td><td>96.9</td><td>116</td><td></td><td></td><td></td></tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
     </div>
-    <p class="res-lead ra-gap"><b>Between the two Claude models, size made no difference.</b> Haiku is the smallest current Claude model,
-        yet it matched Opus on six tracks exactly and stayed within 1.6 points on the other four. The two models saw 112
-        identical queries and gave the same answer on 110. Haiku deferred more often: nine frames against five, four of
-        them picks it rated below 0.6 confidence.</p>
-    <p class="res-lead ra-gap"><b>Two small open-weight models failed.</b> Qwen3-VL 8B and Qwen2.5-VL 7B ran on a
-        laptop through Ollama with the same crops, candidates and instructions. Both answered with about 0.9
-        confidence and were often wrong: 66 of the 114 positions Qwen3-VL placed, and 53 of the 122 Qwen2.5-VL placed,
-        were more than 4 px from the reference. Qwen3-VL confirmed the tracker's own position on 78 of its 114
-        placements, so drift went uncorrected and grew. Qwen2.5-VL picked the candidate with the highest appearance
-        score on 101 of 122. Neither deferred when it should have. Both score below the rule-based controller, which
-        uses no model at all.</p>
-    <p class="ra-muted ra-small">The rule-based controller sees the same candidates and measurements as the language
-        models and picks by a fixed score. In the last row a simulated person clicks the reference position at every
-        flagged frame; it shows what the frame-flagging step allows, with no model involved.</p>
+    <p class="ra-muted ra-small">Placed: positions the method chose itself. Deferred: frames it handed to the
+        simulated person. The rule-based controller sees the same candidates and measurements as the language models
+        and picks by a fixed score. A person at every flagged frame shows what the flagging step allows, with no
+        model involved. Cost is for one run through the API.</p>
+
+    <p class="res-lead ra-gap"><b>On two videos, Opus needs about a tenth of the annotator's clicks and gives up
+        about five points.</b> On Neural Activity it made the ten tracks with 15 human clicks against the annotator's
+        158, at 92.0 against 97.7. On Pinned Down, a jellyfish video, it needed 8 clicks against 116, at 92.1 against
+        96.9. The rule-based controller used more clicks and scored lower on both.</p>
+    <p class="res-lead"><b>Repeated runs agree.</b> We ran Opus five times on each of the two videos. APP was
+        91.9 &plusmn; 0.1 on Neural Activity (range 91.7 to 92.0) and 92.1 &plusmn; 0.2 on Pinned Down (91.8 to
+        92.4); human clicks ranged from 12 to 15 and from 6 to 8. In no run did Opus place a position more than 4 px
+        from the manual track. Each decision is one independent API call, so the model has no memory of its earlier
+        decisions and can open no file. A run cost $1.91 and $1.37, about 1.5 cents per decision.</p>
+    <p class="res-lead"><b>The smaller model is weaker.</b> Claude Haiku scored 3 and 7 points below Opus, and on
+        Neural Activity it fell just below the rule-based controller. It placed 3 and 5 positions more than 4 px from
+        the manual track, where Opus placed none. On Neural Activity the two models gave the same answer on 82 of 91
+        identical queries. Haiku costs about a thirtieth as much. An earlier version of this page reported that Haiku
+        matched Opus; in those runs each model kept a memory of its decisions along a track, and the score was
+        agreement with the annotator's own RIPPLE track.</p>
+    <p class="res-lead"><b>Two small open-weight models failed in an earlier test.</b> Qwen3-VL 8B and Qwen2.5-VL 7B,
+        run on a laptop, scored 60.4 and 56.4 on Neural Activity under the earlier protocol, where Opus scored 92.0
+        and the rule-based controller 88.5. Both answered with about 0.9 confidence and were often wrong, and
+        neither deferred when it should have. They have not been run under the protocol used here.</p>
 
     <div class="res-two ra-gap">
         <div>
             <h3 class="res-h3">How close are the placed positions?</h3>
             <div class="ra-tablewrap">
             <table class="ra-table">
-                <thead><tr><th>Distance from the reference</th><th>Opus</th><th>Haiku</th><th>Rule-based</th></tr></thead>
+                <thead><tr><th>Neural Activity: distance from the manual track</th><th>Opus</th><th>Haiku</th><th>Rule-based</th></tr></thead>
                 <tbody>
-                    <tr><td>Positions placed</td><td>129</td><td>120</td><td>105</td></tr>
-                    <tr><td>Mean</td><td>0.71 px</td><td>0.71 px</td><td>1.04 px</td></tr>
-                    <tr><td>Largest</td><td>2.2 px</td><td>3.3 px</td><td>11.6 px</td></tr>
-                    <tr><td>Within 2 px</td><td>96%</td><td>96%</td><td>90%</td></tr>
-                    <tr><td>More than 4 px away</td><td>0</td><td>0</td><td>4</td></tr>
+                    <tr><td>Positions placed</td><td>125</td><td>120</td><td>106</td></tr>
+                    <tr><td>Mean</td><td>0.58 px</td><td>0.89 px</td><td>1.14 px</td></tr>
+                    <tr><td>Largest</td><td>3.3 px</td><td>13.1 px</td><td>11.7 px</td></tr>
+                    <tr><td>Within 2 px</td><td>96%</td><td>92%</td><td>90%</td></tr>
+                    <tr><td>More than 4 px away</td><td>0</td><td>3</td><td>7</td></tr>
                 </tbody>
             </table>
             </div>
-            <p class="ra-muted ra-small">The rule-based controller's four large errors all confirmed a tracker that had
-                already drifted. Neither language model made one. A few of their corrections moved the position 0.5 to
-                1.3 px further from the reference: three of 85 for Opus and four of 80 for Haiku.</p>
+            <p class="ra-muted ra-small">Pinned Down shows the same order. Opus placed 86 positions, none more than
+                1.8 px from the manual track. Haiku placed 78, five of them more than 4 px away, and the rule-based
+                controller 75, eight of them more than 4 px away.</p>
         </div>
         <div>
-            <h3 class="res-h3">Track by track</h3>
+            <h3 class="res-h3">Neural Activity, track by track</h3>
             <div class="ra-tablewrap">
             <table class="ra-table ra-compact">
-                <thead><tr><th>Track</th><th>Opus<br>APP (clicks)</th><th>Haiku<br>APP (clicks)</th><th>Rule-based<br>APP (clicks)</th><th>Person at every flag<br>APP (clicks)</th></tr></thead>
+                <thead><tr><th>Track</th><th>Opus<br>APP (clicks)</th><th>Haiku<br>APP (clicks)</th><th>Rule-based<br>APP (clicks)</th><th>Person at every flag<br>APP (clicks)</th><th>Annotator with RIPPLE<br>APP (clicks)</th></tr></thead>
                 <tbody>
-                    <tr><td>1</td><td>83.2 (4)</td><td>84.8 (5)</td><td>71.4 (7)</td><td>89.5 (25)</td></tr>
-                    <tr><td>2</td><td>88.2 (1)</td><td>88.2 (1)</td><td>88.2 (1)</td><td>91.0 (29)</td></tr>
-                    <tr><td>3</td><td>92.1 (2)</td><td>91.2 (3)</td><td>86.0 (5)</td><td>100.0 (12)</td></tr>
-                    <tr><td>4</td><td>94.7 (1)</td><td>94.7 (2)</td><td>94.7 (2)</td><td>96.0 (13)</td></tr>
-                    <tr><td>5</td><td>92.0 (2)</td><td>92.3 (3)</td><td>85.5 (2)</td><td>94.0 (10)</td></tr>
-                    <tr><td>6</td><td>92.8 (1)</td><td>92.8 (1)</td><td>79.8 (2)</td><td>97.9 (7)</td></tr>
-                    <tr><td>7</td><td>94.3 (1)</td><td>94.3 (1)</td><td>94.5 (3)</td><td>97.5 (21)</td></tr>
-                    <tr><td>8</td><td>92.5 (1)</td><td>92.5 (1)</td><td>93.8 (4)</td><td>95.3 (11)</td></tr>
-                    <tr><td>9</td><td>96.8 (1)</td><td>96.8 (1)</td><td>97.3 (3)</td><td>97.5 (9)</td></tr>
-                    <tr><td>10</td><td>93.5 (1)</td><td>93.5 (1)</td><td>93.5 (2)</td><td>96.3 (13)</td></tr>
+                    <tr><td>1</td><td>82.0 (5)</td><td>59.3 (4)</td><td>65.5 (7)</td><td>86.7 (24)</td><td>93.8 (42)</td></tr>
+                    <tr><td>2</td><td>91.5 (1)</td><td>91.5 (2)</td><td>91.6 (1)</td><td>92.8 (25)</td><td>95.5 (33)</td></tr>
+                    <tr><td>3</td><td>87.1 (2)</td><td>87.1 (2)</td><td>88.8 (6)</td><td>98.7 (14)</td><td>100.0 (7)</td></tr>
+                    <tr><td>4</td><td>94.7 (1)</td><td>94.7 (2)</td><td>94.7 (2)</td><td>95.9 (13)</td><td>100.0 (10)</td></tr>
+                    <tr><td>5</td><td>85.0 (1)</td><td>90.8 (3)</td><td>84.5 (2)</td><td>95.0 (10)</td><td>100.0 (17)</td></tr>
+                    <tr><td>6</td><td>96.5 (1)</td><td>91.4 (1)</td><td>91.4 (2)</td><td>94.8 (7)</td><td>96.5 (7)</td></tr>
+                    <tr><td>7</td><td>94.5 (1)</td><td>94.5 (2)</td><td>95.0 (3)</td><td>95.7 (16)</td><td>98.1 (8)</td></tr>
+                    <tr><td>8</td><td>96.7 (1)</td><td>92.3 (2)</td><td>92.3 (2)</td><td>97.3 (10)</td><td>98.5 (10)</td></tr>
+                    <tr><td>9</td><td>97.5 (1)</td><td>90.6 (1)</td><td>98.2 (4)</td><td>96.8 (9)</td><td>98.6 (11)</td></tr>
+                    <tr><td>10</td><td>94.7 (1)</td><td>94.3 (1)</td><td>94.3 (3)</td><td>96.0 (8)</td><td>96.2 (13)</td></tr>
                 </tbody>
             </table>
             </div>
-            <p class="ra-muted ra-small">Both language models lead the rule-based controller on tracks 1, 3, 5 and 6. On the
-                other six all three differ by about a point or less. Track 1, the tip of a moving neurite, is the hardest for
-                every method.</p>
+            <p class="ra-muted ra-small">Opus leads the rule-based controller by 4 to 17 points on tracks 1, 6 and 8;
+                on the other seven the two differ by less than 2 points. Track 1, the tip of a moving neurite, is the
+                hardest for every method and accounts for most of Haiku's deficit.</p>
         </div>
     </div>
+
+    <h3 class="res-h3 ra-gap">The other three videos</h3>
+    <div class="ra-tablewrap">
+    <table class="ra-table">
+        <thead><tr><th>APP (human clicks)</th><th>Homeostasis<br>10 tracks, 48 frames</th><th>Freely<br>3 tracks, 400 frames</th><th>Sperm<br>6 tracks, 400 frames</th></tr></thead>
+        <tbody>
+            <tr><td>Optical flow alone</td><td>10.8 (10)</td><td>2.7 (3)</td><td>12.4 (6)</td></tr>
+            <tr><td>Rule-based controller</td><td>59.6 (20)</td><td>29.4 (38)</td><td>30.7 (135)</td></tr>
+            <tr><td>Claude Haiku</td><td>55.3 (15)</td><td>43.4 (58)</td><td>32.1 (154)</td></tr>
+            <tr><td>Claude Opus</td><td>53.9 (11)</td><td>43.9 (45)</td><td>31.1 (155)</td></tr>
+            <tr><td>A person at every flagged frame</td><td>56.9 (64)</td><td>53.7 (134)</td><td>46.2 (273)</td></tr>
+            <tr><td>The annotator with RIPPLE</td><td>64.1 (47)</td><td>75.6 (352)</td><td>25.2 (529)</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <ul class="res-bullets ra-gap">
+        <li><b>Homeostasis: the scores do not separate the methods, and Opus made one confident wrong choice.</b> The
+            frames are 5,632 px wide, so 16 px is a tight tolerance. On the 256 px grid that the RIPPLE paper uses,
+            every method but optical flow scores 99.0 or more, except Opus at 94.9: on one track it moved to a
+            neighbouring cell body, did not defer, and stayed a median 105 px from the manual track.</li>
+        <li><b>Freely: the loop fails before the model is asked.</b> The targets move 6 to 8 px per frame and optical
+            flow loses them. Even a person at every flagged frame reaches only 53.7.</li>
+        <li><b>Sperm: not a usable test as it stands.</b> The annotator's own RIPPLE track scores 25.2 against the
+            manual tracks. Several targets are points along a tail with no spot to detect, 553 of the 2,400 frames
+            have no manual position, and three of the six tracks ran out of their budget of 60 decisions.</li>
+    </ul>
 </section>
 
 <section id="loop" class="bg-subtle">
@@ -160,8 +220,8 @@ noindex: true
     </div>
     <div class="res-two">
         <ol class="res-steps">
-            <li><span><b>Start.</b> One click on the target in the first frame. RIPPLE's own propagation code builds
-                the track from optical flow.</span></li>
+            <li><span><b>Start.</b> Each track starts at the manual position in its first frame, which counts as one
+                human click. RIPPLE's own propagation code builds the track from optical flow.</span></li>
             <li><span><b>Flag.</b> A frame is reviewed when forward and backward motion estimates disagree, when the
                 patch under the track stops resembling the target, or when 60 frames have passed without a
                 check.</span></li>
@@ -170,9 +230,9 @@ noindex: true
                 motion.</span></li>
             <li><span><b>Decide.</b> The language model sees a trusted reference crop, the frames in between, and the
                 flagged frame with the candidates marked. It picks one candidate or abstains.</span></li>
-            <li><span><b>Defer.</b> An abstention, or a pick the model rates below 0.6 confidence, goes to a person
-                and counts as one human click. Each new position becomes an anchor and RIPPLE rebuilds the
-                track.</span></li>
+            <li><span><b>Defer.</b> An abstention, or a pick the model rates below 0.6 confidence, goes to the
+                simulated person and counts as one human click. Each new position becomes an anchor and RIPPLE
+                rebuilds the track.</span></li>
         </ol>
         <div class="ra-box">
             <h3 class="res-h3">One decision: track 1, frame 71</h3>
@@ -181,8 +241,9 @@ noindex: true
                 <figure><img src="{{ '/demos/ripple-agent/media/example-unmarked.png' | relative_url }}" alt="Flagged frame without markers" loading="lazy"><figcaption>Frame 71</figcaption></figure>
                 <figure><img src="{{ '/demos/ripple-agent/media/example-marked.png' | relative_url }}" alt="Flagged frame with candidate positions A to F" loading="lazy"><figcaption>Frame 71, candidates</figcaption></figure>
             </div>
-            <p><b>Claude Opus chose B, confidence 0.85.</b> &ldquo;The terminal blob of the beaded process is centred on B;
-                A sits just below-left of it off the blob, and C and D are the preceding puncta.&rdquo;</p>
+            <p><b>Claude Opus chose B, confidence 0.85.</b> &ldquo;In frame 71 that terminal blob sits at B, which
+                matches the reference appearance strongly (0.95) and lies 0.6 px from the forward prediction. A falls
+                just off the blob, slightly below and to the left of it.&rdquo;</p>
             <p class="ra-muted ra-small">A is the tracker's position before the correction. Each crop is 65 px wide,
                 with contrast stretched to its centre so that a faint target stays visible beside a bright
                 neighbour.</p>
@@ -197,26 +258,27 @@ noindex: true
     </div>
     <div class="res-two">
         <ul class="res-bullets">
-            <li><b>Agreement, not accuracy.</b> The reference is the original annotator's finished RIPPLE track. We
-                have not yet scored against the exhaustive manual segmentations of this video.</li>
-            <li><b>One video, ten tracks, one run per model.</b> We have not repeated the runs, so we cannot say how much
-                of the 3.5-point lead over the rule-based controller is run-to-run variation. The other four datasets of the
-                RIPPLE paper are untested.</li>
+            <li><b>A perfect simulated person.</b> Every track starts at the exact manual position and every deferred
+                frame is answered with it. A real person clicks a pixel or two off and takes time.</li>
+            <li><b>Two videos carry the result.</b> Thirteen tracks, on Neural Activity and Pinned Down. On the other
+                three videos the loop fails or the test cannot tell the methods apart.</li>
             <li><b>Settings tuned on the test tracks.</b> We chose the flagging thresholds and the 60-frame review
-                interval on these ten tracks. We did not tune the rule-based controller's weights, so it is a weak
+                interval on the ten Neural Activity tracks, against the annotator's RIPPLE tracks. On Pinned Down we
+                changed one setting after looking at the frames, so that candidates are dark spots. The other three
+                videos run on first guesses. We did not tune the rule-based controller's weights, so it is a weak
                 version of that baseline.</li>
         </ul>
         <ul class="res-bullets">
-            <li><b>Agents, not API calls.</b> Claude Opus and Claude Haiku each ran as one agent per track inside Claude Code. Each agent
-                remembered its earlier decisions on its track, and we recorded no cost per decision.</li>
-            <li><b>The local models are small, and one reply format was reinterpreted.</b> Qwen3-VL often wrote
-                &ldquo;abstain&rdquo; while naming a candidate at high confidence (79 of 118 replies). We counted
-                those as selections; read literally, it defers about two thirds of its decisions. A 32B model did
-                not fit in the laptop's memory, so larger open-weight models are untested.</li>
-            <li><b>Reference files were off limits by instruction only.</b> The agents were told to read nothing but
-                each query's own crops; nothing prevented them from opening the reference tracks.</li>
-            <li><b>A perfect simulated person.</b> Deferred frames were answered with the exact reference position.
-                A real person clicks a pixel or two off and takes time.</li>
+            <li><b>Variation is over model calls only.</b> The five repeats show how much Opus varies from run to run
+                on the same tracks, not across tracks, videos or annotators. Haiku, and both models on the other
+                three videos, had one run each.</li>
+            <li><b>One model family under this protocol.</b> Only Claude Opus and Claude Haiku. The open-weight
+                models were tested under the earlier protocol, and larger ones are untested.</li>
+            <li><b>Pixels, not the paper's grid.</b> APP here is in each video's own pixels. The RIPPLE paper
+                rescales every video to 256 px first; scored that way, Opus gets 98.7 on Neural Activity and 71.8
+                on Pinned Down.</li>
+            <li><b>One manual track per target.</b> We have no second manual annotation to show how far two people
+                differ.</li>
         </ul>
     </div>
 </section>
