@@ -1,0 +1,56 @@
+[
+ {
+  "name": "Fluo-N2DL-HeLa/01",
+  "slug": "Fluo-N2DL-HeLa_01",
+  "title": "Fluorescent HeLa nuclei",
+  "kind": "train",
+  "T": 92,
+  "cells": 54,
+  "ext": "webp"
+ },
+ {
+  "name": "DIC-C2DH-HeLa/01",
+  "slug": "DIC-C2DH-HeLa_01",
+  "title": "DIC HeLa cells",
+  "kind": "train",
+  "T": 84,
+  "cells": 17,
+  "ext": "webp"
+ },
+ {
+  "name": "PhC-C2DH-U373/01",
+  "slug": "PhC-C2DH-U373_01",
+  "title": "Phase-contrast U373 cells",
+  "kind": "train",
+  "T": 115,
+  "cells": 7,
+  "ext": "webp"
+ },
+ {
+  "name": "Fluo-N2DL-HeLa/02",
+  "slug": "Fluo-N2DL-HeLa_02",
+  "title": "Fluorescent HeLa nuclei",
+  "kind": "heldout",
+  "T": 92,
+  "cells": 572,
+  "ext": "webp"
+ },
+ {
+  "name": "DIC-C2DH-HeLa/02",
+  "slug": "DIC-C2DH-HeLa_02",
+  "title": "DIC HeLa cells",
+  "kind": "heldout",
+  "T": 84,
+  "cells": 24,
+  "ext": "webp"
+ },
+ {
+  "name": "PhC-C2DH-U373/02",
+  "slug": "PhC-C2DH-U373_02",
+  "title": "Phase-contrast U373 cells",
+  "kind": "heldout",
+  "T": 115,
+  "cells": 9,
+  "ext": "webp"
+ }
+]

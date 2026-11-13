@@ -1,0 +1,65 @@
+---
+layout: default
+title: "Cell tracking viewer"
+sitemap: false
+noindex: true
+---
+<!-- Viewer for the cell-tracking experiment of the RIPPLE agent demo. Unlisted page (not in the nav or sitemap); share by URL.
+     Built by ripple-agent/src/ripple_agent/make_ctc_demo.py --site. Viewer in app.js, tracks in data/, frames in media/. -->
+<link rel="stylesheet" href="{{ '/demos/ripple-agent/cells/style.css' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}">
+
+<section class="res-head">
+    <p class="res-kicker">Demo &middot; preview for co-authors, November 2026 &middot; <a class="cv-home" href="{{ '/demos/ripple-agent/' | relative_url }}#cells">&larr; RIPPLE agent demo</a></p>
+    <h1>Cell tracking viewer</h1>
+    <p class="res-intro"><b>What did the model label, and what did the tracker learn from it?</b> Claude Opus marked
+        cells in three unlabelled videos and followed them with no human clicks. CoTracker3 was fine-tuned on those
+        tracks and tested on three other videos. This page plays all six videos with the tracks drawn on them. The
+        numbers and the method are on the <a href="{{ '/demos/ripple-agent/' | relative_url }}#cells">demo page</a>.</p>
+    <p class="cv-note">The video frames and reference tracks come from the
+        <a href="https://celltrackingchallenge.net/" target="_blank" rel="noopener">Cell Tracking Challenge</a>
+        (Ulman et al., Nature Methods 2017; Ma&scaron;ka et al., Nature Methods 2023). They are shown here for
+        co-authors to review. Do not copy them or pass them on.</p>
+</section>
+
+<section id="viewer" class="bg-subtle cv">
+    <div class="pickers">
+        <div><span class="plabel">Training videos: what the model labelled</span><div class="seg" id="pick-train"></div></div>
+        <div><span class="plabel">Held-out videos: what each tracker does</span><div class="seg" id="pick-heldout"></div></div>
+    </div>
+    <p class="sub" id="about"></p>
+
+    <div class="viewer">
+        <div class="left">
+            <div class="stage" id="stage"><canvas id="img"></canvas><canvas id="ov" aria-label="Video with the tracks drawn on it"></canvas><div class="loading" id="loading">Loading frames&hellip;</div></div>
+            <div class="transport">
+                <button id="play" type="button">Play</button>
+                <input id="frame" type="range" min="0" max="1" value="0" aria-label="Frame">
+                <span id="num" class="num">frame 0</span>
+            </div>
+            <div class="opts">
+                <label><input id="trail" type="checkbox" checked> Trails</label>
+                <label><input id="links" type="checkbox" checked> Lines to the reference</label>
+                <label id="anch-l"><input id="anch" type="checkbox" checked> Model's marks</label>
+                <label>Brightness <input id="bright" type="range" min="1" max="4" step="0.1" value="1"></label>
+                <label>Follow <select id="focus"></select></label>
+                <button id="all" type="button">Show whole frame</button>
+            </div>
+            <p class="hint">Click a cell in the video to follow it. The arrow keys step one frame; space plays and pauses.</p>
+        </div>
+        <div class="right">
+            <div id="legend" class="legend"></div>
+            <div class="chartbox"><h3 id="c1-title">Position accuracy by frame</h3><canvas id="c1" class="chart"></canvas></div>
+            <div class="chartbox" id="c2-box"><h3 id="c2-title">Distance from the reference</h3><canvas id="c2" class="chart"></canvas><p class="sub" id="c2-note"></p></div>
+        </div>
+    </div>
+
+    <div id="lists"></div>
+
+    <p class="sub cv-foot">On the held-out videos the viewer shows one fine-tuned checkpoint per training set, the first
+        seed, so its scores differ a little from the three-seed means on the demo page. Its checkpoint for the
+        reference tracks of all cells trained for 3,000 steps. Position accuracy is scored at 256 &times; 256 and
+        averaged over distances of 1 to 16 px; distances in the charts and lists are in the video's own pixels.
+        <a href="{{ '/demos/ripple-agent/' | relative_url }}#cells">Back to the demo page</a>.</p>
+</section>
+
+<script src="{{ '/demos/ripple-agent/cells/app.js' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}" defer></script>

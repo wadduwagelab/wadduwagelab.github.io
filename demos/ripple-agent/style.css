@@ -39,6 +39,11 @@
 .ra-update a, #cells .ra-muted a { color: inherit; text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 2px; }
 .ra-seeds { color: var(--text-muted); font-weight: 400; font-size: 0.85em; white-space: nowrap; }
 #cells .ra-stats li { background: #fff; }
+.ra-cta { display: flex; align-items: center; justify-content: space-between; gap: 1rem 2rem; flex-wrap: wrap; margin: 0 0 1.5rem; }
+.ra-cta > div { flex: 1 1 420px; max-width: 720px; }
+.ra-cta p { margin: 0; }
+.ra-button { display: inline-block; flex: none; border: 2px solid #000; background: var(--accent); color: #fff; padding: 0.45rem 1rem; text-decoration: none; font-family: 'Silkscreen', monospace; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.3px; }
+.ra-button:hover { background: #000; color: #fff; }
 #cells .ra-table td:not(:first-child) { white-space: nowrap; }
 
 /* tables */

@@ -27,7 +27,8 @@ noindex: true
     <p class="res-intro ra-update"><b>Update, 13 November 2026.</b> A second experiment asks whether the model's
         tracks can train a tracker. CoTracker3, fine-tuned on tracks that Claude Opus made on cell videos with no
         human clicks, rose from 42.2 to 49.4 on held-out videos. The numbers are under
-        <a href="#cells">Cell tracking</a>.</p>
+        <a href="#cells">Cell tracking</a>, and the tracks are in the
+        <a href="{{ '/demos/ripple-agent/cells/' | relative_url }}">cell-tracking viewer</a>.</p>
     <div class="res-toc" role="navigation" aria-label="On this page">
         <a href="#tracks">Tracks</a>
         <a href="#results">Results</a>
@@ -238,6 +239,16 @@ noindex: true
         <li><b>42.9</b><span>when the tracker trains instead on its own tracks from the same starting marks.</span></li>
         <li><b>55.7</b><span>with the reference tracks of all 249 cells. The model's tracks close about half of that gap.</span></li>
     </ul>
+    <div class="ra-box ra-cta">
+        <div>
+            <h3 class="res-h3">See the tracks</h3>
+            <p>The viewer plays all six videos. On the training videos it shows the model's marks and tracks, where
+                each track ended, and the daughters. On the held-out videos it draws the released tracker and the
+                fine-tuned ones over the reference tracks, and lists the cells where fine-tuning helped or hurt
+                most.</p>
+        </div>
+        <a class="ra-button" href="{{ '/demos/ripple-agent/cells/' | relative_url }}">Open the viewer &rarr;</a>
+    </div>
 
     <h3 class="res-h3">Position accuracy on three held-out videos</h3>
     <div class="ra-tablewrap">
@@ -330,8 +341,9 @@ noindex: true
     <p class="ra-muted ra-small ra-gap">Videos and reference tracks: Fluo-N2DL-HeLa, DIC-C2DH-HeLa and PhC-C2DH-U373
         from the <a href="https://celltrackingchallenge.net/" target="_blank" rel="noopener">Cell Tracking Challenge</a>
         (Ulman et al., Nature Methods 2017; Ma&scaron;ka et al., Nature Methods 2023), sequence 01 of each for
-        labelling and sequence 02 for testing. The challenge's terms do not allow its frames or reference tracks to
-        be redistributed, so this section gives numbers only. Tracker: CoTracker3 (Karaev et al., arXiv 2410.11831).</p>
+        labelling and sequence 02 for testing. The frames and reference tracks in the viewer belong to the challenge
+        and are shown for co-authors to review; do not copy them or pass them on. Tracker: CoTracker3 (Karaev et al.,
+        arXiv 2410.11831).</p>
     <p class="ra-muted ra-small ra-gap">Code: the <code>ripple-agent</code> repository, not yet public. RIPPLE is developed in the Wadduwage Lab at Old Dominion University. Questions:
         <a href="mailto:dwadduwa@odu.edu">dwadduwa@odu.edu</a>. <a href="{{ '/' | relative_url }}">Back to wadduwagelab.com</a>.</p>
 </section>
