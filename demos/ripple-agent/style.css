@@ -34,6 +34,13 @@
 .chart { width: 100%; height: 70px; display: block; cursor: pointer; }
 #charts { max-height: 560px; overflow-y: auto; padding-right: 0.3rem; }
 
+/* update note and seed lists */
+.ra-update { border-left: 4px solid var(--accent); padding-left: 0.8rem; font-size: 1rem; }
+.ra-update a, #cells .ra-muted a { color: inherit; text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 2px; }
+.ra-seeds { color: var(--text-muted); font-weight: 400; font-size: 0.85em; white-space: nowrap; }
+#cells .ra-stats li { background: #fff; }
+#cells .ra-table td:not(:first-child) { white-space: nowrap; }
+
 /* tables */
 .ra-tablewrap { overflow-x: auto; }
 .ra-table { border-collapse: collapse; width: 100%; background: #fff; border: 2px solid #000; font-size: 0.93rem; }
@@ -51,7 +58,7 @@
 .ra-crops figure { margin: 0; }
 .ra-crops img { display: block; width: 100%; height: auto; border: 2px solid #000; image-rendering: pixelated; }
 .ra-crops figcaption { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem; }
-#limits code { font-family: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace; font-size: 0.9em; background: var(--bg-subtle); padding: 0 0.25em; }
+#limits code, #cells code { font-family: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace; font-size: 0.9em; background: var(--bg-subtle); padding: 0 0.25em; }
 
 @media (max-width: 960px) {
   .ra-grid { grid-template-columns: 1fr; }

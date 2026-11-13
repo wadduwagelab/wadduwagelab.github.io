@@ -5,7 +5,7 @@ sitemap: false
 noindex: true
 ---
 <!-- Demo: a language-model annotator for RIPPLE. Unlisted page (not in the nav or sitemap); share by URL.
-     Built by ripple/llm_annotator/make_demo.py. Styles in demos/ripple-agent/style.css, viewer in app.js,
+     Built by ripple-agent/src/ripple_agent/make_demo.py. Styles in demos/ripple-agent/style.css, viewer in app.js,
      tracks and video frames in data/tracks.json. -->
 <link rel="stylesheet" href="{{ '/demos/ripple-agent/style.css' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}">
 
@@ -24,11 +24,16 @@ noindex: true
         <li><b>129</b><span>positions Opus placed itself, 0.71 px from the reference on average and never more than 2.2 px away.</span></li>
         <li><b>110 / 112</b><span>identical queries on which Opus and Haiku gave the same answer.</span></li>
     </ul>
+    <p class="res-intro ra-update"><b>Update, 13 November 2026.</b> A second experiment asks whether the model's
+        tracks can train a tracker. CoTracker3, fine-tuned on tracks that Claude Opus made on cell videos with no
+        human clicks, rose from 42.2 to 49.4 on held-out videos. The numbers are under
+        <a href="#cells">Cell tracking</a>.</p>
     <div class="res-toc" role="navigation" aria-label="On this page">
         <a href="#tracks">Tracks</a>
         <a href="#results">Results</a>
         <a href="#loop">How it works</a>
         <a href="#limits">Limits</a>
+        <a href="#cells">Cell tracking</a>
     </div>
 </section>
 
@@ -213,9 +218,121 @@ noindex: true
                 A real person clicks a pixel or two off and takes time.</li>
         </ul>
     </div>
-    <p class="ra-muted ra-small ra-gap">Code: branch <code>llm-annotator</code> of
-        <a href="https://github.com/wadduwagelab/ripple" target="_blank" rel="noopener">wadduwagelab/ripple</a>, not yet
-        pushed. RIPPLE is developed in the Wadduwage Lab at Old Dominion University. Questions:
+</section>
+
+<section id="cells" class="bg-subtle">
+    <div class="section-title">
+        <h2>Cell tracking</h2>
+        <p>new &middot; training a tracker on the model's tracks</p>
+    </div>
+    <p class="res-lead"><b>Can the model's tracks train a tracker?</b> CoTracker3, a general point tracker, follows
+        points well in everyday video and poorly in cell microscopy: it scores 76.9 on the TAP-Vid-DAVIS benchmark
+        and 42.2 on the cell videos used here. Fine-tuning it takes tracks from the new kind of video, and those are
+        costly to annotate. Here Claude Opus made the tracks with no human clicks. It marked the cells in the first
+        frame of three unlabelled videos and then said, every 10 frames, where each cell was; CoTracker3 filled in
+        the frames between its marks. When a cell divided, the model marked the two daughters and followed them too.
+        We fine-tuned CoTracker3 on these tracks and tested it on three other videos.</p>
+    <ul class="ra-stats">
+        <li><b>49.4</b><span>position accuracy on held-out videos after fine-tuning on the model's tracks. The tracker as released scores 42.2.</span></li>
+        <li><b>0</b><span>human clicks. The model followed 78 cells over 2,592 frames and answered 335 questions.</span></li>
+        <li><b>42.9</b><span>when the tracker trains instead on its own tracks from the same starting marks.</span></li>
+        <li><b>55.7</b><span>with the reference tracks of all 249 cells. The model's tracks close about half of that gap.</span></li>
+    </ul>
+
+    <h3 class="res-h3">Position accuracy on three held-out videos</h3>
+    <div class="ra-tablewrap">
+    <table class="ra-table">
+        <thead><tr><th>Tracks used for fine-tuning</th><th>Cells</th><th>Human clicks</th><th>All three videos</th><th>Fluorescent HeLa nuclei</th><th>DIC HeLa</th><th>Phase-contrast U373</th></tr></thead>
+        <tbody>
+            <tr><td>None: CoTracker3 as released</td><td>0</td><td>0</td><td>42.2</td><td>57.1</td><td>31.7</td><td>37.6</td></tr>
+            <tr><td>The tracker's own tracks from the model's starting marks</td><td>78</td><td>0</td><td>42.9 <span class="ra-seeds">(44.0, 43.7, 41.1)</span></td><td>51.2</td><td>32.4</td><td>45.2</td></tr>
+            <tr><td>The model's tracks, first-frame cells only</td><td>36</td><td>0</td><td>46.8 <span class="ra-seeds">(46.9, 46.7, 46.7)</span></td><td>51.7</td><td>37.8</td><td>50.8</td></tr>
+            <tr class="ra-hl"><td>The model's tracks, with daughter cells</td><td>78</td><td>0</td><td>49.4 <span class="ra-seeds">(48.6, 49.3, 50.2)</span></td><td>58.9</td><td>37.1</td><td>52.1</td></tr>
+            <tr><td>Reference tracks of 15 cells</td><td>15</td><td>&ndash;</td><td>51.0 <span class="ra-seeds">(51.7, 50.3)</span></td><td>67.5</td><td>42.8</td><td>42.8</td></tr>
+            <tr><td>Reference tracks of all cells</td><td>249</td><td>&ndash;</td><td>55.7 <span class="ra-seeds">(one run)</span></td><td>78.3</td><td>44.3</td><td>44.5</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <p class="ra-muted ra-small">Position accuracy is the percentage of scored positions within 1, 2, 4, 8 and 16 px
+        of the reference track, averaged over the five distances, with each video scaled to 256 &times; 256 (the
+        TAP-Vid measure). Every tracker starts each test cell at its first reference position. Each fine-tuning run
+        took 1,000 steps. Brackets give the score of each seed; the other columns are means over seeds.</p>
+
+    <p class="res-lead ra-gap"><b>The model's tracks help; the tracker's own do not.</b> Trained on its own tracks
+        from the same 78 starting marks, CoTracker3 scored 42.9, with seeds on both sides of the untrained 42.2.
+        Trained on the model's tracks it scored 49.4, and the three seeds lie within 1.6 points of each other.</p>
+    <p class="res-lead"><b>Following daughter cells added 2.6 points.</b> With only the 36 cells that the model
+        followed from the first frame, the score was 46.8. Many of those tracks are short: in the fluorescence video,
+        14 of the 20 are 11 frames or shorter. The 42 daughters nearly doubled the labelled frames, from 1,324 to
+        2,592.</p>
+    <p class="res-lead"><b>The gain is uneven across cell types.</b> On the phase-contrast video the score rose from
+        37.6 to 52.1, above the 44.5 of the tracker trained on all reference tracks. On the DIC video it rose from
+        31.7 to 37.1. On the fluorescence video it barely moved, from 57.1 to 58.9, while reference tracks reach
+        78.3. We cannot yet explain the fluorescence result: the model's tracks there lie a median 2.2 px from the
+        reference.</p>
+
+    <h3 class="res-h3 ra-gap">What the model labelled</h3>
+    <div class="ra-tablewrap">
+    <table class="ra-table">
+        <thead><tr><th>Training video</th><th>Fluorescent HeLa nuclei</th><th>DIC HeLa</th><th>Phase-contrast U373</th><th>All</th></tr></thead>
+        <tbody>
+            <tr><td>Cells followed: first frame + daughters</td><td>20 + 34</td><td>9 + 8</td><td>7 + 0</td><td>78</td></tr>
+            <tr><td>Questions to the model</td><td>191</td><td>60</td><td>84</td><td>335</td></tr>
+            <tr><td>Frames labelled</td><td>1,434</td><td>353</td><td>805</td><td>2,592</td></tr>
+            <tr><td>Reference cells in the video</td><td>214</td><td>27</td><td>8</td><td>249</td></tr>
+            <tr><td>Followed cells that start on a reference cell</td><td>48 of 54</td><td>17 of 17</td><td>6 of 7</td><td>71 of 78</td></tr>
+            <tr><td>Median distance from the reference: the model's tracks</td><td>2.2 px</td><td>11.2 px</td><td>8.6 px</td><td></td></tr>
+            <tr><td>Median distance from the reference: the tracker alone from the same marks</td><td>3.2 px</td><td>15.0 px</td><td>12.5 px</td><td></td></tr>
+        </tbody>
+    </table>
+    </div>
+    <p class="ra-muted ra-small">The reference tracks were read only afterwards, to fill in the last four rows.
+        Distances are in each video's own pixels; the frames are 1100 &times; 700, 512 &times; 512 and
+        696 &times; 520.</p>
+
+    <div class="res-two ra-gap">
+        <div>
+            <h3 class="res-h3">How the tracks were made</h3>
+            <ol class="res-steps">
+                <li><span><b>Mark.</b> The model views the first frame in tiles and marks every cell it finds. All 9
+                    cells found in the DIC video and all 7 in the phase-contrast video were followed, and 20 of the
+                    39 found in the fluorescence video, drawn at random.</span></li>
+                <li><span><b>Follow.</b> Every 10 frames the model views zoomed crops of the last frame where it
+                    placed the cell, of a frame in between, and of the new frame. It gives the cell's position, or
+                    says that the cell has divided, has ended, or that it is unsure.</span></li>
+                <li><span><b>Stop.</b> An unsure answer, or a position rated below 0.6 confidence, is skipped. Two
+                    skips in a row end the track.</span></li>
+                <li><span><b>Divide.</b> When a cell divides, the model marks its two daughters and each is followed
+                    as a new cell. Daughters born in the last 15 frames, and daughters of daughters, were not
+                    followed.</span></li>
+                <li><span><b>Fill in.</b> CoTracker3 as released tracks from every mark, and the tracks from one
+                    cell's marks are blended into a single track that passes through each mark.</span></li>
+            </ol>
+        </div>
+        <div>
+            <h3 class="res-h3">Read before quoting</h3>
+            <ul class="res-bullets">
+                <li><b>Labelled once.</b> We repeated the fine-tuning with three seeds, but the model labelled the
+                    videos once. We have not measured how much its labels vary from run to run.</li>
+                <li><b>Few videos, few cells.</b> One training video and one test video per cell type. The test
+                    videos hold 572, 24 and 9 cells, and the score averages the three videos equally, so nine
+                    phase-contrast cells carry a third of it.</li>
+                <li><b>Test cells start from the reference.</b> Every tracker starts each test cell at its first
+                    reference position, as point-tracking benchmarks do. Finding the cells is not tested.</li>
+                <li><b>No cell-tracking baseline yet.</b> We have not compared with methods built for cells, which
+                    detect every cell and link the detections.</li>
+                <li><b>One model, run as agents.</b> Only Claude Opus has labelled these videos. It ran as agents
+                    inside Claude Code: we recorded no cost per question, and the agents were told to open only
+                    each question's images, with nothing to prevent them from opening the reference tracks.</li>
+            </ul>
+        </div>
+    </div>
+    <p class="ra-muted ra-small ra-gap">Videos and reference tracks: Fluo-N2DL-HeLa, DIC-C2DH-HeLa and PhC-C2DH-U373
+        from the <a href="https://celltrackingchallenge.net/" target="_blank" rel="noopener">Cell Tracking Challenge</a>
+        (Ulman et al., Nature Methods 2017; Ma&scaron;ka et al., Nature Methods 2023), sequence 01 of each for
+        labelling and sequence 02 for testing. The challenge's terms do not allow its frames or reference tracks to
+        be redistributed, so this section gives numbers only. Tracker: CoTracker3 (Karaev et al., arXiv 2410.11831).</p>
+    <p class="ra-muted ra-small ra-gap">Code: the <code>ripple-agent</code> repository, not yet public. RIPPLE is developed in the Wadduwage Lab at Old Dominion University. Questions:
         <a href="mailto:dwadduwa@odu.edu">dwadduwa@odu.edu</a>. <a href="{{ '/' | relative_url }}">Back to wadduwagelab.com</a>.</p>
 </section>
 
