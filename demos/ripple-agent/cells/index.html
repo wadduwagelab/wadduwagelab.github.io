@@ -11,20 +11,26 @@ noindex: true
 <section class="res-head">
     <p class="res-kicker">Demo &middot; preview for co-authors, November 2026 &middot; <a class="cv-home" href="{{ '/demos/ripple-agent/' | relative_url }}#cells">&larr; RIPPLE agent demo</a></p>
     <h1>Cell tracking viewer</h1>
-    <p class="res-intro"><b>What did the model label, and what did the tracker learn from it?</b> Claude Opus marked
-        cells in three unlabelled videos and followed them with no human clicks. CoTracker3 was fine-tuned on those
-        tracks and tested on three other videos. This page plays all six videos with the tracks drawn on them. The
-        numbers and the method are on the <a href="{{ '/demos/ripple-agent/' | relative_url }}#cells">demo page</a>.</p>
-    <p class="cv-note">The video frames and reference tracks come from the
+    <p class="res-intro"><b>What did the model label, and what did the tracker learn from it?</b> Claude Opus marks
+        cells in unlabelled videos and follows them with no human clicks, and CoTracker3 is fine-tuned on its marks.
+        This page plays three development cell videos and the jellyfish video with the model's marks drawn on them,
+        and the three development test videos with each tracker's tracks. The cell marks are those of the current
+        method: the model follows 99 cells, each division is narrowed to one frame, and the tracker trains on the
+        marks alone. That method scores 53.8 on the development test videos; the
+        <a href="{{ '/demos/ripple-agent/' | relative_url }}#cells">demo page</a> still describes the earlier version
+        (78 cells, 49.4). A final test on six new datasets is running; its videos are not shown here.</p>
+    <p class="cv-note">The frames and reference tracks of the cell videos come from the
         <a href="https://celltrackingchallenge.net/" target="_blank" rel="noopener">Cell Tracking Challenge</a>
         (Ulman et al., Nature Methods 2017; Ma&scaron;ka et al., Nature Methods 2023). They are shown here for
-        co-authors to review. Do not copy them or pass them on.</p>
+        co-authors to review. Do not copy them or pass them on. The jellyfish video is the lab's own.</p>
 </section>
 
 <section id="viewer" class="bg-subtle cv">
     <div class="pickers">
-        <div><span class="plabel">Training videos: what the model labelled</span><div class="seg" id="pick-train"></div></div>
-        <div><span class="plabel">Held-out videos: what each tracker does</span><div class="seg" id="pick-heldout"></div></div>
+        <div hidden><span class="plabel">Final test, six new datasets: what the model labelled (scores not in yet)</span><div class="seg" id="pick-final"></div></div>
+        <div><span class="plabel">Development videos: what the model labelled</span><div class="seg" id="pick-train"></div></div>
+        <div><span class="plabel">Development test videos: what each tracker does</span><div class="seg" id="pick-heldout"></div></div>
+        <div hidden><span class="plabel">Jellyfish neurons: what the model labelled, and all 171 neurons tracked</span><div class="seg" id="pick-jelly"></div></div>
     </div>
     <p class="sub" id="about"></p>
 
@@ -55,10 +61,10 @@ noindex: true
 
     <div id="lists"></div>
 
-    <p class="sub cv-foot">On the held-out videos the viewer shows one fine-tuned checkpoint per training set, the first
-        seed, so its scores differ a little from the three-seed means on the demo page. Its checkpoint for the
-        reference tracks of all cells trained for 3,000 steps. Position accuracy is scored at 256 &times; 256 and
-        averaged over distances of 1 to 16 px; distances in the charts and lists are in the video's own pixels.
+    <p class="sub cv-foot">The development test videos show one fine-tuned checkpoint per training set of the earlier
+        development rows (the first seed), not the frozen method's; the checkpoint for the reference tracks of all cells
+        trained for 3,000 steps. Position accuracy is scored at 256 &times; 256 and averaged over distances of 1 to
+        16 px; distances in the charts and lists are in the video's own pixels.
         <a href="{{ '/demos/ripple-agent/' | relative_url }}#cells">Back to the demo page</a>.</p>
 </section>
 

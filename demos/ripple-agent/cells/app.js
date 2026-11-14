@@ -36,15 +36,16 @@ let D = null, imgs = [], t = 0, follow = null, playing = false, timer = null, V 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
 const median = a => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m-1] + s[m]) / 2; };
-const acc = a => 100 * TH.reduce((s, th) => s + a.filter(e => e < th).length / a.length, 0) / TH.length;
+const accAt256 = a => 100 * TH.reduce((s, th) => s + a.filter(e => e < th).length / a.length, 0) / TH.length;
 const dist = (a, b) => Math.hypot(a[0]-b[0], a[1]-b[1]);
 const fmt = (v, d = 1) => v == null ? "–" : v.toFixed(d);
 
 // Distances from the reference, for each layer: per cell, per frame, and over the clip.
 function prepare(d){
-  const sx = 256 / d.W, sy = 256 / d.H;
+  const sx = d.native ? 1 : 256 / d.W, sy = d.native ? 1 : 256 / d.H;
+  const acc = d.native ? (a => 100 * TH.reduce((s, th) => s + a.filter(e => e <= th).length / a.length, 0) / TH.length) : accAt256;
   d.tracks = Object.assign({ref: d.cells.map(c => c.ref)}, d.layers);
-  d.primary = d.kind == "train" ? d.tracks.agent : d.tracks.ref;
+  d.primary = d.kind == "train" ? d.tracks.agent : d.cells.map((c, i) => c.ref || (d.layers.label_free || [])[i] || null);
   d.stats = {};
   d.cells.forEach(c => { c.err = {}; });
   for (const k in d.layers){
@@ -62,6 +63,7 @@ function prepare(d){
     d.stats[k] = {acc: all.length ? acc(all) : null, med: median(allPx), n: all.length,
                   byFrame: byF.map(a => a.length ? acc(a) : null)};
   }
+  d.byId = new Map(d.cells.map((c, i) => [c.id, i]));
   if (d.kind == "train") d.cells.forEach((c, i) => {
     const P = d.tracks.agent[i];
     c.last = c.anchors[c.anchors.length - 1][0];
@@ -115,11 +117,11 @@ function text(g, s, x, y, color){
   g.font = "600 12px system-ui, sans-serif"; g.lineWidth = 3; g.strokeStyle = "rgba(0,0,0,.8)"; g.fillStyle = color || "#fff";
   g.strokeText(s, x, y); g.fillText(s, x, y);
 }
+const divided = c => c.end && (c.end[1] == "divided" || (!D.one_answer && c.end[1] != "unsure" && c.gen == 0));
 function endText(c){
   if (!c.end) return "";
   if (c.end[1] == "unsure") return "stopped: unsure";
-  if (c.end[1] == "divided" || c.gen == 0) return "divided";
-  return "ended";
+  return divided(c) ? "divided" : "ended";
 }
 
 function draw(){
@@ -143,7 +145,7 @@ function draw(){
   D.cells.forEach((c, i) => {
     const ref = c.ref && c.ref[t];
     for (const m of L){
-      if (!m.on || m.k == "context") continue;
+      if (!m.on || m.k == "context" || !D.tracks[m.k]) continue;
       const P = D.tracks[m.k][i], p = P && P[t];
       if (!inView(p)) continue;
       if (trail){
@@ -161,6 +163,11 @@ function draw(){
       mark(g, m, p, m.k == "ref" ? R * 1.25 : R, lw, !dense);
     }
     if (D.kind == "train" && on("agent")) extras(g, c, i, R, anch);
+    if (D.kind != "train" && c.anchors && anch) for (const a of c.anchors){
+      const dt = Math.abs(a[0] - t); if (dt > 2 || !inView([a[1], a[2]])) continue;
+      const [x, y] = px([a[1], a[2]]);
+      g.globalAlpha = 1 - dt / 3; g.strokeStyle = "#4ade80"; g.lineWidth = 2; g.beginPath(); g.arc(x, y, R * 2 + 4 + dt * 3, 0, 7); g.stroke(); g.globalAlpha = 1;
+    }
     const here = D.primary[i] && D.primary[i][t];
     if (inView(here) && !dense){
       const [x, y] = px(here);
@@ -184,7 +191,7 @@ function extras(g, c, i, R, anch){
     g.beginPath(); g.arc(x, y, R * 2 + 4 + dt * 3, 0, 7); g.stroke(); g.setLineDash([]); g.globalAlpha = 1;
   }
   if (c.parent != null && t >= c.first && t <= c.first + 5){
-    const par = D.cells[c.parent], from = posAt(D.tracks.agent[c.parent], par.last);
+    const pi = D.byId.get(c.parent), par = D.cells[pi], from = par && posAt(D.tracks.agent[pi], par.last);
     if (from){ g.setLineDash([3, 3]); g.strokeStyle = AMBER; g.lineWidth = 1.4; g.beginPath();
       g.moveTo(...px(from)); g.lineTo(...px([c.anchors[0][1], c.anchors[0][2]])); g.stroke(); g.setLineDash([]); }
   }
@@ -253,7 +260,8 @@ function legend(){
     if (D.kind == "train" && D.stats[m.k]) s = fmt(D.stats[m.k].med) + " px";
     if (m.k == "context") s = `${D.context.length} cells`;
     const l = document.createElement("label");
-    l.innerHTML = `<input type="checkbox" ${m.on ? "checked" : ""}><svg class="sw" viewBox="0 0 16 16" fill="none" stroke="${m.color}" stroke-width="1.8">${SVG[m.shape]}</svg><span>${m.name}</span><span class="score">${s}</span>`;
+    if (m.k != "ref" && m.k != "context" && !D.layers[m.k]) continue;
+    l.innerHTML = `<input type="checkbox" ${m.on ? "checked" : ""}><svg class="sw" viewBox="0 0 16 16" fill="none" stroke="${m.color}" stroke-width="1.8">${SVG[m.shape]}</svg><span>${(D.names && D.names[m.k]) || m.name}</span><span class="score">${s}</span>`;
     l.querySelector("input").onchange = e => { m.on = e.target.checked; draw(); };
     box.appendChild(l);
   }
@@ -263,25 +271,26 @@ function ended(c){
   if (!c.end) return "followed to the last frame";
   const f = c.end[0];
   if (c.end[1] == "unsure") return `stopped by frame ${f}: the model was unsure twice in a row`;
-  if (c.end[1] == "divided") return `divided by frame ${f}; daughters not followed`;
-  if (c.gen == 0) return `divided by frame ${f}; ` + (c.kids.length ? `daughters ${c.kids.join(", ")}` : "daughters not followed");
+  if (divided(c)) return `divided by frame ${f}; ` + (c.kids && c.kids.length ? `daughters ${c.kids.join(", ")}` : "daughters not followed");
   return `died or left the image by frame ${f}`;
 }
 function lists(){
   const box = $("lists");
   if (D.kind == "train"){
-    const C = D.cells, n0 = C.filter(c => c.gen == 0).length, st = D.stats;
+    const C = D.cells, n0 = C.filter(c => c.gen == 0).length, st = D.stats, sparse = !!D.layers.marks, solo = st.start_only;
+    const main = sparse ? "marks" : "agent", nMarks = C.reduce((s, c) => s + c.anchors.length, 0);
+    const away = c => c.err[main] ? fmt(c.err[main].med) + " px" : "no reference cell nearby";
     box.innerHTML = `<h3>What the model labelled in this video</h3>
       <div class="stat-row">
         <div class="stat"><b>${C.length}</b><span>cells: ${n0} from the first frame, ${C.length - n0} daughters</span></div>
-        <div class="stat"><b>${C.reduce((s, c) => s + c.frames, 0).toLocaleString()}</b><span>frames labelled</span></div>
+        <div class="stat"><b>${(sparse ? nMarks : C.reduce((s, c) => s + c.frames, 0)).toLocaleString()}</b><span>${sparse ? (D.marks_label || "marks (the training labels)") : "frames labelled"}</span></div>
         <div class="stat"><b>${C.reduce((s, c) => s + c.queries, 0)}</b><span>questions to the model</span></div>
         <div class="stat"><b>${C.filter(c => c.ref).length} of ${C.length}</b><span>cells that lie on a reference cell (${D.reference_cells} reference cells in all)</span></div>
-        <div class="stat"><b>${fmt(st.agent.med)} px</b><span>median distance from the reference (tracker alone: ${fmt(st.start_only.med)} px)</span></div>
+        <div class="stat"><b>${fmt(st[main].med)} px</b><span>median distance of the ${sparse ? "marks" : "labels"} from the reference${solo ? ` (tracker alone: ${fmt(solo.med)} px)` : ""}</span></div>
       </div>
-      <p class="sub">Click a row to follow that cell. Distances are medians over the frames where both the label and the reference cell exist.</p>
-      <div class="table-wrap"><table class="cells"><thead><tr><th>Cell</th><th>Started</th><th>Frames labelled</th><th>Model's marks</th><th>How the track ended</th><th>Model's track</th><th>Tracker alone</th><th>Frames past the reference end</th></tr></thead><tbody>` +
-      C.map((c, i) => `<tr data-i="${i}"><td>${c.id}</td><td style="text-align:left">${started(c)}</td><td>${c.first}–${c.last} (${c.frames})</td><td>${c.anchors.length}</td><td style="text-align:left;white-space:normal">${ended(c)}</td><td>${c.err.agent ? fmt(c.err.agent.med) + " px" : "no reference cell nearby"}</td><td>${c.err.start_only ? fmt(c.err.start_only.med) + " px" : "–"}</td><td>${c.past == null ? "–" : c.past}</td></tr>`).join("") +
+      <p class="sub">Click a row to follow that cell. Distances are medians over the ${sparse ? "marks" : "frames"} where the reference cell exists.</p>
+      <div class="table-wrap"><table class="cells"><thead><tr><th>Cell</th><th>Started</th><th>${sparse ? "First to last mark" : "Frames labelled"}</th><th>Model's marks</th><th>How the track ended</th><th>${sparse ? "Marks from the reference" : "Model's track"}</th>${solo ? "<th>Tracker alone</th>" : ""}<th>Frames past the reference end</th></tr></thead><tbody>` +
+      C.map((c, i) => `<tr data-i="${i}"><td>${c.id}</td><td style="text-align:left">${started(c)}</td><td>${c.first}–${c.last}${sparse ? "" : ` (${c.frames})`}</td><td>${c.anchors.length}</td><td style="text-align:left;white-space:normal">${ended(c)}</td><td>${away(c)}</td>${solo ? `<td>${c.err.start_only ? fmt(c.err.start_only.med) + " px" : "–"}</td>` : ""}<td>${c.past == null ? "–" : c.past}</td></tr>`).join("") +
       `</tbody></table></div>`;
     box.querySelectorAll("tbody tr").forEach(tr => tr.onclick = () => { setFollow(+tr.dataset.i, true); $("stage").scrollIntoView({behavior: "smooth", block: "center"}); });
   } else {
@@ -307,16 +316,16 @@ async function load(entry){
   if (!c){
     const d = await fetch(`${BASE}data/${entry.slug}.json`).then(r => r.json());
     prepare(d);
-    const im = Array.from({length: d.T}, (_, i) => { const g = new Image(); g.src = `${BASE}media/${entry.slug}/${String(i).padStart(3, "0")}.${entry.ext || "jpg"}`; g.onload = () => { if (D === d && t == i) draw(); }; return g; });
+    const im = Array.from({length: d.T}, (_, i) => { const g = new Image(); g.src = `${BASE}media/${entry.frames || entry.slug}/${String(i).padStart(3, "0")}.${entry.ext || "jpg"}`; g.onload = () => { if (D === d && t == i) draw(); }; return g; });
     c = {d, im}; cache.set(entry.slug, c);
   }
   if (mine != token) return;
   D = c.d; imgs = c.im; t = 0; follow = null;
-  $("about").textContent = ABOUT[D.kind];
+  $("about").textContent = D.about || ABOUT[D.kind];
   $("frame").max = D.T - 1;
-  $("anch-l").hidden = D.kind != "train";
+  $("anch-l").hidden = D.kind != "train" && !D.cells.some(c => c.anchors);
   $("c1-title").textContent = D.kind == "train" ? "Agreement with the reference, by frame (position accuracy)" : "Position accuracy by frame";
-  $("bright").value = /Fluo/.test(D.name) ? 1.5 : 1; cImg.style.filter = `brightness(${$("bright").value})`;
+  $("bright").value = D.bright || (/Fluo/.test(D.name) ? 1.5 : 1); cImg.style.filter = `brightness(${$("bright").value})`;
   $("focus").innerHTML = '<option value="">whole frame</option>' + D.cells.map((q, i) => `<option value="${i}">cell ${q.id}${q.parent != null ? ` (daughter of ${q.parent})` : ""}</option>`).join("");
   legend(); lists(); setFollow(null);
   try { await imgs[0].decode(); } catch (e) {}
@@ -326,7 +335,9 @@ async function load(entry){
 
 for (const e of INDEX){
   const b = document.createElement("button"); b.type = "button"; b.textContent = e.title; b.dataset.slug = e.slug;
-  b.onclick = () => load(e); $(e.kind == "train" ? "pick-train" : "pick-heldout").appendChild(b);
+  b.onclick = () => load(e);
+  const group = $(e.group ? "pick-" + e.group : e.kind == "train" ? "pick-train" : "pick-heldout");
+  group.appendChild(b); group.parentElement.hidden = false;
 }
 $("play").onclick = toggle;
 $("frame").oninput = e => setT(+e.target.value);
@@ -346,6 +357,6 @@ addEventListener("keydown", e => {
   else if (e.key == " "){ e.preventDefault(); toggle(); } else if (e.key == "Escape") setFollow(null);
 });
 addEventListener("resize", draw);
-const first = INDEX.find(e => e.kind == "train") || INDEX[0];
+const first = INDEX.find(e => e.group == "final") || INDEX.find(e => e.kind == "train") || INDEX[0];
 load(first);
 })();

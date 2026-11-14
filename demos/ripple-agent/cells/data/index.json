@@ -5,8 +5,9 @@
   "title": "Fluorescent HeLa nuclei",
   "kind": "train",
   "T": 92,
-  "cells": 54,
-  "ext": "webp"
+  "cells": 75,
+  "ext": "webp",
+  "group": "train"
  },
  {
   "name": "DIC-C2DH-HeLa/01",
@@ -15,7 +16,8 @@
   "kind": "train",
   "T": 84,
   "cells": 17,
-  "ext": "webp"
+  "ext": "webp",
+  "group": "train"
  },
  {
   "name": "PhC-C2DH-U373/01",
@@ -24,7 +26,18 @@
   "kind": "train",
   "T": 115,
   "cells": 7,
-  "ext": "webp"
+  "ext": "webp",
+  "group": "train"
+ },
+ {
+  "name": "Jellyfish-Neural/01",
+  "slug": "Jellyfish-Neural_01",
+  "title": "The model's marks",
+  "kind": "train",
+  "T": 400,
+  "cells": 38,
+  "ext": "webp",
+  "group": "jelly"
  },
  {
   "name": "Fluo-N2DL-HeLa/02",
@@ -52,5 +65,16 @@
   "T": 115,
   "cells": 9,
   "ext": "webp"
+ },
+ {
+  "name": "Jellyfish-Neural/01",
+  "slug": "Jellyfish-Neural_01_tracked",
+  "title": "All 171 neurons, tracked",
+  "kind": "heldout",
+  "T": 400,
+  "cells": 173,
+  "ext": "webp",
+  "group": "jelly",
+  "frames": "Jellyfish-Neural_01"
  }
 ]
