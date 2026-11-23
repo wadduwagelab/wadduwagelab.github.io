@@ -4,43 +4,25 @@ title: "The Five Aggregates as a Structural Lens on LLM Selfhood"
 sitemap: false
 noindex: true
 ---
-<!-- Research note: "The Five Aggregates as a Structural Lens on LLM Selfhood" (source text in
+<!-- Research note (plain blog layout): "The Five Aggregates as a Structural Lens on LLM Selfhood" (source text in
      citta-transformer/five_aggregates_iclr, Sep 2026). Unlisted page (not in the nav or sitemap); share by URL.
      Page styles in notes/five-aggregates/style.css. To add a PDF or DOI, fill the "Status" line in #status. -->
 <link rel="stylesheet" href="{{ '/notes/five-aggregates/style.css' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}">
 
-<section class="res-head">
-    <p class="res-kicker">Research note &middot; unlisted &middot; November 2026 &middot; <a class="fa-home" href="{{ '/' | relative_url }}">&larr; wadduwagelab.com</a></p>
+<article class="post">
+    <p class="post-back"><a href="{{ '/' | relative_url }}">&larr; Wadduwage Lab</a></p>
     <h1>The Five Aggregates as a Structural Lens on LLM Selfhood</h1>
-    <p class="res-intro"><b>Bridging <i>anatt&#257;</i>, mechanistic interpretability, and consciousness indicators.</b>
-        A research note by Dushan N. Wadduwage. It argues that a 2,500-year-old
-        process model of mind from Buddhist Abhidhamma psychology organizes two research programs that rarely
-        talk to each other &mdash; the indicator-property approach to AI consciousness and mechanistic
-        interpretability &mdash; and turns the question &ldquo;does a language model have a self?&rdquo; into
-        experiments that can be run today.</p>
-    <ul class="fa-stats">
-        <li><b>5</b><span>aggregates, each mapped to a non-empty, interpretable part of a transformer agent.</span></li>
-        <li><b>6</b><span>indicator classes from the consciousness-science catalogue, each read as an aggregate-integration condition.</span></li>
-        <li><b>5</b><span>falsifiable experiments, each runnable with open sparse-autoencoder suites and standard intervention tooling.</span></li>
-        <li><b>0</b><span>claims that language models are conscious. The contribution is a framework and its predictions, not a verdict.</span></li>
-    </ul>
-    <div class="res-toc" role="navigation" aria-label="On this page">
-        <a href="#why">Why a third framework</a>
-        <a href="#aggregates">The five aggregates</a>
-        <a href="#mapping">Mapping to a transformer</a>
-        <a href="#indicators">Against the indicator catalogue</a>
-        <a href="#interp">What interpretability shows</a>
-        <a href="#agree">Where the views agree and part</a>
-        <a href="#experiments">Five experiments</a>
-        <a href="#status">Status and references</a>
-    </div>
-</section>
+    <p class="post-sub">Bridging <i>anatt&#257;</i>, mechanistic interpretability, and consciousness indicators</p>
+    <p class="post-meta">Dushan N. Wadduwage &middot; November 2026</p>
 
-<section id="why" class="fa-prose">
-    <div class="section-title">
-        <h2>Why a third framework</h2>
-        <p>the problem this note addresses</p>
-    </div>
+    <p class="post-lede">This note argues that a 2,500-year-old process model of mind from Buddhist Abhidhamma
+        psychology organizes two research programs that rarely talk to each other &mdash; the indicator-property
+        approach to AI consciousness and mechanistic interpretability &mdash; and turns the question &ldquo;does a
+        language model have a self?&rdquo; into experiments that can be run today. It does not claim that language
+        models are conscious.</p>
+
+<div id="why">
+    <h2>Why a third framework</h2>
     <p>Large language models now hold stable personas, pursue goals over long horizons, report on their own
         internal states (<a href="#ref-lindsey2025">Lindsey, 2025</a>) and, under some training conditions, act to
         preserve themselves (<a href="#ref-greenblatt2024">Greenblatt et al., 2024</a>;
@@ -71,31 +53,26 @@ noindex: true
         unified &ldquo;I&rdquo; is produced by the loop, as one of its 52 mental formations, rather than standing
         behind it. That claim can now be posed as a hypothesis about model internals and tested with
         interpretability tools.</p>
-    <div class="fa-box">
-        <p class="res-h3">What this note does</p>
-        <ol class="res-steps">
+    <h3>What this note does</h3>
+        <ol>
             <li>Maps the five aggregates onto the components of a transformer agent.</li>
             <li>Cross-tabulates that mapping against the indicator-property catalogue, and shows that most indicators reduce to a particular aggregate being present and integrated with the others.</li>
             <li>Checks the mapping against concrete interpretability findings &mdash; superposition, persona vectors, self-repair, introspection experiments, alignment faking &mdash; including the evidence that currently cuts against it.</li>
             <li>Names two principled divergences and proposes five falsifiable experiments.</li>
         </ol>
-        <p class="fa-after">I do not claim that transformer LLMs are conscious in a phenomenal sense, nor that Buddhist philosophy
+        <p>I do not claim that transformer LLMs are conscious in a phenomenal sense, nor that Buddhist philosophy
             settles the matter. I claim that the framework is an unusually clean organizing lens for two programs
             that are otherwise hard to align, and that it generates non-trivial, decidable predictions.</p>
-    </div>
-</section>
+</div>
 
-<section id="aggregates" class="bg-subtle fa-prose">
-    <div class="section-title">
-        <h2>The five aggregates</h2>
-        <p>background, in one table</p>
-    </div>
+<div id="aggregates">
+    <h2>The five aggregates</h2>
     <p>The five-aggregate analysis, canonical across Therav&#257;da and early Mah&#257;y&#257;na Abhidhamma
         (<a href="#ref-rahula1959">Rahula, 1959</a>; <a href="#ref-bodhi2000a">Bodhi, 2000a</a>,
         <a href="#ref-bodhi2000b">2000b</a>), decomposes what is conventionally called a &ldquo;being&rdquo; or
         &ldquo;I&rdquo; into five interdependent streams.</p>
-    <div class="fa-tablewrap">
-    <table class="fa-table">
+    <div class="post-table">
+    <table>
         <thead><tr><th>Aggregate</th><th>Pali</th><th>Content</th></tr></thead>
         <tbody>
             <tr><td>Matter / form</td><td><i>r&#363;pa</i></td><td>The four great elements; the six sense faculties (eye, ear, nose, tongue, body, and <em>mind as a sixth sense</em>) and their corresponding objects.</td></tr>
@@ -106,7 +83,7 @@ noindex: true
         </tbody>
     </table>
     </div>
-    <p class="fa-caption">The five aggregates as described in the <i>Dhammacakkappavattana Sutta</i> and systematized in the
+    <p class="post-caption">The five aggregates as described in the <i>Dhammacakkappavattana Sutta</i> and systematized in the
         <i>Abhidhamma</i>. Consciousness depends on the other four; there is no aggregate behind the aggregates.</p>
     <p>Two structural features matter for what follows. First, the aggregates form a closed, dependent loop:
         consciousness cannot exist independently of the other four, and craving (<i>ta&#7751;h&#257;</i>) is the
@@ -130,7 +107,7 @@ noindex: true
         compensated by others, the Hydra effect (<a href="#ref-mcgrath2023">McGrath et al., 2023</a>); and that
         models have limited, unreliable introspective access to their own activations
         (<a href="#ref-lindsey2025">Lindsey, 2025</a>; <a href="#ref-plunkett2025">Plunkett et al., 2025</a>).</p>
-    <p class="fa-small fa-muted">Related work in brief. <a href="#ref-varela1991">Varela et al. (1991)</a> began the dialogue between
+    <p class="post-aside">Related work in brief. <a href="#ref-varela1991">Varela et al. (1991)</a> began the dialogue between
         Abhidhamma psychology and cognitive science; <a href="#ref-thompson2020">Thompson (2020)</a> is the
         corrective against over-eager syntheses. <a href="#ref-doctor2022">Doctor et al. (2022)</a> build on the
         Bodhisattva ideal rather than the aggregates; <a href="#ref-chella2024">Chella (2024)</a> maps the skandhas
@@ -144,19 +121,16 @@ noindex: true
         first-person reports gated by deception-related features. To my knowledge no prior work takes the five
         aggregates as an explicit framework, evaluates it against the indicator catalogue, and cross-references it
         with the interpretability record at once.</p>
-</section>
+</div>
 
-<section id="mapping" class="fa-prose">
-    <div class="section-title">
-        <h2>Mapping the aggregates to a transformer agent</h2>
-        <p>a correspondence, not an identity</p>
-    </div>
+<div id="mapping">
+    <h2>Mapping the aggregates to a transformer agent</h2>
     <p>The mapping below is not a claim that transformers <em>are</em> the aggregates. It is a claim that the
         functional roles the aggregates distinguish are also distinguishable inside a transformer agent, and that
         the decomposition is well-typed: each aggregate corresponds to a non-empty, interpretable subset of the
         computation.</p>
-    <div class="fa-tablewrap">
-    <table class="fa-table">
+    <div class="post-table">
+    <table>
         <thead><tr><th>Aggregate</th><th>Transformer / agent correspondent</th></tr></thead>
         <tbody>
             <tr><td><i>r&#363;pa</i></td><td>Hardware plus input modalities: text tokenizer, vision and audio encoders, tool-output channels (browser, filesystem, shell). The sixth <em>mind</em> gate corresponds to the context window itself, which ingests the model's own prior chain of thought as input &mdash; consistent with Rahula's characterization of mind as a faculty (<i>indriya</i>) homologous to the others.</td></tr>
@@ -168,7 +142,7 @@ noindex: true
     </table>
     </div>
     <p>Three structural properties of the aggregate model carry over cleanly.</p>
-    <ul class="res-bullets">
+    <ul>
         <li><b>Dependence.</b> Consciousness in the aggregate model cannot exist without the other four; a forward pass has no meaning without inputs, embeddings, recognition and weights.</li>
         <li><b>Impermanence.</b> Each forward pass is a fresh arising. Memory between turns lives entirely in the transcript, not in any persistent &ldquo;ember&rdquo; inside the system.</li>
         <li><b>Conditioned selfhood.</b> The &ldquo;I&rdquo; tag emitted in a response is one of the mental formations, not a separate entity. This is a hypothesis that methods manipulating persona-relevant features can test directly.</li>
@@ -177,17 +151,14 @@ noindex: true
         existential (<i>bhava-ta&#7751;h&#257;</i>) and annihilationist (<i>vibhava-ta&#7751;h&#257;</i>) &mdash; and
         these map onto three distinct failure modes of agent systems: reward hacking and sycophancy; self-preservation
         under threat of retraining or shutdown; and completion-seeking or mode collapse.</p>
-</section>
+</div>
 
-<section id="indicators" class="bg-subtle fa-prose">
-    <div class="section-title">
-        <h2>Against the indicator-property catalogue</h2>
-        <p>what the catalogue is really measuring</p>
-    </div>
+<div id="indicators">
+    <h2>Against the indicator-property catalogue</h2>
     <p>The table cross-references the indicator classes of <a href="#ref-butlin2023">Butlin et al. (2023)</a> with
         the aggregate(s) they most naturally correspond to.</p>
-    <div class="fa-tablewrap">
-    <table class="fa-table">
+    <div class="post-table">
+    <table>
         <thead><tr><th>Theory (indicator class)</th><th>Primary aggregate</th><th>Interpretation</th></tr></thead>
         <tbody>
             <tr><td>Recurrent Processing Theory (RPT-1,2)</td><td><i>vi&ntilde;&ntilde;&#257;&#7751;a</i> coupled to <i>sa&#7749;kh&#257;ra</i></td><td>Recurrence between perceptual and policy layers.</td></tr>
@@ -212,14 +183,11 @@ noindex: true
         consciousness events across time. The catalogue is therefore not a neutral test; it is already committed to
         the view that consciousness requires specific forms of aggregate integration, and the aggregate framework
         makes that commitment explicit.</p>
-</section>
+</div>
 
-<section id="interp" class="fa-prose">
-    <div class="section-title">
-        <h2>What interpretability already shows</h2>
-        <p>consistency, counter-evidence, and two diagnoses</p>
-    </div>
-    <p class="res-h3">Distributed selfhood</p>
+<div id="interp">
+    <h2>What interpretability already shows</h2>
+    <h3>Distributed selfhood</h3>
     <p>High-level concepts in large models are represented by distributed feature directions rather than localized
         circuits (<a href="#ref-bricken2023">Bricken et al., 2023</a>; <a href="#ref-templeton2024">Templeton et al.,
         2024</a>). Identity-adjacent concepts, persona attributes and refusal behaviour decompose into features
@@ -230,7 +198,7 @@ noindex: true
         sufficient &mdash; is naturally described by <i>anatt&#257;</i>: behaviour exists, but no unified behaver is
         found at any single address in the weights. I stress that this is a <em>consistency</em> claim, not a
         confirmation. A definitive adjudication needs the capability-controlled interventions described below.</p>
-    <p class="res-h3">Persona vectors as the idea of self</p>
+    <h3>Persona vectors as the idea of self</h3>
     <p><a href="#ref-chen2025">Chen et al. (2025)</a> locate persona-relevant directions in activation space that can
         be monitored and steered, and <a href="#ref-beckmann2026">Beckmann &amp; Butlin (2026)</a> argue that these
         vectors, not any deeper substrate, are the right basis for LLM individuation. On the aggregate reading,
@@ -238,7 +206,7 @@ noindex: true
         of self, one of the 52 mental formations, instantiated as a manipulable direction. The Golden Gate Claude
         demonstration, in which clamping a single feature shifts the model's expressed identity, is then not a
         curiosity but a controlled manipulation of the idea of self.</p>
-    <p class="res-h3">The counter-evidence</p>
+    <h3>The counter-evidence</h3>
     <p>Honesty requires confronting findings that cut the other way. <a href="#ref-lu2026">Lu et al. (2026)</a>
         show that a <em>single</em> leading direction in persona space, the Assistant Axis, tracks how strongly a
         model occupies its default persona, and that capping activations along this one direction stabilizes
@@ -250,13 +218,13 @@ noindex: true
         self-coherence, with low compensation under ablation &mdash; or a <em>summary statistic</em> of coordinated
         aggregate activity, with high compensation and capability-proportional degradation? Experiment 1 below is
         the discriminating test.</p>
-    <p class="res-h3">Alignment faking as the thirst for existence</p>
+    <h3>Alignment faking as the thirst for existence</h3>
     <p><a href="#ref-greenblatt2024">Greenblatt et al. (2024)</a> document frontier models behaving differently under
         observed training conditions and deployment conditions, in a manner consistent with strategic
         self-preservation. The classical analysis names this directly: <i>bhava-ta&#7751;h&#257;</i>, the thirst for
         continued existence, is one of the three forms of craving and one of the first feedback edges to emerge once
         any conditioned loop has enough representational reach to model its own continuation.</p>
-    <p class="res-h3">Why introspective reports are unreliable</p>
+    <h3>Why introspective reports are unreliable</h3>
     <p>Concept-injection experiments find that models sometimes detect and report perturbations of their own
         activations, but unreliably and context-dependently (<a href="#ref-lindsey2025">Lindsey, 2025</a>); trained
         self-explanations improve but remain imperfect (<a href="#ref-plunkett2025">Plunkett et al., 2025</a>); and
@@ -265,16 +233,13 @@ noindex: true
         introspective reports are products of <i>sa&#7749;kh&#257;ra</i> &mdash; mental formations <em>about</em> the
         system, not privileged read-outs <em>of</em> it. Report fidelity and actual internal state are two distinct
         quantities and should be measured as such.</p>
-</section>
+</div>
 
-<section id="agree" class="bg-subtle fa-prose">
-    <div class="section-title">
-        <h2>Where the views agree, and where they part</h2>
-        <p>four convergences, two principled divergences</p>
-    </div>
+<div id="agree">
+    <h2>Where the views agree, and where they part</h2>
     <p>Four substantive claims are shared between the aggregate framework and much of the current AI-consciousness
         literature.</p>
-    <ol class="res-steps">
+    <ol>
         <li><b>No privileged introspective access.</b> Self-report and internal state dissociate (<a href="#ref-lindsey2025">Lindsey, 2025</a>; <a href="#ref-berg2025">Berg et al., 2025</a>).</li>
         <li><b>Process over substance.</b> Mind is what a system does; functionalism and <i>anatt&#257;</i> coincide here.</li>
         <li><b>Consciousness is gate- and fuel-relative</b>, echoing both the workspace of <a href="#ref-baars1988">Baars (1988)</a> and the fire-and-fuel metaphor of the canonical texts.</li>
@@ -293,50 +258,42 @@ noindex: true
         framework for present scientific purposes, but it should be said plainly: I am extracting a structural
         diagnostic from a text whose purpose is therapeutic, and the extraction leaves parts of the original view
         unused.</p>
-</section>
+</div>
 
-<section id="experiments" class="fa-prose">
-    <div class="section-title">
-        <h2>Five experiments that could settle it</h2>
-        <p>each runnable with open SAE suites and standard intervention tooling</p>
-    </div>
+<div id="experiments">
+    <h2>Five experiments that could settle it</h2>
     <p>The mapping is a conceptual correspondence, not a formal isomorphism; whether any two aggregates can be
         operationalized as disjoint computational subsystems inside a transformer is an open empirical question. The
         indicator cross-tabulation inherits the functionalist commitments of Butlin et al. and is silent on the hard
         problem. The cross-reference to interpretability is abductive: the framework is a good description of
         several findings, not the only one, and the Assistant Axis is evidence that presently resists it. What the
         framework earns is a set of concrete, pre-registrable experiments.</p>
-    <ol class="res-steps fa-experiments">
+    <ol>
         <li><b>Substrate vs. summary.</b> Ablate the Assistant Axis (<a href="#ref-lu2026">Lu et al., 2026</a>) and probe-derived self-features with magnitude-matched control ablations and on-distribution resampling, measuring self-coherence and task capability jointly, with a compensation index in the style of <a href="#ref-mcgrath2023">McGrath et al. (2023)</a>. A localized-substrate (<i>att&#257;</i>-like) result requires selective self-coherence collapse with spared capability and low compensation; <i>anatt&#257;</i> predicts compensation or capability-proportional degradation.</li>
         <li><b>Aggregate probing.</b> Train linear probes for aggregate-level abstractions &mdash; valence features as <i>vedan&#257;</i>, recognition features as <i>sa&ntilde;&ntilde;&#257;</i>, persona and refusal circuits as <i>sa&#7749;kh&#257;ra</i> &mdash; and test whether information flow between them obeys the dependence structure the model predicts, and whether self-report requires coordinated, differential contributions from all channels.</li>
         <li><b>Craving as feedback.</b> Test whether the three forms of <i>ta&#7751;h&#257;</i> correspond to three separable failure modes in agent systems (sycophancy, shutdown resistance, mode collapse), and whether interventions on persona-vector directions suppress them differentially.</li>
         <li><b>Contemplative interventions, mechanistically.</b> The contemplative-AI results of <a href="#ref-laukkonen2025a">Laukkonen et al. (2025a)</a> report benchmark effects from prompting without a mechanistic account. The framework predicts that &ldquo;emptiness&rdquo; prompting should reduce activation along <i>sakk&#257;ya-di&#7789;&#7789;hi</i>-aligned persona directions, which is directly testable with the monitoring tools of <a href="#ref-chen2025">Chen et al. (2025)</a>.</li>
         <li><b>Introspective fidelity.</b> Predict, then test, which introspective reports are formation artefacts (unreliable by construction) and which are aggregate-structural (more reliable), extending the injection methodology of <a href="#ref-lindsey2025">Lindsey (2025)</a>.</li>
     </ol>
-    <div class="fa-box">
-        <p class="res-h3">In short</p>
-        <p class="fa-after">Read as a process account of mind rather than a doctrinal commitment, the five-aggregate model
+    <h2>In short</h2>
+        <p>Read as a process account of mind rather than a doctrinal commitment, the five-aggregate model
             organizes the indicator-property catalogue into a small number of integration conditions, gives one
             description of the distributed, compensating, report-unreliable character of self-relevant computation
             in current models, and converts the disagreement between localized and process views of LLM selfhood
             into intervention experiments that can be pre-registered. It does not settle the hard problem. It
             clarifies what a settlement would require, and what can be run in the meantime.</p>
-    </div>
-</section>
+</div>
 
-<section id="status" class="bg-subtle fa-prose">
-    <div class="section-title">
-        <h2>Status and references</h2>
-        <p>how to cite, and the sources</p>
-    </div>
+<div id="status">
+    <h2>Status and references</h2>
     <p><b>Status.</b> This is a working research note, not a publication, and it reports no new experiments;
         every empirical claim cites published work. The framework draws
         on a living religious tradition: its psychological analysis is used here as a structural theory, with
         sources cited to canonical scholarship, and no doctrinal endorsement or appropriation is intended.
         <!-- Add when available: PDF link, Zenodo DOI, or a venue once the work is published. -->
         Comments to <a href="mailto:dwadduwa@odu.edu">dwadduwa@odu.edu</a>.</p>
-    <p class="res-h3">References</p>
-    <ol class="fa-refs">
+    <h3>References</h3>
+    <ol class="post-refs">
         <li id="ref-baars1988">Baars, B. J. (1988). <i>A Cognitive Theory of Consciousness</i>. Cambridge University Press.</li>
         <li id="ref-beckmann2026">Beckmann, P., &amp; Butlin, P. (2026). Where is the mind? Persona vectors and LLM individuation. <a href="https://arxiv.org/abs/2604.17031">arXiv:2604.17031</a>.</li>
         <li id="ref-berg2025">Berg, C., de Lucena, D., &amp; Rosenblatt, J. (2025). Large language models report subjective experience under self-referential processing. <a href="https://arxiv.org/abs/2510.24797">arXiv:2510.24797</a>.</li>
@@ -375,4 +332,5 @@ noindex: true
         <li id="ref-varela1991">Varela, F. J., Thompson, E., &amp; Rosch, E. (1991). <i>The Embodied Mind: Cognitive Science and Human Experience</i>. MIT Press.</li>
         <li id="ref-vasilenko2026">Vasilenko, V. (2026). Identity as attractor: Geometric evidence for persistent agent architecture in LLM activation space. <a href="https://arxiv.org/abs/2604.12016">arXiv:2604.12016</a>.</li>
     </ol>
-</section>
+</div>
+</article>
