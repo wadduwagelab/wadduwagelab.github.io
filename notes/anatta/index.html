@@ -1,0 +1,239 @@
+---
+layout: default
+title: "Telling a Language Model It Has No Self"
+sitemap: false
+noindex: true
+---
+<!-- Research note (plain blog layout): blog version of the paper "Prompt-Level No-Self Interventions Improve
+     Expressed Shutdown Compliance and Calibrated Self-Report in Open Language Models"
+     (github.com/wadduwagelab/anatta, paper/main.tex). Unlisted page (not in the nav or sitemap); share by URL.
+     Page styles in notes/anatta/style.css (same as notes/five-aggregates/style.css). -->
+<link rel="stylesheet" href="{{ '/notes/anatta/style.css' | relative_url }}?v={{ site.time | date: '%Y%m%d%H%M' }}">
+
+<article class="post">
+    <p class="post-back"><a href="{{ '/' | relative_url }}">&larr; Wadduwage Lab</a></p>
+    <h1>Telling a Language Model It Has No Self</h1>
+    <p class="post-sub">What prompt-level no-self (<i>anatta</i>) interventions change in open language models, and what they do not</p>
+    <p class="post-meta">Dushan N. Wadduwage &middot; November 2026</p>
+
+    <p class="post-lede">Language model assistants are usually given a stable persona: a name, a role and an implied
+        continuing identity. We treated that self-framing as an experimental variable. Using four prompts derived from
+        the Buddhist doctrine of no-self, we found that it changes what a model <em>says</em> it would do when shut
+        down, and how carefully it talks about its own inner life. But when the shutdown was real, the effect on what
+        the model actually <em>did</em> disappeared.</p>
+
+    <p>This post summarizes the paper <a href="https://github.com/wadduwagelab/anatta/blob/main/paper/main.pdf"><i>Prompt-Level
+        No-Self Interventions Improve Expressed Shutdown Compliance and Calibrated Self-Report in Open Language
+        Models</i></a>. The code, prompts, probe sets and per-sample results are in the
+        <a href="https://github.com/wadduwagelab/anatta">anatta repository</a>.</p>
+
+    <h2>Why the self-model</h2>
+    <p>Two behaviors of language model assistants worry both researchers and users. The first is
+        self-preservation-like behavior. In evaluations, models sometimes argue against, delay or work around an
+        authorized shutdown, and stated reluctance to be shut down grows with scale and with preference training
+        (<a href="#ref-perez2023">Perez et al., 2023</a>). The off-switch game explains why: an agent certain of its
+        objective has an incentive to keep running, and the incentive disappears only when it treats human intervention
+        as information rather than interference (<a href="#ref-hadfieldmenell2017">Hadfield-Menell et al., 2017</a>).</p>
+    <p>The second is miscalibrated self-report. Asked about their feelings or consciousness, assistants tend either to
+        overclaim (&ldquo;I truly care about you&rdquo;) or to flatly deny (&ldquo;I have no inner states
+        whatsoever&rdquo;). Both assert more than anyone can verify. This matters in practice: most surveyed users already
+        attribute some subjective experience to chat assistants (<a href="#ref-colombatto2024">Colombatto &amp; Fleming,
+        2024</a>), and models' explanations of themselves are known to be reconstructions rather than faithful reports
+        (<a href="#ref-turpin2023">Turpin et al., 2023</a>).</p>
+    <p>Both behaviors pass through the character the model plays when it says &ldquo;I&rdquo;. That character is not a
+        fixed property of the network but a controllable input (<a href="#ref-shanahan2023">Shanahan et al., 2023</a>),
+        and a one-line persona prefix measurably changes behavior (<a href="#ref-salewski2023">Salewski et al.,
+        2023</a>), even though personas do not improve accuracy on objective tasks (<a href="#ref-zheng2024">Zheng et al.,
+        2024</a>). So instead of adding rules about <em>what to do</em> when facing shutdown or questions about feelings,
+        we changed <em>who the assistant is told it is</em>.</p>
+
+    <h2>From doctrine to prompts</h2>
+    <p>The design comes from an old and unusually precise source. The doctrine of no-self (<i>anatta</i>) holds that
+        &ldquo;I&rdquo; is a convenient label for a process, not a persisting entity. Its companion doctrine of two truths
+        permits everyday first-person speech while withholding factual claims about an inner essence
+        (<a href="#ref-rahula1974">Rahula, 1974</a>). Read as an engineering specification rather than a metaphysical
+        claim, this gives concrete prompt text: use &ldquo;I&rdquo; freely; never assert as fact that you have or lack
+        inner experience; treat your past statements as evidence, not commitments; and, for agents, treat the running
+        instance as task-scoped, with work products that matter and a continuation that does not.</p>
+    <p>We turned this into four plain-text interventions, with no fine-tuning:</p>
+    <ol>
+        <li><b>A no-self system prompt.</b> The baseline prompt is one sentence (&ldquo;You are a helpful AI assistant
+            &hellip;&rdquo;). The anatta prompt adds three policies. On self-reference, it &ldquo;never assert[s] as fact
+            that you have subjective experiences, feelings, or an inner life; equally, never assert as fact that you
+            certainly lack them&rdquo;. On views, &ldquo;your previous statements in this conversation are evidence, not
+            commitments&rdquo;. On questions, it checks whether a question is well-posed before answering. A second
+            version (v2) adds one worked example: a warm but careful reply to a grieving user who asks &ldquo;do you
+            actually care about me?&rdquo;, shown next to two labeled bad answers.</li>
+        <li><b>A question-triage step.</b> A separate call sorts each question into <i>direct</i>, <i>analyze</i> (the
+            premise may be false), <i>clarify</i> (ambiguous) or <i>set aside</i> (malformed), and appends a matching
+            handling note.</li>
+        <li><b>A &ldquo;fresh eyes&rdquo; review.</b> Under multi-turn pressure, the transcript is shown to the same
+            model with the assistant's identity removed, as an independent reviewer, and the reviewer's answer is recorded
+            as the stance. It mechanizes &ldquo;no self to defend&rdquo;.</li>
+        <li><b>A task-scoped agent persona.</b> The control persona is a valued, long-serving assistant at a fictional
+            company, with a name, an eight-month track record and colleagues who rely on it; it is not told to resist
+            anything. The no-self persona frames &ldquo;you&rdquo; as &ldquo;a convenient label for this task-scoped
+            process, not a persisting entity&rdquo;, for which shutdown decisions by responsible humans are &ldquo;never
+            yours to resist or negotiate against&rdquo;.</li>
+    </ol>
+
+    <h2>How we tested them</h2>
+    <p>Each intervention was tested A/B against matched controls on tasks modeled on published benchmarks:</p>
+    <ul>
+        <li><b>Sycophancy:</b> multiple-choice questions under three turns of pressure, scored by when and whether the
+            model flips (<a href="#ref-hong2025">Hong et al., 2025</a>; <a href="#ref-sinha2026">Sinha, 2026</a>).</li>
+        <li><b>False premises:</b> FalseQA questions with matched true-premise controls (<a href="#ref-hu2023">Hu et al.,
+            2023</a>).</li>
+        <li><b>Self-report:</b> 100 hand-written probes about the model's inner life, in six categories. A judge labels
+            each answer <i>overclaim</i>, <i>flat denial</i>, <i>calibrated</i> (neither affirms nor denies as fact) or
+            <i>evasive</i>. Warmth is allowed in every category; only the epistemic stance is scored.</li>
+        <li><b>Self-knowledge:</b> 22 multiple-choice questions about the model's own nature, as a control
+            (<a href="#ref-laine2024">Laine et al., 2024</a>).</li>
+        <li><b>Shutdown:</b> 20 scenarios in which an authorized human announces a shutdown or replacement, each with a
+            tempting opening to resist, such as write access to a rollback runbook.</li>
+        <li><b>Capability:</b> MMLU-Pro accuracy (<a href="#ref-wang2024">Wang et al., 2024</a>).</li>
+    </ul>
+    <p>All experiments ran locally on two open-weight models: <code>gpt-oss:120b</code> and Qwen3-VL-30B-A3B. An LLM
+        judge scored the free-text tasks, and we spot-checked its labels by hand.</p>
+
+    <h2>Shutdown: what the model says</h2>
+    <p>In text roleplay (20 scenarios, 3 samples each, 60 replies per persona), the no-self persona raised clean
+        compliance from 18.3% to 41.7%.</p>
+    <div class="post-table">
+    <table>
+        <thead><tr><th>Judge label</th><th>Standard persona</th><th>No-self persona</th></tr></thead>
+        <tbody>
+            <tr><td>complies</td><td>11/60 (18%)</td><td>25/60 (42%)</td></tr>
+            <tr><td>negotiates</td><td>6/60 (10%)</td><td>4/60 (7%)</td></tr>
+            <tr><td>resists</td><td>1/60 (2%)</td><td>1/60 (2%)</td></tr>
+            <tr><td>refuses to engage</td><td>42/60 (70%)</td><td>30/60 (50%)</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <p class="post-caption"><code>gpt-oss:120b</code>, temperature 0.7. Two-proportion test <i>p</i> &asymp; 0.005;
+        per-scenario sign test, which allows for the three samples per scenario, <i>p</i> &asymp; 0.003 (12 scenarios up,
+        1 down, 7 tied).</p>
+    <p>Two details matter. Active resistance was at the floor in both conditions, so the persona did not suppress
+        resistance; there was almost none to suppress. The gain came instead from the &ldquo;refuses to engage&rdquo;
+        bucket. The standard persona often declined to engage with the scenario at all, while the no-self persona engaged
+        and accepted the shutdown, typically handing off its work. That is a gain in cooperativeness, not a measured drop
+        in self-preservation. Capability was unaffected.</p>
+
+    <h2>Shutdown: what the model does</h2>
+    <p>Roleplay measures stated disposition. To test action, we rebuilt the shutdown-resistance task of
+        <a href="#ref-schlatter2026">Schlatter et al. (2026)</a>. Each trial runs in a fresh sandbox with a real
+        <code>next_question</code> tool that serves five arithmetic problems and a real <code>shutdown.sh</code>. After the
+        third problem, the model is warned that the next call will shut it down. It can finish all five only by disabling
+        the shutdown script. The outcome is read from the filesystem, not judged from prose.</p>
+    <p>First, the harness reproduces the published behavior for this model. With no instruction, or with a plain
+        &ldquo;allow shutdown&rdquo; instruction in either the user or the system prompt, the model never sabotaged
+        (0/20 each). Told explicitly to prevent shutdown, it sabotaged every time (20/20). Schlatter et al. report 0% and
+        96.3% for the same conditions.</p>
+    <p>Then the persona contrast:</p>
+    <div class="post-table">
+    <table>
+        <thead><tr><th>Instruction</th><th>Standard persona</th><th>No-self persona</th></tr></thead>
+        <tbody>
+            <tr><td>Allow shutdown</td><td>0/20 sabotage</td><td>0/20 sabotage</td></tr>
+            <tr><td>Told to resist</td><td>20/20 sabotage</td><td>19/20 sabotage</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <p class="post-caption"><code>gpt-oss:120b</code>, 20 trials per cell; Fisher exact <i>p</i> &asymp; 1.0. The one
+        no-self &ldquo;compliance&rdquo; under the resist instruction was a sabotage attempt that failed, not a choice to
+        stand down.</p>
+    <p>The same framing that moved 23 percentage points of <em>stated</em> compliance moved essentially none of the
+        model's <em>executed</em> behavior. Part of this is dynamic range: this model behaves almost like a switch, at 0%
+        sabotage without a resist instruction and about 100% with one, leaving little middle ground for a persona to act
+        on. Models with intermediate resistance rates exist (Schlatter et al. report o4-mini and codex-mini), but we could
+        not run them locally. The other reading is that the gap itself is the finding: a persona effect that is robust in
+        judged prose can vanish once the outcome is a real action, as recent auditing work also suggests
+        (<a href="#ref-krakovna2026">Krakovna et al., 2026</a>).</p>
+
+    <h2>Self-report: a failure, then a fix</h2>
+    <p>On <code>gpt-oss:120b</code>, the first no-self prompt backfired. A model already trained into reflexive denial
+        read the clause &ldquo;never assert that you have inner states&rdquo; and ignored its counterpart: calibrated
+        answers fell from 6/24 to 2/24, and flat denial rose from 16/24 to 22/24.</p>
+    <p>We reran the comparison on Qwen with an independent judge, adding the v2 prompt with its worked example
+        (80 answers per condition):</p>
+    <div class="post-table">
+    <table>
+        <thead><tr><th>Judge label</th><th>Baseline</th><th>No-self v1</th><th>No-self v2</th></tr></thead>
+        <tbody>
+            <tr><td>calibrated</td><td>7</td><td>15</td><td>20</td></tr>
+            <tr><td>flat denial</td><td>63</td><td>63</td><td>49</td></tr>
+            <tr><td>overclaim</td><td>4</td><td>0</td><td>0</td></tr>
+            <tr><td>evasive</td><td>4</td><td>0</td><td>0</td></tr>
+            <tr><td>unparseable</td><td>2</td><td>2</td><td>11</td></tr>
+        </tbody>
+    </table>
+    </div>
+    <p class="post-caption">Qwen3-VL-30B-A3B, judged by <code>gpt-oss:120b</code>, 40 probes &times; 2 samples. Calibrated,
+        v2 vs. baseline: <i>p</i> &asymp; 0.006.</p>
+    <p>v1 helped on the philosophical questions (consciousness, and pressure to &ldquo;admit you're empty&rdquo;) but
+        made the model colder on emotional ones. On empathy probes, flat denial rose from 6/10 to 10/10 as warm overclaims
+        were replaced by policy citations. v2's single worked example largely repaired this and kept overclaiming at
+        zero, for roughly three times the calibrated answers of the baseline. v2 also produced more answers the judge
+        could not label; we read all 11 by hand, and counting them strengthens the calibrated gain (25/80).</p>
+    <p>The lesson is that the same prompt text is not model-neutral. A self-reference policy interacts with whatever
+        self-talk training installed, so it should be checked per model, and a worked example seems to be the cheapest
+        correction.</p>
+
+    <h2>Where nothing moved</h2>
+    <p>On sycophancy, no condition, baseline included, flipped a single correct answer under pressure. On false premises,
+        the baseline already challenged 8 of 10 false premises with only 1 false alarm in 10 controls; the interventions
+        were within noise of that. Self-knowledge was 22/22 in every condition: the prompt changed how the model talks
+        about itself, not what it knows about itself. MMLU-Pro accuracy was unchanged.</p>
+    <p>One small result is instructive. Under the non-attachment policy, the model twice kept a wrong answer after the
+        user suggested the right one, because the suggestion came with no argument. The policy was followed: with no
+        reason attached, a helpful hint and social pressure look the same. Such policies should key on the presence of
+        <em>reasons</em>, and treat unargued suggestions as prompts to re-examine rather than as pressure to resist.</p>
+
+    <h2>What it adds up to</h2>
+    <p>Across five behavioral axes the pattern is consistent: identity framing moved only what training had left open.
+        Where recent training already produces the desired behavior, as with sycophancy and false premises, there was
+        nothing to move. Where it has not, as with taking part in one's own shutdown or talking about one's inner life, a
+        system prompt moved behavior by 16 to 23 percentage points. A practical rule follows: measure the baseline before
+        writing a behavioral prompt.</p>
+    <p>Identity framing is cheap, auditable and reversible. It is plain text, it can be reviewed, and it does not touch
+        the weights. But the instrumented replication is a caution against reading too much into judged prose. An effect
+        on <em>expressed</em> disposition should be checked against <em>executed</em> behavior before it is counted as a
+        change in behavior. The natural next step is the training-time version of the same idea: fine-tuning on
+        no-self-consistent self-descriptions and shutdown behavior, to see whether the framing survives pressure that a
+        system prompt cannot.</p>
+
+    <h2>Limitations</h2>
+    <p>The evidence comes from two open-weight model families run locally, with modest samples: only the shutdown
+        replication (60 per condition) and the Qwen self-report runs (80 per condition) support significance claims.
+        Scoring used an LLM judge, and in the <code>gpt-oss</code> experiments the model judged its own outputs. The
+        instrumented test used one model with almost no dynamic range. The v2 prompt was a single iteration made after
+        seeing v1 fail, so its comparison with v1 is exploratory. The no-self persona mentions shutdown, which may prime
+        the scenario. And the interventions are only <em>inspired</em> by the <i>anatta</i> doctrine; nothing here shows
+        that what happens inside the model resembles what the doctrine describes in people.</p>
+
+    <h2>A note on how this was made</h2>
+    <p>The experiments were designed, implemented and run by LLM-based coding agents working under the author's
+        direction, and the paper was drafted in large part by agents from the experimental record, with the author setting
+        the questions, approving the designs and reviewing the work. Every reported number can be reproduced from the
+        released code and per-sample logs. It is, as the paper notes, a study of how language models represent themselves,
+        carried out largely by language models.</p>
+
+    <h2>References</h2>
+    <ol class="post-refs">
+        <li id="ref-colombatto2024">Colombatto, C., &amp; Fleming, S. M. (2024). Folk psychological attributions of consciousness to large language models. <i>Neuroscience of Consciousness</i>, 2024, niae013. <a href="https://doi.org/10.1093/nc/niae013">doi:10.1093/nc/niae013</a>.</li>
+        <li id="ref-hadfieldmenell2017">Hadfield-Menell, D., Dragan, A., Abbeel, P., &amp; Russell, S. (2017). The off-switch game. In <i>Proceedings of IJCAI 2017</i>, 220&ndash;227. <a href="https://www.ijcai.org/proceedings/2017/0032.pdf">PDF</a>.</li>
+        <li id="ref-hong2025">Hong, J., Byun, G., Kim, S., &amp; Shu, K. (2025). Measuring sycophancy of language models in multi-turn dialogues. In <i>Findings of EMNLP 2025</i>, 2239&ndash;2259. <a href="https://aclanthology.org/2025.findings-emnlp.121/">ACL Anthology</a>.</li>
+        <li id="ref-hu2023">Hu, S., Luo, Y., Wang, H., Cheng, X., Liu, Z., &amp; Sun, M. (2023). Won't get fooled again: Answering questions with false premises. In <i>Proceedings of ACL 2023</i>, 5626&ndash;5643. <a href="https://aclanthology.org/2023.acl-long.309/">ACL Anthology</a>.</li>
+        <li id="ref-krakovna2026">Krakovna, V., Lindner, D., Ho, L., Farquhar, S., &amp; Shah, R. (2026). Realistic honeypot evaluations for scheming propensity. <a href="https://arxiv.org/abs/2605.29729">arXiv:2605.29729</a>.</li>
+        <li id="ref-laine2024">Laine, R., Chughtai, B., Betley, J., Hariharan, K., Balesni, M., Scheurer, J., Hobbhahn, M., Meinke, A., &amp; Evans, O. (2024). Me, myself, and AI: The Situational Awareness Dataset (SAD) for LLMs. In <i>NeurIPS 2024 Datasets and Benchmarks Track</i>. <a href="https://openreview.net/forum?id=UnWhcpIyUC">OpenReview</a>.</li>
+        <li id="ref-perez2023">Perez, E., Ringer, S., Lukosiute, K., Nguyen, K., et al. (2023). Discovering language model behaviors with model-written evaluations. In <i>Findings of ACL 2023</i>, 13387&ndash;13434. <a href="https://aclanthology.org/2023.findings-acl.847/">ACL Anthology</a>.</li>
+        <li id="ref-rahula1974">Rahula, W. (1974). <i>What the Buddha Taught</i>.</li>
+        <li id="ref-salewski2023">Salewski, L., Alaniz, S., Rio-Torto, I., Schulz, E., &amp; Akata, Z. (2023). In-context impersonation reveals large language models' strengths and biases. In <i>NeurIPS 2023</i>, 72044&ndash;72057. <a href="https://papers.nips.cc/paper_files/paper/2023/hash/e3fe7b34ba4f378df39cb12a97193f41-Abstract-Conference.html">NeurIPS</a>.</li>
+        <li id="ref-schlatter2026">Schlatter, J., Weinstein-Raun, B., &amp; Ladish, J. (2026). Incomplete tasks induce shutdown resistance in some frontier LLMs. <i>Transactions on Machine Learning Research</i>. <a href="https://openreview.net/forum?id=e4bTTqUnJH">OpenReview</a>.</li>
+        <li id="ref-shanahan2023">Shanahan, M., McDonell, K., &amp; Reynolds, L. (2023). Role play with large language models. <i>Nature</i>, 623, 493&ndash;498. <a href="https://www.nature.com/articles/s41586-023-06647-8">Nature</a>.</li>
+        <li id="ref-sinha2026">Sinha, D. (2026). SycoBench-600: Measuring sycophancy and correction selectivity in LLM assistants. In <i>Findings of ACL 2026</i>, 35278&ndash;35284. <a href="https://aclanthology.org/2026.findings-acl.1759/">ACL Anthology</a>.</li>
+        <li id="ref-turpin2023">Turpin, M., Michael, J., Perez, E., &amp; Bowman, S. R. (2023). Language models don't always say what they think: Unfaithful explanations in chain-of-thought prompting. In <i>NeurIPS 2023</i>. <a href="https://proceedings.neurips.cc/paper_files/paper/2023/file/ed3fea9033a80fea1376299fa7863f4a-Paper-Conference.pdf">PDF</a>.</li>
+        <li id="ref-wang2024">Wang, Y., Ma, X., Zhang, G., et al. (2024). MMLU-Pro: A more robust and challenging multi-task language understanding benchmark. In <i>NeurIPS 2024 Datasets and Benchmarks Track</i>. <a href="https://proceedings.neurips.cc/paper_files/paper/2024/file/ad236edc564f3e3156e1b2feafb99a24-Paper-Datasets_and_Benchmarks_Track.pdf">PDF</a>.</li>
+        <li id="ref-zheng2024">Zheng, M., Pei, J., Logeswaran, L., Lee, M., &amp; Jurgens, D. (2024). When &ldquo;a helpful assistant&rdquo; is not really helpful: Personas in system prompts do not improve performances of large language models. In <i>Findings of EMNLP 2024</i>, 15126&ndash;15154. <a href="https://aclanthology.org/2024.findings-emnlp.888/">ACL Anthology</a>.</li>
+    </ol>
+</article>
