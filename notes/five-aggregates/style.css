@@ -1,0 +1,55 @@
+/* Five-aggregates research note: page-only styles on top of /assets/css/main.css (Dither Lab theme).
+   Mirrors the demo pages (demos/focal/style.css): tiles, boxes, and prose/table rules for a long-form note. */
+.fa-muted { color: var(--text-muted); }
+.fa-small { font-size: 0.85rem; line-height: 1.45; }
+.fa-after { margin-top: 1rem; margin-bottom: 0; }
+.fa-home { color: var(--text-muted); text-decoration: none; text-transform: none; letter-spacing: 0; }
+.fa-home:hover { color: var(--accent); }
+
+/* headline tiles */
+.fa-stats { list-style: none; margin: 0 0 1.25rem; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.fa-stats li { background: #fff; border: 2px solid #000; box-shadow: 5px 5px 0 var(--accent); padding: 0.8rem 0.9rem; display: flex; flex-direction: column; gap: 0.3rem; }
+.fa-stats b { font-family: 'Silkscreen', monospace; font-weight: 400; font-size: 1.6rem; line-height: 1.1; color: var(--accent); }
+.fa-stats span { font-size: 0.88rem; line-height: 1.4; color: var(--text-muted); }
+
+/* prose */
+.fa-prose p { max-width: 820px; font-size: 1rem; line-height: 1.6; margin: 0 0 1rem; }
+.fa-prose p:last-child { margin-bottom: 0; }
+.fa-prose p a, .fa-prose li a, .fa-refs a { color: inherit; text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 2px; }
+.fa-prose p a:hover, .fa-prose li a:hover, .fa-refs a:hover { color: var(--accent); }
+.fa-prose .res-h3 { margin-top: 1.4rem; }
+.fa-prose .res-h3:first-child { margin-top: 0; }
+.fa-prose .res-bullets, .fa-prose .res-steps { max-width: 820px; margin-bottom: 1rem; }
+.fa-prose .res-steps li { margin-bottom: 0.2rem; }
+.fa-experiments li { margin-bottom: 0.6rem; }
+.fa-caption { font-size: 0.85rem; line-height: 1.45; color: var(--text-muted); margin-top: -0.4rem; }
+
+/* tables */
+.fa-tablewrap { max-width: 100%; overflow-x: auto; margin: 0 0 1rem; }
+.fa-table { width: 100%; min-width: 560px; border-collapse: collapse; background: #fff; border: 2px solid #000; box-shadow: 5px 5px 0 var(--accent); font-size: 0.92rem; line-height: 1.45; }
+.fa-table th { font-family: 'Silkscreen', monospace; font-weight: 400; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.3px; text-align: left; padding: 0.55rem 0.65rem; background: var(--bg-subtle); border-bottom: 2px solid #000; }
+.fa-table td { padding: 0.55rem 0.65rem; vertical-align: top; border-top: 1px solid #000; }
+.fa-table td:first-child { white-space: nowrap; font-weight: 600; }
+.fa-table tbody tr:first-child td { border-top: 0; }
+
+/* boxes */
+.fa-box { max-width: 820px; background: #fff; border: 2px solid #000; box-shadow: 5px 5px 0 var(--accent); padding: 0.9rem 1rem; margin: 1.25rem 0 0; }
+.fa-box .res-h3 { margin: 0 0 0.6rem; }
+.fa-box .res-steps { margin-bottom: 0; }
+.fa-box p { margin: 0; }
+.fa-box p.fa-after { margin-top: 1rem; }
+
+/* references */
+.fa-refs { max-width: 820px; margin: 0; padding-left: 1.6rem; font-size: 0.88rem; line-height: 1.45; display: grid; gap: 0.4rem; }
+.fa-refs li { padding-left: 0.2rem; }
+.fa-refs li:target { background: var(--bg-subtle); outline: 2px solid var(--accent); outline-offset: 3px; }
+
+@media (max-width: 860px) {
+  .fa-stats { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .fa-stats { grid-template-columns: 1fr; }
+  .fa-stats b { font-size: 1.3rem; }
+  .fa-table { box-shadow: 4px 4px 0 var(--accent); }
+  .fa-table td:first-child { white-space: normal; }
+}
